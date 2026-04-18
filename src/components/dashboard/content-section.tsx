@@ -21,6 +21,7 @@ import {
   ChevronDown,
   ChevronUp,
   Send,
+  Heart,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ interface Post {
   isLocked?: boolean;
   isPinned?: boolean;
   isReposted?: boolean;
+  isLiked?: boolean;
   repostsCount?: number;
   price?: number;
   media?: Array<{ type?: string; url?: string }>;
@@ -106,6 +108,10 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [commentsLoading, setCommentsLoading] = useState<string | null>(null);
   const [newCommentText, setNewCommentText] = useState("");
   const [postingComment, setPostingComment] = useState<string | null>(null);
+  const [likingId, setLikingId] = useState<string | null>(null);
+  const [likesDialogPostId, setLikesDialogPostId] = useState<string | null>(null);
+  const [likersList, setLikersList] = useState<Array<{ id: string; name: string; avatar?: string }>>([]);
+  const [likersLoading, setLikersLoading] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -597,6 +603,72 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
   };
 
+  // --- Likes ---
+  const handleToggleLike = async (postId: string, currentlyLiked: boolean) => {
+    setLikingId(postId);
+    try {
+      if (currentlyLiked) {
+        const res = await fetch(`/api/fanvue/posts/${postId}/likes`, { method: "DELETE" });
+        if (res.ok || res.status === 204) {
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === postId
+                ? { ...p, isLiked: false, likesCount: Math.max(0, (p.likesCount || 0) - 1) }
+                : p
+            )
+          );
+        } else {
+          toast.error("Failed to unlike");
+        }
+      } else {
+        const res = await fetch(`/api/fanvue/posts/${postId}/likes`, { method: "POST" });
+        if (res.ok) {
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === postId
+                ? { ...p, isLiked: true, likesCount: (p.likesCount || 0) + 1 }
+                : p
+            )
+          );
+        } else {
+          toast.error("Failed to like");
+        }
+      }
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setLikingId(null);
+    }
+  };
+
+  const handleViewLikes = async (postId: string) => {
+    setLikesDialogPostId(postId);
+    setLikersLoading(true);
+    try {
+      const res = await fetch(`/api/fanvue/posts/${postId}/likes`);
+      if (res.ok) {
+        const data = await res.json() as { data?: Array<{ id: string; name?: string; username?: string; avatar?: string }> };
+        const list = Array.isArray(data?.data) ? data.data : [];
+        setLikersList(list.map((u) => ({ id: u.id, name: u.name || u.username || "Unknown", avatar: u.avatar })));
+      } else {
+        // Demo likers
+        const names = ["Alex", "Jordan", "Sam", "Taylor", "Morgan", "Casey", "Riley", "Quinn"];
+        const seed = parseInt(postId, 10) || 1;
+        const count = (seed * 7 + 3) % 8 + 3;
+        setLikersList(
+          Array.from({ length: count }, (_, i) => ({
+            id: `${postId}-l${i}`,
+            name: names[(seed + i) % names.length],
+          }))
+        );
+      }
+    } catch {
+      setLikersList([]);
+    } finally {
+      setLikersLoading(false);
+    }
+  };
+
   const handleDeletePost = async (postId: string) => {
     setDeletingId(postId);
     try {
@@ -936,10 +1008,27 @@ export function ContentSection({ connected }: { connected: boolean }) {
               </p>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    {post.likesCount || 0}
-                  </span>
+                  <button
+                    className={`flex items-center gap-1 transition-colors ${post.isLiked ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"}`}
+                    onClick={(e) => { e.stopPropagation(); handleToggleLike(post.id, !!post.isLiked); }}
+                    disabled={likingId === post.id}
+                    title={post.isLiked ? "Unlike" : "Like"}
+                  >
+                    {likingId === post.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Heart className={`w-3 h-3 ${post.isLiked ? "fill-current" : ""}`} />
+                    )}
+                    {(post.likesCount ?? 0) > 0 && (
+                      <span
+                        className="cursor-pointer hover:underline"
+                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleViewLikes(post.id); }}
+                        title="View likes"
+                      >
+                        {post.likesCount}
+                      </span>
+                    )}
+                  </button>
                   <button
                     className="flex items-center gap-1 hover:text-primary transition-colors"
                     onClick={(e) => { e.stopPropagation(); handleToggleComments(post.id); }}
@@ -1052,6 +1141,38 @@ export function ContentSection({ connected }: { connected: boolean }) {
           </Card>
         ))}
       </div>
+
+      {/* Likes Dialog */}
+      <Dialog open={!!likesDialogPostId} onOpenChange={(open) => { if (!open) setLikesDialogPostId(null); }}>
+        <DialogContent className="bg-card border-border max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Likes</DialogTitle>
+          </DialogHeader>
+          <div className="mt-3 max-h-64 overflow-y-auto">
+            {likersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-xs text-muted-foreground ml-2">Loading likes...</span>
+              </div>
+            ) : likersList.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">No likes yet</p>
+            ) : (
+              <div className="space-y-2">
+                {likersList.map((liker) => (
+                  <div key={liker.id} className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {liker.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-sm">{liker.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

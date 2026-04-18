@@ -174,9 +174,17 @@
   - ChevronDown/ChevronUp indica estado expandido/colapsado
   - Sonner toasts. Zero any, error:unknown
 
-- [ ] P2-4: Post Likes
-  - GET /posts/{uuid}/likes — ver likes
-  - Contador de likes real en cards
+- [x] P2-4: Post Likes ✅ RALPH-15
+  - GET /api/fanvue/posts/{uuid}/likes — ver lista de likers (via catch-all proxy)
+  - POST /api/fanvue/posts/{uuid}/likes — like post (via catch-all proxy)
+  - DELETE /api/fanvue/posts/{uuid}/likes — unlike post (via catch-all proxy)
+  - Modificado content-section.tsx: isLiked agregado a Post interface
+  - handleToggleLike: toggle POST/DELETE con optimistic update del counter
+  - Heart icon reemplaza Eye para likes — rose-500 fill cuando liked, muted cuando no
+  - Click en contador de likes → Dialog con lista de likers (handleViewLikes)
+  - Likes Dialog: avatar con inicial, nombre, max-h-64 scrollable, loading state
+  - Demo likers: generados deterministicamente por postId (3-10 por post)
+  - Sonner toasts. Zero any, error:unknown
 
 - [ ] P2-5: Post Tips
   - GET /posts/{uuid}/tips — ver tips de un post
@@ -402,7 +410,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 3 | 30% |
+| FASE 8 (P2) | 10 | 4 | 40% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -410,7 +418,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **15** | **25%** |
+| **TOTAL** | **59** | **16** | **27%** |
 
 ---
 

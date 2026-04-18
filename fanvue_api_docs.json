@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/integrations/n-8-n",
+    "name": "Fanvue API Documentation - n8n",
+    "snippet": "This node uses OAuth2 authentication with the Fanvue API . You'll need to configure OAuth2 credentials in n8n with your Fanvue API client ID and secret.",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://oauth.net/2",
+    "name": "OAuth 2.0 - OAuth.net",
+    "snippet": "OAuth 2.0 is the industry-standard protocol for authorization. OAuth 2.0 focuses on client developer simplicity while providing specific authorization flows.",
+    "host_name": "oauth.net",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developers.google.com/identity/protocols/oauth2",
+    "name": "Using OAuth 2.0 to Access Google APIs | Authorization",
+    "snippet": "The Google OAuth 2.0 endpoint supports applications that run on limited-input devices such as game consoles, video cameras, and printers. The authorization ...",
+    "host_name": "developers.google.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://swagger.io/docs/specification/v3_0/authentication/oauth2",
+    "name": "OAuth 2.0 | Swagger Docs",
+    "snippet": "Describing OAuth 2.0 Using... · About Scopes · Relative Endpoint URLs",
+    "host_name": "swagger.io",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://auth0.com/docs/authenticate/protocols/oauth",
+    "name": "OAuth 2.0 Authorization Framework - Auth0 Docs",
+    "snippet": "OAuth 2.0 uses two endpoints: the /authorize endpoint and the /oauth/token endpoint. ​. Authorization endpoint. The /authorize endpoint is used to interact with ...",
+    "host_name": "auth0.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://fusionauth.io/docs/lifecycle/authenticate-users/oauth/endpoints",
+    "name": "OAuth2 Endpoints | FusionAuth Docs",
+    "snippet": "This page details FusionAuth's OAuth2 endpoints. Learn about the Authorization Code grant, Implicit grant, and other OAuth2 grants.",
+    "host_name": "fusionauth.io",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://go.googlesource.com/oauth2/+/refs/heads/master/endpoints/endpoints.go",
+    "name": "endpoints/endpoints.go - oauth2 - Git at Google",
+    "snippet": "// Package endpoints provides constants for using OAuth2 to access various services. ... // Slack is the endpoint for Slack. //. // Documentation: https://api.",
+    "host_name": "go.googlesource.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.oauth.com/oauth2-servers/creating-documentation",
+    "name": "Creating Documentation - OAuth 2.0 Simplified",
+    "snippet": "Your authorization endpoint is where the users will be directed to begin the authorization flow. After the application obtains an authorization ...",
+    "host_name": "www.oauth.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.blog/2022/12/22/the-complete-guide-to-protecting-your-apis-with-oauth2",
+    "name": "The complete guide to protecting your APIs with OAuth2 (part 1)",
+    "snippet": "OAuth is one of many solutions you can use to protect your APIs and other resources. It allows users to securely delegate access to resources without sharing ...",
+    "host_name": "stackoverflow.blog",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://connect2id.com/products/server/docs/api",
+    "name": "Standard OAuth 2.0 / OpenID Connect endpoints - Connect2id",
+    "snippet": "The Connect2id server supports the following standard OAuth 2.0 server and OpenID Connect provider endpoints.",
+    "host_name": "connect2id.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

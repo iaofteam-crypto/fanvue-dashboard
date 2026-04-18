@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/crons/sync-fanvue",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/crons/sync-repo",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}

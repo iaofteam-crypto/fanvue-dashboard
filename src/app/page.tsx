@@ -91,6 +91,11 @@ const SmartListsSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const CustomListsSection = dynamic(
+  () => import("@/components/dashboard/custom-lists-section").then((m) => ({ default: m.CustomListsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -118,7 +123,8 @@ type Section =
   | "connection"
   | "insights"
   | "mass-messaging"
-  | "smart-lists";
+  | "smart-lists"
+  | "custom-lists";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -128,6 +134,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "insights", label: "Fan Insights", icon: Users },
   { id: "mass-messaging", label: "Mass Message", icon: Megaphone },
   { id: "smart-lists", label: "Smart Lists", icon: ListFilter },
+  { id: "custom-lists", label: "Custom Lists", icon: FolderOpen },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -322,6 +329,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Mass Messaging"><MassMessagingSection connected={connected} /></SectionErrorBoundary>;
       case "smart-lists":
         return <SectionErrorBoundary sectionName="Smart Lists"><SmartListsSection connected={connected} /></SectionErrorBoundary>;
+      case "custom-lists":
+        return <SectionErrorBoundary sectionName="Custom Lists"><CustomListsSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

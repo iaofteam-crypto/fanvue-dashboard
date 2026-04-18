@@ -121,14 +121,20 @@
   - Nuevo nav item "Smart Lists" con icono ListFilter en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P1-5: Custom Lists CRUD
-  - GET /chat-custom-lists — listar
-  - POST /chat-custom-lists — crear
-  - PATCH /chat-custom-lists/{id} — renombrar
-  - DELETE /chat-custom-lists/{id} — eliminar
-  - POST /chat-custom-lists/{id}/members — agregar
-  - DELETE /chat-custom-lists/{id}/members/{userId} — remover
-  - UI: CRUD completo con drag-and-drop para reordenar
+- [x] P1-5: Custom Lists CRUD ✅ RALPH-11
+  - Nuevo componente: `src/components/dashboard/custom-lists-section.tsx`
+  - GET /api/fanvue/chats/lists/custom — listar listas custom
+  - POST /api/fanvue/chats/lists/custom — crear lista (name + description)
+  - PATCH /api/fanvue/chats/lists/custom/{uuid} — renombrar lista
+  - DELETE /api/fanvue/chats/lists/custom/{uuid} — eliminar lista (con confirmacion)
+  - POST /api/fanvue/chats/lists/custom/{uuid}/members — agregar miembro (por userId)
+  - DELETE /api/fanvue/chats/lists/custom/{uuid}/members/{memberId} — remover miembro (con confirmacion)
+  - GET /api/fanvue/chats/lists/custom/{uuid} — ver miembros de lista
+  - UI: 2 views (overview grid + detail members). Overview: cards con nombre, descripcion, member count, fecha, hover actions (view/rename/delete), search. Create form inline. Rename inline (input + Enter/Esc). Delete confirmation destructive. Detail: member list con avatar, sub badge, msgs, spend, last active, addedAt, remove con confirmacion. Add member form (input userId). Info banner (Custom vs Smart lists). Summary footer.
+  - Demo data: 4 lists, 5 members por lista
+  - Nuevo nav item "Custom Lists" con icono FolderOpen en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
+  - **FASE 7 (P1) 100% COMPLETA** ✅
 
 ## FASE 8: P2 — Feature Parity vs Competidores
 
@@ -373,7 +379,7 @@
 | Fase | Total | Done | % |
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
-| FASE 7 (P1) | 5 | 4 | 80% |
+| FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
@@ -382,7 +388,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **11** | **19%** |
+| **TOTAL** | **59** | **12** | **20%** |
 
 ---
 

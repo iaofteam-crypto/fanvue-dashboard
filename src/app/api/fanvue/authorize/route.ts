@@ -23,9 +23,10 @@ export async function GET(request: NextRequest) {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Authorization failed";
     return NextResponse.json(
-      { error: error.message },
+      { error: msg },
       { status: 500 }
     );
   }

@@ -20,9 +20,10 @@ export async function GET() {
       scope: token.scope,
       lastUpdated: token.updatedAt,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Status check failed";
     return NextResponse.json(
-      { connected: false, error: error.message },
+      { connected: false, error: msg },
       { status: 500 }
     );
   }

@@ -1,8 +1,13 @@
 // GitHub Contents API client
+// All operations are graceful no-ops when GITHUB_TOKEN or GITHUB_REPO are not set.
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN!;
-const GITHUB_REPO = process.env.GITHUB_REPO!;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
+const GITHUB_REPO = process.env.GITHUB_REPO || "";
 const GITHUB_API = "https://api.github.com";
+
+export function isGitHubConfigured(): boolean {
+  return !!(GITHUB_TOKEN && GITHUB_REPO);
+}
 
 export interface GitHubFile {
   name: string;
@@ -29,6 +34,10 @@ export interface GitHubDirectory {
 }
 
 async function githubFetch(endpoint: string): Promise<any> {
+  if (!isGitHubConfigured()) {
+    throw new GitHubNotConfiguredError();
+  }
+
   const url = `${GITHUB_API}/repos/${GITHUB_REPO}${endpoint}`;
   const response = await fetch(url, {
     headers: {
@@ -44,6 +53,13 @@ async function githubFetch(endpoint: string): Promise<any> {
   }
 
   return response.json();
+}
+
+export class GitHubNotConfiguredError extends Error {
+  constructor() {
+    super("GitHub is not configured. Set GITHUB_TOKEN and GITHUB_REPO env vars.");
+    this.name = "GitHubNotConfiguredError";
+  }
 }
 
 export async function getFileContent(path: string): Promise<string> {

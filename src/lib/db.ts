@@ -38,12 +38,23 @@ interface DiscoveryRecord {
   updatedAt: string;
 }
 
+// Synced Fanvue data — keyed by endpoint name, stores raw API responses
+interface SyncedDataRecord {
+  id: string;
+  key: string; // e.g. "me", "chats", "posts", "earnings", etc.
+  data: unknown;
+  syncedAt: string;
+  status: "success" | "error";
+  error?: string;
+}
+
 // ─── In-Memory Store ────────────────────────────────────────────────
 
 const store = {
   tokens: new Map<string, OAuthTokenRecord>(),
   syncLogs: new Map<string, SyncLogRecord>(),
   discoveries: new Map<string, DiscoveryRecord>(),
+  syncedData: new Map<string, SyncedDataRecord>(),
 };
 
 // ─── KV Helper (Vercel KV) ──────────────────────────────────────────
@@ -211,6 +222,67 @@ export const db = {
 
       store.discoveries.set(where.id, record);
       return record;
+    },
+
+    async findMany(args?: { take?: number }): Promise<DiscoveryRecord[]> {
+      const all = Array.from(store.discoveries.values());
+      if (args?.take) return all.slice(0, args.take);
+      return all;
+    },
+  },
+
+  // ─── Synced Fanvue Data ──────────────────────────────────────────
+  // Stores raw API responses from sync operations for dashboard consumption
+
+  syncedData: {
+    async set(key: string, data: unknown): Promise<SyncedDataRecord> {
+      const now = new Date().toISOString();
+      const record: SyncedDataRecord = {
+        id: `synced_${key}`,
+        key,
+        data,
+        syncedAt: now,
+        status: "success",
+      };
+      store.syncedData.set(key, record);
+      await kvSet(`synced:${key}`, JSON.stringify(record), 86400); // 24h TTL
+      return record;
+    },
+
+    async setError(key: string, error: string): Promise<SyncedDataRecord> {
+      const now = new Date().toISOString();
+      const record: SyncedDataRecord = {
+        id: `synced_${key}`,
+        key,
+        data: null,
+        syncedAt: now,
+        status: "error",
+        error,
+      };
+      store.syncedData.set(key, record);
+      return record;
+    },
+
+    async get(key: string): Promise<SyncedDataRecord | null> {
+      // Try KV first
+      const kvVal = await kvGet(`synced:${key}`);
+      if (kvVal) {
+        return JSON.parse(kvVal);
+      }
+      return store.syncedData.get(key) || null;
+    },
+
+    async getAll(): Promise<Record<string, SyncedDataRecord>> {
+      // Return all synced data as a record
+      const result: Record<string, SyncedDataRecord> = {};
+      for (const [key, record] of store.syncedData) {
+        result[key] = record;
+      }
+      return result;
+    },
+
+    async getKeys(): Promise<string[]> {
+      return Array.from(store.syncedData.keys());
     },
   },
 };

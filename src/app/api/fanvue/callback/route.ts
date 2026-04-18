@@ -66,10 +66,11 @@ export async function GET(request: NextRequest) {
     response.cookies.delete("fanvue_oauth_state");
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("OAuth callback error:", error);
+    const msg = error instanceof Error ? error.message : "OAuth callback failed";
     return NextResponse.redirect(
-      new URL(`/?error=${encodeURIComponent(error.message)}`, request.url)
+      new URL(`/?error=${encodeURIComponent(msg)}`, request.url)
     );
   }
 }

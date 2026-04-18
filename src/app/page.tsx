@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
+import dynamic from "next/dynamic";
 import {
   LayoutDashboard,
   BarChart3,
@@ -27,15 +28,63 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
+// ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
-import { AnalyticsSection } from "@/components/dashboard/analytics-section";
-import { MessagesSection } from "@/components/dashboard/messages-section";
-import { ContentSection } from "@/components/dashboard/content-section";
-import { DiscoveriesSection } from "@/components/dashboard/discoveries-section";
-import { TasksSection } from "@/components/dashboard/tasks-section";
-import { AelianaChatSection } from "@/components/dashboard/aeliana-chat";
-import { RepoBrowserSection } from "@/components/dashboard/repo-browser";
-import { ConnectionSection } from "@/components/dashboard/connection-section";
+
+const AnalyticsSection = dynamic(
+  () => import("@/components/dashboard/analytics-section").then((m) => ({ default: m.AnalyticsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const MessagesSection = dynamic(
+  () => import("@/components/dashboard/messages-section").then((m) => ({ default: m.MessagesSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const ContentSection = dynamic(
+  () => import("@/components/dashboard/content-section").then((m) => ({ default: m.ContentSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const DiscoveriesSection = dynamic(
+  () => import("@/components/dashboard/discoveries-section").then((m) => ({ default: m.DiscoveriesSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const TasksSection = dynamic(
+  () => import("@/components/dashboard/tasks-section").then((m) => ({ default: m.TasksSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const AelianaChatSection = dynamic(
+  () => import("@/components/dashboard/aeliana-chat").then((m) => ({ default: m.AelianaChatSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const RepoBrowserSection = dynamic(
+  () => import("@/components/dashboard/repo-browser").then((m) => ({ default: m.RepoBrowserSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+const ConnectionSection = dynamic(
+  () => import("@/components/dashboard/connection-section").then((m) => ({ default: m.ConnectionSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
+// Skeleton loader for dynamically loaded sections
+function SectionSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-8 w-48 bg-muted rounded" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-24 bg-muted rounded-lg" />
+        ))}
+      </div>
+      <div className="h-64 bg-muted rounded-lg" />
+    </div>
+  );
+}
 
 type Section =
   | "dashboard"
@@ -107,7 +156,6 @@ function SidebarNav({
             >
               <item.icon className="w-4 h-4 flex-shrink-0" />
               <span className="flex-1 text-left">{item.label}</span>
-
             </button>
           ))}
         </nav>

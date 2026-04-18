@@ -66,9 +66,12 @@ export async function GET() {
 
       if (result.status === "fulfilled") {
         synced.push(endpointKey);
+        // ✅ FIX B3: Actually persist the fetched data
+        await db.syncedData.set(endpointKey, result.value.data);
       } else {
         const errorMsg = result.reason?.message || "unknown error";
         failed.push(`${endpointKey}(${errorMsg})`);
+        await db.syncedData.setError(endpointKey, errorMsg);
       }
     }
 

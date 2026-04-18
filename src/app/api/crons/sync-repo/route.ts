@@ -1,13 +1,25 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getFileContent } from "@/lib/github";
+import { getFileContent, isGitHubConfigured } from "@/lib/github";
 
 export async function GET() {
+  const syncLog = await db.syncLog.create({
+    type: "repo_cron",
+    status: "running",
+  });
+
   try {
-    const syncLog = await db.syncLog.create({
-      type: "repo_cron",
-      status: "running",
-    });
+    if (!isGitHubConfigured()) {
+      await db.syncLog.update({
+        where: { id: syncLog.id },
+        data: {
+          status: "skipped",
+          message: "GitHub not configured (GITHUB_TOKEN/GITHUB_REPO missing)",
+          finishedAt: new Date().toISOString(),
+        },
+      });
+      return NextResponse.json({ status: "skipped", reason: "github_not_configured" });
+    }
 
     try {
       // Try to fetch handoff.md and parse discoveries
@@ -44,17 +56,19 @@ export async function GET() {
           finishedAt: new Date().toISOString(),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Unknown error";
       await db.syncLog.update({
         where: { id: syncLog.id },
-        data: { status: "error", message: error.message, finishedAt: new Date().toISOString() },
+        data: { status: "error", message: msg, finishedAt: new Date().toISOString() },
       });
     }
 
     return NextResponse.json({ status: "completed" });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: error.message },
+      { error: msg },
       { status: 500 }
     );
   }

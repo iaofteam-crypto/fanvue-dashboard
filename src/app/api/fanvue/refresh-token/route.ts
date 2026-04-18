@@ -30,10 +30,11 @@ export async function POST() {
     });
 
     return NextResponse.json({ success: true, expiresIn: tokenData.expires_in });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Token refresh error:", error);
+    const msg = error instanceof Error ? error.message : "Token refresh failed";
     return NextResponse.json(
-      { error: error.message },
+      { error: msg },
       { status: 401 }
     );
   }

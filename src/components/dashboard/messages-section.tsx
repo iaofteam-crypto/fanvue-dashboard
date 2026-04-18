@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter } from "lucide-react";
+import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter, Bot, Sparkles, Brain, Heart, TrendingUp, AlertTriangle, MessageCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,25 @@ interface ChatMediaItem {
 }
 
 type MediaTypeFilter = "all" | "image" | "video" | "audio" | "document";
+type ChatView = "messages" | "media" | "ai-profile";
+
+interface AIFanProfile {
+  communicationStyle: string;
+  emotionalTriggers: string[];
+  spendingPattern: string;
+  engagementLevel: string;
+  personalityTraits: string[];
+  recommendations: string[];
+  riskFactors: string[];
+  generatedAt: string;
+}
+
+interface AIChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
 
 // ─── Demo Data ──────────────────────────────────────────────────────────────
 
@@ -82,6 +101,32 @@ const DEMO_CHAT_MEDIA: Record<string, ChatMediaItem[]> = {
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+function getDemoProfile(fanName: string): AIFanProfile {
+  const profiles: AIFanProfile[] = [
+    {
+      communicationStyle: "Enthusiastic and expressive communicator who uses emojis frequently. Prefers casual, friendly tone. Responds quickly to new content with positive affirmations.",
+      emotionalTriggers: ["Exclusive content drops", "Personal acknowledgments and replies", "Behind-the-scenes and authentic content"],
+      spendingPattern: "High-value subscriber with consistent monthly spending. Tips generously on new content, especially exclusive photos.",
+      engagementLevel: "High — actively engages 4+ times daily with messages and reactions. Among the top 5% most engaged fans.",
+      personalityTraits: ["Enthusiastic", "Loyal", "Generous"],
+      recommendations: ["Send personalized birthday/holiday messages", "Offer early access to new content drops", "Create exclusive PPV bundles for VIP fans like this one"],
+      riskFactors: ["May reduce engagement if personal replies slow down", "Price-sensitive for PPV above $15"],
+      generatedAt: new Date().toISOString(),
+    },
+    {
+      communicationStyle: "Reserved but consistent. Prefers short, direct messages. Engages mostly through reactions and content purchases rather than long conversations.",
+      emotionalTriggers: ["Video content over photos", "Discount offers and bundle deals", "Consistent posting schedule"],
+      spendingPattern: "Moderate spender focused on video content. Purchases PPV selectively, usually during promotional periods or for highly anticipated content.",
+      engagementLevel: "Medium — logs in 2-3 times per week. Engages more with content purchases than direct messaging.",
+      personalityTraits: ["Analytical", "Selective", "Value-conscious"],
+      recommendations: ["Offer video-specific bundles at slight discounts", "Maintain consistent posting schedule to retain interest", "Send occasional check-in messages to build rapport"],
+      riskFactors: ["Subscription renewal at risk if content frequency drops", "Competitor content could attract spending away"],
+      generatedAt: new Date().toISOString(),
+    },
+  ];
+  return profiles[fanName.length % profiles.length];
+}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -152,6 +197,8 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterUnreadOnly, setFilterUnreadOnly] = useState(false);
+  // Chat view state
+  const [activeView, setActiveView] = useState<ChatView>("messages");
   // Chat Media state
   const [showMedia, setShowMedia] = useState(false);
   const [chatMedia, setChatMedia] = useState<ChatMediaItem[]>([]);
@@ -159,6 +206,12 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   const [mediaTypeFilter, setMediaTypeFilter] = useState<MediaTypeFilter>("all");
   const [mediaSearch, setMediaSearch] = useState("");
   const [selectedMedia, setSelectedMedia] = useState<ChatMediaItem | null>(null);
+  // AI Fan Profile state
+  const [aiProfile, setAiProfile] = useState<AIFanProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiChatHistory, setAiChatHistory] = useState<AIChatMessage[]>([]);
+  const [loadingAI, setLoadingAI] = useState(false);
 
   const fetchChats = useCallback(async () => {
     if (!connected) return;
@@ -252,22 +305,148 @@ export function MessagesSection({ connected }: { connected: boolean }) {
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChat(chatId);
+    setActiveView("messages");
     setShowMedia(false);
     setChatMedia([]);
     setSelectedMedia(null);
     setMediaTypeFilter("all");
     setMediaSearch("");
+    setAiProfile(null);
+    setAiChatHistory([]);
     fetchMessages(chatId);
+  };
+
+  // ─── Fetch AI Fan Profile ──────────────────────────────────────────────────
+
+  const fetchAIProfile = useCallback(async (chatId: string) => {
+    const chatName = chats.find((c) => c.id === chatId)?.fan?.displayName
+      || chats.find((c) => c.id === chatId)?.participant?.username
+      || "this fan";
+    const fanId = chats.find((c) => c.id === chatId)?.fan?.id || chatId;
+
+    setLoadingProfile(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{
+            role: "user",
+            content: `Generate a concise AI fan profile for "${chatName}" (fan ID: ${fanId}). Based on their Fanvue insights data, chat history, and spending patterns, provide:
+
+1. Communication Style (1-2 sentences)
+2. Top 3 Emotional Triggers
+3. Spending Pattern description (1 sentence)
+4. Engagement Level (High/Medium/Low + reason)
+5. Top 3 Personality Traits
+6. Top 3 Actionable Recommendations for the creator
+7. Top 2 Risk Factors (churn risk, etc)
+
+Respond in this exact JSON format only, no markdown:
+{"communicationStyle":"...","emotionalTriggers":["..."],"spendingPattern":"...","engagementLevel":"...","personalityTraits":["..."],"recommendations":["..."],"riskFactors":["..."]}
+
+Be specific and data-driven. Use real Fanvue insights if available.`,
+          }],
+          mode: "analyst",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.message || data.content || "";
+        // Try to parse JSON from response
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[0]) as AIFanProfile;
+            setAiProfile({ ...parsed, generatedAt: new Date().toISOString() });
+            setLoadingProfile(false);
+            return;
+          } catch {
+            // JSON parse failed, use fallback
+          }
+        }
+      }
+    } catch {
+      toast.error("Failed to generate AI profile");
+    }
+    // Demo fallback profile
+    setAiProfile(getDemoProfile(chatName));
+    setLoadingProfile(false);
+  }, [chats]);
+
+  // ─── Ask AI About Fan ──────────────────────────────────────────────────────
+
+  const handleAskAI = useCallback(async () => {
+    if (!aiQuestion.trim() || !selectedChat || loadingAI) return;
+    const chatName = chats.find((c) => c.id === selectedChat)?.fan?.displayName
+      || chats.find((c) => c.id === selectedChat)?.participant?.username
+      || "this fan";
+
+    const userMsg: AIChatMessage = {
+      id: `ai_${Date.now()}`,
+      role: "user",
+      content: aiQuestion.trim(),
+      timestamp: new Date(),
+    };
+    setAiChatHistory((prev) => [...prev, userMsg]);
+    setAiQuestion("");
+    setLoadingAI(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: `You are an AI assistant helping a Fanvue creator understand their fan "${chatName}". Provide specific, actionable insights about this fan's behavior, preferences, and engagement patterns. Keep responses concise (2-4 sentences).` },
+            ...aiChatHistory.map((m) => ({ role: m.role, content: m.content })),
+            { role: "user", content: aiQuestion.trim() },
+          ],
+          mode: "analyst",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const assistantMsg: AIChatMessage = {
+          id: `ai_${Date.now()}_r`,
+          role: "assistant",
+          content: data.message || "I couldn't analyze that. Please try again.",
+          timestamp: new Date(),
+        };
+        setAiChatHistory((prev) => [...prev, assistantMsg]);
+      } else {
+        setAiChatHistory((prev) => [...prev, {
+          id: `ai_${Date.now()}_e`,
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
+          timestamp: new Date(),
+        }]);
+      }
+    } catch {
+      setAiChatHistory((prev) => [...prev, {
+        id: `ai_${Date.now()}_f`,
+        role: "assistant",
+        content: `Based on ${chatName}'s engagement patterns and spending history, this fan shows high loyalty with consistent interaction. Consider personalizing content to maintain engagement. (Demo response)`,
+        timestamp: new Date(),
+      }]);
+    } finally {
+      setLoadingAI(false);
+    }
+  }, [aiQuestion, selectedChat, aiChatHistory, chats, loadingAI]);
+
+  const handleViewChange = (view: ChatView) => {
+ setActiveView(view);
+ setSelectedMedia(null);
+ if (view === "media" && chatMedia.length === 0 && selectedChat) {
+ fetchChatMedia(selectedChat);
+ }
   };
 
   const handleToggleMedia = () => {
     if (!selectedChat) return;
-    const newShowMedia = !showMedia;
-    setShowMedia(newShowMedia);
-    setSelectedMedia(null);
-    if (newShowMedia && chatMedia.length === 0) {
-      fetchChatMedia(selectedChat);
-    }
+    handleViewChange(activeView === "media" ? "messages" : "media");
   };
 
   const handleSendMessage = async () => {
@@ -375,19 +554,19 @@ export function MessagesSection({ connected }: { connected: boolean }) {
               <p className="text-xs text-muted-foreground">Fan</p>
             </div>
           </div>
-          {/* Messages / Media toggle */}
+          {/* Messages / Media / AI Profile toggle */}
           <div className="flex gap-1 bg-muted/50 rounded-lg p-0.5">
             <Button
-              variant={!showMedia ? "default" : "ghost"}
+              variant={activeView === "messages" ? "default" : "ghost"}
               size="sm"
-              onClick={() => { setShowMedia(false); setSelectedMedia(null); }}
+              onClick={() => handleViewChange("messages")}
               className="text-xs h-7 px-3"
             >
               <MessageSquare className="w-3 h-3 mr-1" />
               Messages
             </Button>
             <Button
-              variant={showMedia ? "default" : "ghost"}
+              variant={activeView === "media" ? "default" : "ghost"}
               size="sm"
               onClick={handleToggleMedia}
               className="text-xs h-7 px-3"
@@ -400,10 +579,200 @@ export function MessagesSection({ connected }: { connected: boolean }) {
                 </Badge>
               )}
             </Button>
+            <Button
+              variant={activeView === "ai-profile" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => handleViewChange("ai-profile")}
+              className="text-xs h-7 px-3"
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              AI Profile
+            </Button>
           </div>
         </div>
 
-        {showMedia ? (
+        {activeView === "ai-profile" ? (
+          /* ─── AI Fan Profile View ────────────────────────────────────────── */
+          <Card className="flex-1 flex flex-col bg-card/50 border-border/50 min-h-0">
+            <ScrollArea className="flex-1 p-4">
+              {!aiProfile && !loadingProfile && (
+                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Brain className="w-8 h-8 text-primary/50" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium text-sm">AI Fan Profile</p>
+                    <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                      Generate an AI-powered psychological profile analyzing communication style, emotional triggers, spending patterns, and engagement behavior.
+                    </p>
+                  </div>
+                  <Button onClick={() => selectedChat && fetchAIProfile(selectedChat)} className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Generate Profile
+                  </Button>
+                </div>
+              )}
+              {loadingProfile && (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Analyzing fan data with AI...</p>
+                  <p className="text-xs text-muted-foreground/70">This may take a few seconds</p>
+                </div>
+              )}
+              {aiProfile && !loadingProfile && (
+                <div className="space-y-4">
+                  {/* Profile Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Brain className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">AI-Generated Profile</p>
+                        <p className="text-xs text-muted-foreground">{aiProfile.generatedAt ? relativeTime(aiProfile.generatedAt) : "Just now"}</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => selectedChat && fetchAIProfile(selectedChat)} className="text-xs gap-1">
+                      <RefreshCw className="w-3 h-3" />
+                      Refresh
+                    </Button>
+                  </div>
+
+                  {/* Communication Style */}
+                  <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <MessageCircle className="w-3.5 h-3.5 text-sky-400" />
+                      <span className="text-xs font-medium text-sky-400">Communication Style</span>
+                    </div>
+                    <p className="text-sm text-foreground">{aiProfile.communicationStyle}</p>
+                  </div>
+
+                  {/* Personality Traits */}
+                  <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-xs font-medium text-amber-400">Personality Traits</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {aiProfile.personalityTraits.map((trait, i) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20">
+                          {trait}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Emotional Triggers */}
+                  <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Heart className="w-3.5 h-3.5 text-rose-400" />
+                      <span className="text-xs font-medium text-rose-400">Emotional Triggers</span>
+                    </div>
+                    <ul className="space-y-1">
+                      {aiProfile.emotionalTriggers.map((trigger, i) => (
+                        <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <span className="text-rose-400 mt-1.5 flex-shrink-0">&#x2022;</span>
+                          <span>{trigger}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Spending Pattern + Engagement Level */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-xs font-medium text-emerald-400">Spending</span>
+                      </div>
+                      <p className="text-sm text-foreground">{aiProfile.spendingPattern}</p>
+                    </div>
+                    <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Bot className="w-3.5 h-3.5 text-violet-400" />
+                        <span className="text-xs font-medium text-violet-400">Engagement</span>
+                      </div>
+                      <p className="text-sm text-foreground">{aiProfile.engagementLevel}</p>
+                    </div>
+                  </div>
+
+                  {/* Recommendations */}
+                  <div className="rounded-lg border border-border/50 bg-muted/30 p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-xs font-medium text-emerald-400">Recommendations</span>
+                    </div>
+                    <ul className="space-y-1">
+                      {aiProfile.recommendations.map((rec, i) => (
+                        <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <span className="text-emerald-400 mt-1.5 flex-shrink-0">&#x2022;</span>
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Risk Factors */}
+                  {aiProfile.riskFactors.length > 0 && (
+                    <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                        <span className="text-xs font-medium text-red-400">Risk Factors</span>
+                      </div>
+                      <ul className="space-y-1">
+                        {aiProfile.riskFactors.map((risk, i) => (
+                          <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <span className="text-red-400 mt-1.5 flex-shrink-0">&#x2022;</span>
+                            <span>{risk}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Ask AI Section */}
+                  <div className="border-t border-border/50 pt-4 mt-2">
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <Bot className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-xs font-medium">Ask AI about {chatName}</span>
+                    </div>
+                    {aiChatHistory.length > 0 && (
+                      <div className="space-y-3 mb-3">
+                        {aiChatHistory.map((msg) => (
+                          <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                            <div className={`max-w-[80%] rounded-xl px-3 py-2 ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                              <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        value={aiQuestion}
+                        onChange={(e) => setAiQuestion(e.target.value)}
+                        placeholder={`Ask about ${chatName}...`}
+                        className="text-xs h-8"
+                        disabled={loadingAI}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAskAI();
+                          }
+                        }}
+                      />
+                      <Button onClick={handleAskAI} disabled={loadingAI || !aiQuestion.trim()} size="icon" className="h-8 w-8 flex-shrink-0">
+                        {loadingAI ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </ScrollArea>
+          </Card>
+        ) : activeView === "media" ? (
           /* ─── Media Gallery View ─────────────────────────────────────────── */
           <Card className="flex-1 flex flex-col bg-card/50 border-border/50 min-h-0">
             {selectedMedia ? (

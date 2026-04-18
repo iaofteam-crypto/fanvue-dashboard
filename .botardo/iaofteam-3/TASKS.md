@@ -273,11 +273,20 @@
 
 ## FASE 9: P3 — Features Avanzadas
 
-- [ ] P3-1: AI Fan Profiles (usando AELIANA + insights API)
-  - Analizar historial de chat + datos de insights
+- [x] P3-1: AI Fan Profiles ✅ RALPH-22
+  - Analizar historial de chat + datos de insights (via /api/chat endpoint con mode "analyst")
   - Generar perfil psicologico: estilo comunicacion, triggers emocionales, patrones de gasto
-  - Mostrar en sidebar del chat
-  - Opcion de "Ask AI about this fan"
+  - Modificado `messages-section.tsx`: nuevo tab "AI Profile" en chat detail (Messages/Media/AI Profile)
+  - fetchAIProfile(): POST /api/chat con prompt estructurado para generar JSON con 7 campos (communicationStyle, emotionalTriggers, spendingPattern, engagementLevel, personalityTraits, recommendations, riskFactors)
+  - JSON parsing con regex fallback del response
+  - Profile display: 6 secciones con iconos y colores (Communication sky, Traits amber, Triggers rose, Spending emerald, Engagement violet, Recommendations emerald, Risk red)
+  - Personality traits como badges, emotional triggers como bullet list
+  - Risk Factors en card rojo con AlertTriangle icon
+  - Refresh button para regenerar perfil
+  - "Ask AI about this fan" section: input + chat history con respuestas via /api/chat
+  - Demo profiles: 2 perfiles deterministicos por fan name length
+  - Demo AI responses cuando /api/chat no disponible
+  - Sonner toasts. Zero any, error:unknown
 
 - [ ] P3-2: A/B Testing para Mass Messages
   - Enviar variante A a 50% y variante B a 50%
@@ -469,14 +478,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 0 | 0% |
+| FASE 9 (P3) | 6 | 1 | 17% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **22** | **37%** |
+| **TOTAL** | **59** | **23** | **39%** |
 
 ---
 

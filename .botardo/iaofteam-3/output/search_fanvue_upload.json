@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/get-creator-upload-part-url",
+    "name": "Get signed URL for upload part | Fanvue API Documentation",
+    "snippet": "Return a presigned URL to upload a specific part number for creator's media upload session. Scopes required: write:creator, write:media.",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/introduction/welcome",
+    "name": "Welcome | Fanvue API Documentation",
+    "snippet": "The Fanvue API gives you direct access to your creator platform data and tools. Whether you're a content creator looking to build custom workflows or an ... Missing: presigned URL session",
+    "host_name": "api.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/vault/attach-media-to-vault-folder",
+    "name": "Add media to folder | Fanvue API Documentation",
+    "snippet": "Add one or more media items to the specified folder. Media items must belong to the authenticated user. Scope required: write:media. Missing: presigned upload",
+    "host_name": "api.fanvue.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/chats/list-media",
+    "name": "Get media from a chat | Fanvue API Documentation",
+    "snippet": "Returns a cursor-paginated list of media items shared between the authenticated user and the specified user. Missing: presigned upload",
+    "host_name": "api.fanvue.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/versions/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "Version Header. All API requests must include the X-Fanvue-API-Version header to specify which version of the API you want to use. Missing: presigned URL",
+    "host_name": "api.fanvue.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.browser-use.com/cloud/api-v2/files/agent-session-upload-file-presigned-url",
+    "name": "Agent Session Upload File Presigned Url - Browser Use Cloud",
+    "snippet": "Generate a secure presigned URL for uploading files to an agent session. Missing: Fanvue | Show results with: Fanvue",
+    "host_name": "docs.browser-use.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/authentication/quick-start",
+    "name": "Quick Start | Fanvue API Documentation",
+    "snippet": "Our starter kit provides: Pre-configured OAuth 2.0 flow with PKCE; Secure token management; Best practices built-in; Next.js template ready to deploy. Simply ... Missing: presigned | Show results with: presigned",
+    "host_name": "api.fanvue.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/llms.txt",
+    "name": "llms.txt - Fanvue",
+    "snippet": "# Fanvue API Documentation ## Docs - [Fanvue Developer Platform](https://api ... Media Upload](https://api.fanvue.com/docs/tutorials/multipart-media-upload ... Missing: presigned | Show results with: presigned",
+    "host_name": "api.fanvue.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html",
+    "name": "Download and upload objects with presigned URLs",
+    "snippet": "Use a presigned URL to share or upload objects in Amazon S3 without requiring AWS security credentials or permissions. Grant time-limited download and ... Missing: Fanvue | Show results with: Fanvue",
+    "host_name": "docs.aws.amazon.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dev.to/copubah/how-i-built-a-secure-file-upload-api-using-fastapi-and-aws-s3-presigned-urls-7eg",
+    "name": "How I Built a Secure File Upload API Using FastAPI and AWS S3",
+    "snippet": "1.The client requests a presigned upload URL from your FastAPI endpoint. 2.FastAPI calls S3 through boto3 to generate a signed URL that expires ...",
+    "host_name": "dev.to",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

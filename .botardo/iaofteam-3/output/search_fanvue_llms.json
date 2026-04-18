@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/llms.txt",
+    "name": "llms.txt",
+    "snippet": "... OpenAPI 3.1 specification for this API is available at: - [ OpenAPI JSON](https:// api . fanvue.com / openapi .json) - [ OpenAPI YAML](https:// api . fanvue.com / openapi . Read more",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/build-with-ai/docs-for-your-llm",
+    "name": "Docs For Your LLM | Fanvue API Documentation",
+    "snippet": "Our API documentation is available in text formats optimized for Large Language Models. Endpoints . Standard: http:// api . fanvue.com /docs/ llms . txt . Read more",
+    "host_name": "api.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.twilio.com/docs/llms.txt",
+    "name": "llms.txt",
+    "snippet": "Protect logins and step-up transactions with SMS, Voice, PushAuthentications, and TOTP through a simple API . Reduce fraud and increase user trust - follow these ... Read more",
+    "host_name": "www.twilio.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://apify.com/jakub.kopecky/llmstxt-generator/api/openapi",
+    "name": "llms.txt Generator OpenAPI definition",
+    "snippet": "8 Jan 2025 — The /llms.txt Generator 🕸️ extracts website content to create an llms.txt file for AI apps ✨ like LLM fine-tuning and indexing. Read more",
+    "host_name": "apify.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mintlify.com/docs/llms-full.txt",
+    "name": "Open the llms-full.txt for this site.",
+    "snippet": "Generate interactive API documentation from OpenAPI specification files with automatic endpoint pages, request builders, and navigation. OpenAPI is a ... Read more",
+    "host_name": "mintlify.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://alpaca.markets/llms.txt",
+    "name": "llms.txt - Alpaca",
+    "snippet": "Technical Tutorials : Introductory tutorials with code examples for various API endpoints to assist users in getting started. Users can sign up for free and ... Read more",
+    "host_name": "alpaca.markets",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/rylena/awesome-openclaw",
+    "name": "rylena/awesome-openclaw",
+    "snippet": "22 Feb 2026 — OpenClaw (formerly Moltbot, originally Clawdbot) is a free and open-source autonomous AI agent created by Peter Steinberger. Read more",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/SalvatoreRa/ML-news-of-the-week",
+    "name": "SalvatoreRa/ML-news-of-the-week: A collection",
+    "snippet": "This survey examines 183 papers to assess how LLMs are applied in AIOps, analyzing data sources, task types, methodologies, and evaluation strategies. It ... Read more",
+    "host_name": "github.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://apify.com/jakub.kopecky/llmstxt-generator/api",
+    "name": "llms.txt Generator API",
+    "snippet": "The / llms . txt Generator extracts website content to create an llms . txt file for AI apps like LLM fine-tuning and indexing. Read more",
+    "host_name": "apify.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://bestofai.com/allArticles",
+    "name": "All Articles",
+    "snippet": "Connect to databases, cloud storages, GraphQL, API endpoints , Airtable, Google sheets, OpenAI, etc and build apps using drag and drop application builder ... Read more",
+    "host_name": "bestofai.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

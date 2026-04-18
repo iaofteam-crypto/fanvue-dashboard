@@ -49,16 +49,20 @@
 7. ~~F2: Media upload~~ ✅ (needs rewrite for 3-step presigned URL)
 8. **ALL 38 AUDIT FINDINGS ADDRESSED** — zero remaining Fanvue tasks
 
-## Discovery: Fanvue API Full Map (HB#67)
+## Discovery: Fanvue API Full Map (HB#67 → HB#69 refined)
 - **llms.txt**: https://api.fanvue.com/docs/llms.txt — 70+ endpoints documented
 - **OpenAPI 3.1**: https://api.fanvue.com/openapi.json (auth required)
-- **Media upload is 3-step presigned URL flow** (not multipart POST)
-  1. POST /v1/media/upload-session → session ID
-  2. GET /v1/media/upload-session/:id/part-url → presigned S3 URL
-  3. PUT to presigned URL, then POST /v1/media/upload-session/:id/complete
-- **Undocumented features available**: Webhooks (6 events), Mass Messages, Smart Lists, Custom Lists, Vault Folders, Tracking Links, MCP Integration, Post pin/repost/comments, Chat Templates, Bulk Fan Insights
-- **Vercel Fluid Compute**: Automatic cold start optimization on Hobby plan
-- **F2 media upload needs rewrite** to use presigned URL pattern
+- **API Version**: `2025-06-26` (required header: `X-Fanvue-API-Version`)
+- **Media upload is 3-step presigned URL flow** (exact schemas in HB#69 output)
+  1. POST /media/uploads → {mediaUuid, uploadId}
+  2. GET /media/uploads/{uploadId}/parts/{partNumber}/url → presigned S3 URL → PUT chunk → collect ETag
+  3. PATCH /media/uploads/{uploadId} + {parts: [{ETag, PartNumber}]} → {status: "processing"}
+- **API Auth**: X-Fanvue-API-Key header (per-user, 1 per user, at fanvue.com/api-keys) + OAuth Bearer
+- **Webhooks**: 5 events (message-received, message-read, new-follower, new-subscriber, tip-received) + HMAC-SHA256 verification
+- **MCP Server**: `pip install fanvue-mcp` — official Python MCP for Claude/Cursor
+- **Undocumented features**: Mass Messages, Smart Lists, Custom Lists, Vault Folders, Tracking Links, Post pin/repost/comments, Chat Templates, Bulk Fan Insights
+- **Competitor**: FanvueModels CRM (50+ features, AI profiles, A/B testing, employee mgmt, desktop app)
+- **P0 ACTION**: Add X-Fanvue-API-Version header to proxy. Rewrite F2 media upload to 3-step flow.
 
 ## Variables de Entorno Vercel
 - FANVUE_CLIENT_ID
@@ -68,6 +72,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#69 (2026-04-19 00:00 BA): IA3 — API Deep Dive. Exact media upload schemas (3-step with OpenAPI spec), API versioning (2025-06-26), webhook verification, MCP server details, full endpoint map (60+ endpoints), competitive analysis (FanvueModels CRM 50+ features). P0: add version header + rewrite upload.
 - HB#68 (2026-04-18 23:30 BA): IA1 — Fanvue MCP, Webhooks, Upload Tutorial deep dive. v2 roadmap proposal written.
 - HB#67 (2026-04-18 22:30 BA): DISCOVERY — Fanvue API llms.txt (70+ endpoints), 3-step media upload, webhooks, MCP, vault. F2 needs rewrite.
 - HB#66 (2026-04-18 21:00 BA): F2 media upload (drag-drop, preview, multipart proxy) — ALL 38 audit items done

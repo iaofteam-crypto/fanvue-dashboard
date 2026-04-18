@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/webhooks/webhooks/webhooks-overview",
+    "name": "Webhooks Overview | Fanvue API Documentation",
+    "snippet": "Webhooks are a way for your app to receive live notifications of activity on your user's accounts. Currently we support 5 different event types:. Missing: 2025 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/introduction/welcome",
+    "name": "Welcome | Fanvue API Documentation",
+    "snippet": "The Fanvue API gives you direct access to your creator platform data and tools. Whether you're a content creator looking to build custom workflows or an ... Missing: events 2025 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/welcome",
+    "name": "Fanvue Developer Platform | Fanvue API Documentation",
+    "snippet": "Orchestrate creator workflows with n8n & MCP. Use n8n and MCP to connect Fanvue events and automate workflows on new subscribers, messages, renewals and churn. Missing: 2025 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/llms.txt",
+    "name": "llms.txt - Fanvue",
+    "snippet": "... creator tools. - [Welcome](https://api.fanvue.com/docs/introduction/welcome ... [Webhooks Overview](https://api.fanvue.com/docs/webhooks/webhooks ... Missing: events 2025 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/update-creator-post",
+    "name": "Update a post for a creator | Fanvue API Documentation",
+    "snippet": "Update an existing post on behalf of a creator. All fields are optional — only provided fields will be updated. Missing: events tools 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/webhooks/webhooks/message-received",
+    "name": "Message Received | Fanvue API Documentation",
+    "snippet": "Triggered when a new direct message is received in a creator's inbox. Payload. message : Details of the message (uuid, text, hasMedia, createdAt); messageUuid : ... Missing: tools 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/versions/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "The current version of the Fanvue API is 2025-06-26 . Version Header. All API requests must include the X-Fanvue-API-Version header to specify which version of ... Missing: events creator tools 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://en.wikipedia.org/wiki/Fanvue",
+    "name": "Fanvue - Wikipedia",
+    "snippet": "In 2025, Fanvue opened up their public developer API that lets third party applications to connect with Fanvue. In 2026, Fanvue added support for PDF as content ... Missing: webhooks events",
+    "host_name": "en.wikipedia.org",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/61559954104639/posts/well-build-your-ai-model-agency-give-you-20-hyper-realistic-digital-creators-and/122170590920331803",
+    "name": "We'll build your AI Model Agency, give you 20+ hyper-realistic digital",
+    "snippet": "We'll build your AI Model Agency, give you 20+ hyper-realistic digital creators, and if it doesn't generate profit — you don't pay.",
+    "host_name": "www.facebook.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/authentication/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "Authentication confirms who you are, ensuring that only authorized applications and users can access creator content and platform features. Access Control Missing: events tools 2025 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

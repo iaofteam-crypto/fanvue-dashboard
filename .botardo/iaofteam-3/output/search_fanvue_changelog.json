@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/versions/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "The current version of the Fanvue API is 2025-06-26 . Version Header. All API requests must include the X - Fanvue - API - Version header to specify which version of ...\nAPI versioning ensures backward compatibility and allows us to introduce improvements without breaking existing integrations. The current version of the Fanvue API is 2025-06-26.",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://legal.fanvue.com/api-policy",
+    "name": "API Access & Usage Policy",
+    "snippet": "Feb 5, 2026 — X - Fanvue - API - Version : the requested API Version (e.g. 2025-06-26 ). Requests must be made over HTTPS. Plain HTTP is not permitted. Clients must ...\n“ API Version ” means the required version identifier for the API, sent in the X-Fanvue-API-Version header. The value must follow the format YYYY-MM-DD (e.g. 2025-06-26).",
+    "host_name": "legal.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/update-creator-post",
+    "name": "Update a post for a creator | Fanvue API Documentation",
+    "snippet": "Update an existing post on behalf of a creator. All fields are optional — only provided fields will be updated.",
+    "host_name": "api.fanvue.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/chat-messages/send-message",
+    "name": "Send a message | Fanvue API Documentation",
+    "snippet": "Send a message to a user in an existing chat conversation. The message can include text, media attachments, and optional pricing for pay-to-view content.",
+    "host_name": "api.fanvue.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/chat-messages/list-messages",
+    "name": "Get messages from a chat | Fanvue API Documentation",
+    "snippet": "Returns a paginated list of text messages between the authenticated user and the specified user. Messages are ordered by creation date ( newest first).",
+    "host_name": "api.fanvue.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/viralcode/openwhale/blob/main/skills/fanvue/SKILL.md",
+    "name": "openwhale/skills/fanvue/SKILL.md at main · viralcode",
+    "snippet": "Fanvue API Skill Integrate with the Fanvue creator platform to manage chats, posts, subscribers, earnings insights, and media content.",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/introduction/welcome",
+    "name": "Welcome | Fanvue API Documentation",
+    "snippet": "Users authorize your application to access their data, and you receive time-limited access tokens to make API calls on their behalf. You can access user profiles, chat conversations, subscriber lists, and creator data through straightforward endpoints.",
+    "host_name": "api.fanvue.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/introduction/quick-start",
+    "name": "Quick Start | Fanvue API Documentation",
+    "snippet": "In a few minutes you’ll have a working Next.js app where users can “Login with Fanvue” using OAuth. We’ll start from the official Fanvue App Starter and run locally with pnpm. A Fanvue creator account with KYC completed — only creators can access the Builder area. Fans cannot create or publish apps. Use the template repository: Fanvue App Starter.",
+    "host_name": "api.fanvue.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/welcome",
+    "name": "Fanvue Developer Platform | Fanvue API Documentation",
+    "snippet": "Use n8n and MCP to connect Fanvue events and automate workflows on new subscribers, messages, renewals and churn. Automatically update your CRM, schedule post and notify teams - without manual work.",
+    "host_name": "api.fanvue.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://llmbase.ai/openclaw/fanvue",
+    "name": "Fanvue - OpenClaw AI Agent Skill | LLMBase",
+    "snippet": "All API requests go to: https://api.fanvue.com. These workflows are designed for AI agents automating Fanvue creator accounts. The basic /media endpoint only returns metadata. To get actual viewable URLs, use the variants query parameter:",
+    "host_name": "llmbase.ai",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

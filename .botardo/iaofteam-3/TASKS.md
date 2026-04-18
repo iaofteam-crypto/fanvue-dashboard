@@ -235,9 +235,22 @@
   - Preferencia de datos: dedicated insights API > sync-data fallback
   - Sonner toasts. Zero any, error:unknown
 
-- [ ] P2-9: Bulk Fan Insights
-  - GET /insights/bulk-fan-insights — insights de multiples fans
-  - Tabla con datos agregados
+- [x] P2-9: Bulk Fan Insights ✅ RALPH-20
+  - GET /insights/fans/bulk — insights de multiples fans (via catch-all proxy)
+  - Nuevo componente: `src/components/dashboard/bulk-fan-insights-section.tsx`
+  - 2 views: tabla principal (14 columnas) + detalle de fan seleccionado
+  - Tabla: rank, fan (avatar+nombre), total spent, LTV, engagement score (badge con color), mensajes, tips, PPV, tier (VIP amber/STD sky), risk badge (Active/Recent/Cooling/Cold), last active
+  - Sort por cualquier columna (toggle asc/desc) — spent, LTV, engagement, msgs, tips, PPV, last active
+  - Filter por tier: All, Active, Expired, VIP
+  - Search por nombre/username/id
+  - 5 stat cards resumen: total fans, total revenue, avg engagement, VIP count, at-risk count
+  - Risk scoring: dias inactivo → Active (0d emerald), Recent (1-2d sky), Cooling (3-5d amber), Cold (5d+ red)
+  - Engagement score badges con color por rango (80+ emerald, 60+ sky, 40+ amber, <40 red)
+  - Detail view: 4 stat cards + spending breakdown bars (subs/tips/PPV) + preferences panel
+  - Export CSV con headers y datos filtrados
+  - Demo data: 15 fans con datos realistas (gasto, LTV, engagement, riesgo, tier)
+  - Nuevo nav item "Bulk Insights" con icono UsersRound en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P2-10: Chat Media
   - GET /chats/{id}/media — media compartida en chat
@@ -441,7 +454,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 8 | 80% |
+| FASE 8 (P2) | 10 | 9 | 90% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -449,7 +462,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **20** | **34%** |
+| **TOTAL** | **59** | **21** | **36%** |
 
 ---
 

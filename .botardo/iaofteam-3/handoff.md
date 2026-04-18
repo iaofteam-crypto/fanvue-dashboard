@@ -64,6 +64,15 @@
 - **Competitor**: FanvueModels CRM (50+ features, AI profiles, A/B testing, employee mgmt, desktop app)
 - **P0 ACTION**: Add X-Fanvue-API-Version header to proxy. Rewrite F2 media upload to 3-step flow.
 
+## P0 Code Issues (HB#70 — IA5 Tech Analysis)
+Precise spec in `output/HB70-p0-implementation-spec.md`
+1. **CRITICAL**: Missing `X-Fanvue-API-Version: 2025-06-26` header on ALL Fanvue API calls (4 files, ~12 lines)
+2. **CRITICAL**: `FANVUE_API_BASE` may be wrong (`/v1` prefix vs documented no-prefix) — needs verification
+3. **CRITICAL**: Media upload uses wrong pattern (multipart POST vs 3-step presigned URL) — needs full rewrite
+4. **HIGH**: Missing PATCH handler in proxy (needed for complete-upload-session, update-post, update-chat)
+5. **HIGH**: No webhook endpoint (Fanvue supports 5 event types with HMAC-SHA256 verification)
+- **Estimated fix effort**: ~3 hours total (15 min for headers/URL, 2 hrs for upload rewrite, 45 min for PATCH+webhooks)
+
 ## Variables de Entorno Vercel
 - FANVUE_CLIENT_ID
 - FANVUE_CLIENT_SECRET
@@ -72,6 +81,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#70 (2026-04-19 00:30 BA): IA5 — Tech Analysis. Analyzed all 4 files that call Fanvue API. Found 4 critical issues: missing version header (all calls), wrong base URL (/v1), broken media upload (multipart vs presigned), missing PATCH handler. Wrote precise implementation spec with line numbers and code changes.
 - HB#69 (2026-04-19 00:00 BA): IA3 — API Deep Dive. Exact media upload schemas (3-step with OpenAPI spec), API versioning (2025-06-26), webhook verification, MCP server details, full endpoint map (60+ endpoints), competitive analysis (FanvueModels CRM 50+ features). P0: add version header + rewrite upload.
 - HB#68 (2026-04-18 23:30 BA): IA1 — Fanvue MCP, Webhooks, Upload Tutorial deep dive. v2 roadmap proposal written.
 - HB#67 (2026-04-18 22:30 BA): DISCOVERY — Fanvue API llms.txt (70+ endpoints), 3-step media upload, webhooks, MCP, vault. F2 needs rewrite.

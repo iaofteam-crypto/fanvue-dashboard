@@ -158,3 +158,57 @@ export async function DELETE(
     );
   }
 }
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ endpoint: string[] }> }
+) {
+  // Rate limit PATCH (30/min — write operation)
+  const rateLimit = checkRateLimit(request, { maxRequests: 30 });
+  if (!rateLimit.allowed) {
+    const retryAfter = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+    return NextResponse.json(
+      { error: "Too many API requests" },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
+  // CSRF check on PATCH
+  if (!verifyOrigin(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const { endpoint } = await params;
+    const accessToken = await getValidAccessToken(request);
+    const path = endpoint.join("/");
+    const url = `${FANVUE_API_BASE}/${path}`;
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "X-Fanvue-API-Version": FANVUE_API_VERSION,
+      },
+      body: JSON.stringify(await request.json()),
+    });
+
+    // Try to parse as JSON, fall back to text
+    const responseText = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = responseText;
+    }
+    return NextResponse.json(data, { status: response.status });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "";
+    const status = msg.includes("Not connected") ? 401 : 500;
+    return NextResponse.json(
+      { error: status === 401 ? msg : sanitizeErrorMessage(error) },
+      { status }
+    );
+  }
+}

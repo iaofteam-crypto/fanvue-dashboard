@@ -20,9 +20,11 @@
   - Versioning ahora via header (P0-1), no URL prefix
   - Spec: output/HB70-p0-implementation-spec.md Issue #2
 
-- [ ] P0-3: Agregar PATCH handler al Fanvue proxy
+- [x] P0-3: Agregar PATCH handler al Fanvue proxy ✅ RALPH-03
   - Archivo: `src/app/api/fanvue/[...endpoint]/route.ts`
-  - Con rate limiting (30/min) + CSRF + error sanitization
+  - Rate limiting (30/min) + CSRF + error sanitization
+  - JSON body con robust text→JSON fallback
+  - Habilita: complete-upload-session, update-post, update-chat
   - Spec: output/HB70-p0-implementation-spec.md Issue #4
 
 - [ ] P0-4: Crear endpoint `/api/fanvue/upload/route.ts` para 3-step media upload
@@ -324,7 +326,7 @@
 ## Progreso RALPH LOOP
 | Fase | Total | Done | % |
 |------|-------|------|---|
-| FASE 6 (P0) | 7 | 2 | 29% |
+| FASE 6 (P0) | 7 | 3 | 43% |
 | FASE 7 (P1) | 5 | 0 | 0% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
@@ -334,7 +336,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **2** | **3%** |
+| **TOTAL** | **59** | **3** | **5%** |
 
 ---
 

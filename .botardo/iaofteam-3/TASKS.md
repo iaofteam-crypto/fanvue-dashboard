@@ -58,5 +58,11 @@
 - [x] DELETE handler in Fanvue proxy (rate limit 30/min + CSRF)
 - [x] F5: Search conversations by name/message + unread-only filter toggle
 
+## Completados (HB#66)
+- [x] F2: Media upload — drag-and-drop zone, file validation (type + size), image/video preview
+- [x] F2: Two-step post creation: upload media via /api/fanvue/media/upload, then create post with mediaIds
+- [x] Fanvue proxy now handles multipart/form-data (streams body for uploads, JSON for everything else)
+
 ## Pendientes (prioridad)
-- [ ] Fix F2: Media upload en posts (multipart/form-data proxy)
+- [x] All audit tasks complete (38 findings → all addressed)
+- Productive behavior next cycles (IA1-IA7)

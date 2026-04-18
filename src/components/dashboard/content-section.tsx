@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
   ImageIcon,
@@ -13,6 +13,8 @@ import {
   FileText,
   Trash2,
   DollarSign,
+  Upload,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +52,23 @@ interface Post {
   media?: Array<{ type?: string; url?: string }>;
 }
 
+interface MediaFile {
+  file: File;
+  preview: string;
+  type: "image" | "video";
+}
+
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/mov", "video/quicktime"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (Vercel Hobby limit is 4.5MB body, but Fanvue may accept chunked)
+const MAX_FILES = 10;
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function ContentSection({ connected }: { connected: boolean }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,6 +76,11 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [creating, setCreating] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPosts = useCallback(async () => {
     if (!connected) return;
@@ -72,13 +96,12 @@ export function ContentSection({ connected }: { connected: boolean }) {
       }
     } catch {
       toast.error("Failed to load posts");
-      // ignore
     }
     // Demo data
     setPosts([
-      { id: "1", title: "Behind the scenes 📸", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
+      { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
       { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
-      { id: "3", title: "Premium photo set 🎨", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
+      { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
       { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, isLocked: false, createdAt: new Date(Date.now() - 345600000).toISOString() },
       { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, isLocked: false, createdAt: new Date().toISOString() },
     ]);
@@ -89,10 +112,116 @@ export function ContentSection({ connected }: { connected: boolean }) {
     fetchPosts();
   }, [fetchPosts]);
 
+  // --- Media helpers ---
+  const addFiles = useCallback((files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const valid: MediaFile[] = [];
+
+    for (const file of arr) {
+      if (mediaFiles.length + valid.length >= MAX_FILES) {
+        toast.error(`Maximum ${MAX_FILES} files allowed`);
+        break;
+      }
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type) && !ACCEPTED_VIDEO_TYPES.includes(file.type)) {
+        toast.error(`Unsupported file type: ${file.name}`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File too large: ${file.name} (${formatFileSize(file.size)}). Max ${formatFileSize(MAX_FILE_SIZE)}`);
+        continue;
+      }
+      const preview = URL.createObjectURL(file);
+      const type = ACCEPTED_IMAGE_TYPES.includes(file.type) ? "image" as const : "video" as const;
+      valid.push({ file, preview, type });
+
+      // Auto-set post type based on first media
+      if (newPost.type === "text" && type === "image") {
+        setNewPost((p) => ({ ...p, type: "photo" }));
+      } else if (newPost.type === "text" && type === "video") {
+        setNewPost((p) => ({ ...p, type: "video" }));
+      }
+    }
+
+    if (valid.length > 0) {
+      setMediaFiles((prev) => [...prev, ...valid]);
+    }
+  }, [mediaFiles.length, newPost.type]);
+
+  const removeFile = useCallback((index: number) => {
+    setMediaFiles((prev) => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
+
+  const resetDialog = useCallback(() => {
+    setNewPost({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
+    setMediaFiles([]);
+    setUploading(false);
+    setUploadProgress(0);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    if (e.dataTransfer.files.length > 0) {
+      addFiles(e.dataTransfer.files);
+    }
+  }, [addFiles]);
+
+  // --- Create post ---
   const handleCreatePost = async () => {
     setCreating(true);
     try {
-      const payload: Record<string, string | number> = {
+      let mediaIds: string[] = [];
+
+      // Step 1: Upload media if any
+      if (mediaFiles.length > 0) {
+        setUploading(true);
+        setUploadProgress(0);
+
+        for (let i = 0; i < mediaFiles.length; i++) {
+          setUploadProgress(Math.round(((i) / mediaFiles.length) * 100));
+          const formData = new FormData();
+          formData.append("file", mediaFiles[i].file);
+          formData.append("type", mediaFiles[i].type);
+
+          const uploadRes = await fetch("/api/fanvue/media/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            const mediaId = uploadData?.id || uploadData?.mediaId || uploadData?.data?.id;
+            if (mediaId) {
+              mediaIds.push(mediaId);
+            }
+          } else {
+            toast.error(`Failed to upload ${mediaFiles[i].file.name}`);
+          }
+        }
+
+        setUploadProgress(100);
+        setUploading(false);
+      }
+
+      // Step 2: Create post with media references
+      const payload: Record<string, string | number | string[]> = {
         title: newPost.title,
         content: newPost.content,
         type: newPost.type,
@@ -101,6 +230,10 @@ export function ContentSection({ connected }: { connected: boolean }) {
       if (newPost.accessLevel === "ppv" && newPost.price) {
         payload.price = parseFloat(newPost.price);
       }
+      if (mediaIds.length > 0) {
+        payload.mediaIds = mediaIds;
+      }
+
       const res = await fetch("/api/fanvue/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,7 +242,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
       if (res.ok) {
         toast.success("Post published successfully");
         setDialogOpen(false);
-        setNewPost({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
+        resetDialog();
         fetchPosts();
       } else {
         toast.error("Failed to publish post");
@@ -118,6 +251,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
       toast.error("Failed to create post");
     } finally {
       setCreating(false);
+      setUploading(false);
     }
   };
 
@@ -167,14 +301,20 @@ export function ContentSection({ connected }: { connected: boolean }) {
             Manage your posts and create new content
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            if (!open) resetDialog();
+            setDialogOpen(open);
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Plus className="w-4 h-4 mr-2" />
               New Post
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border">
+          <DialogContent className="bg-card border-border max-w-lg">
             <DialogHeader>
               <DialogTitle>Create New Post</DialogTitle>
             </DialogHeader>
@@ -187,6 +327,100 @@ export function ContentSection({ connected }: { connected: boolean }) {
                   onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                 />
               </div>
+
+              {/* Media Upload Zone */}
+              <div className="space-y-2">
+                <Label>Media</Label>
+                <div
+                  className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
+                    dragOver
+                      ? "border-primary bg-primary/5"
+                      : mediaFiles.length > 0
+                        ? "border-border/50"
+                        : "border-border hover:border-primary/50"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept={[...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES].join(",")}
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) addFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                  {mediaFiles.length === 0 ? (
+                    <div className="space-y-2 py-2">
+                      <Upload className="w-8 h-8 mx-auto text-muted-foreground/50" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Drop files here or click to upload
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">
+                          Images (JPG, PNG, GIF, WebP) and Videos (MP4, WebM, MOV)
+                        </p>
+                        <p className="text-xs text-muted-foreground/70">
+                          Max {formatFileSize(MAX_FILE_SIZE)} per file, up to {MAX_FILES} files
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {mediaFiles.map((mf, idx) => (
+                          <div
+                            key={`${mf.file.name}-${idx}`}
+                            className="relative group rounded-lg overflow-hidden border border-border/50 bg-muted/30"
+                          >
+                            {mf.type === "image" ? (
+                              <img
+                                src={mf.preview}
+                                alt={mf.file.name}
+                                className="w-20 h-20 object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 flex items-center justify-center bg-muted">
+                                <Video className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                            )}
+                            <button
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile(idx);
+                              }}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                            <p className="text-[10px] text-muted-foreground px-1 pb-1 truncate max-w-[80px]">
+                              {mf.file.name}
+                            </p>
+                          </div>
+                        ))}
+                        <button
+                          className="w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary/50 flex items-center justify-center transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                        >
+                          <Plus className="w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {mediaFiles.length} file{mediaFiles.length !== 1 ? "s" : ""} selected
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Content</Label>
                 <Textarea
@@ -249,10 +483,18 @@ export function ContentSection({ connected }: { connected: boolean }) {
               )}
               <Button
                 onClick={handleCreatePost}
-                disabled={creating || !newPost.title.trim() || (newPost.accessLevel === "ppv" && (!newPost.price || parseFloat(newPost.price) <= 0))}
+                disabled={
+                  creating || uploading || !newPost.title.trim() ||
+                  (newPost.accessLevel === "ppv" && (!newPost.price || parseFloat(newPost.price) <= 0))
+                }
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                {creating ? (
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Uploading media... {uploadProgress}%
+                  </>
+                ) : creating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Publishing...

@@ -67,19 +67,39 @@ export async function POST(
     const { endpoint } = await params;
     const accessToken = await getValidAccessToken(request);
     const path = endpoint.join("/");
-    const body = await request.json();
     const url = `${FANVUE_API_BASE}/${path}`;
+
+    const contentType = request.headers.get("content-type") || "";
+    const isMultipart = contentType.includes("multipart/form-data");
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    // For multipart, forward the raw body and let fetch set Content-Type with boundary
+    // For JSON, parse and re-stringify (ensures clean body)
+    const body = isMultipart
+      ? request.body
+      : JSON.stringify(await request.json());
+
+    if (!isMultipart) {
+      headers["Content-Type"] = "application/json";
+    }
 
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+      headers,
+      body,
     });
 
-    const data = await response.json();
+    // Try to parse as JSON, fall back to text
+    const responseText = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = responseText;
+    }
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "";

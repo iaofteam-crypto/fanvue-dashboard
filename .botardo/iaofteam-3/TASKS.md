@@ -4,6 +4,17 @@
 - [x] Aplicar fixes críticos de la auditoría (HB#57) — Fase 1 completa
 - [x] Conectar dashboards a datos reales — Fase 2 completa
 - [x] Token persistence — Todos los bugs críticos resueltos
+- [x] Fase 3 UX/Visual — Sonner toasts, error boundaries, empty states
+
+## Completados (HB#62)
+- [x] Fix A5: SectionErrorBoundary wrapping all 9 sections
+- [x] Fix F6: Sonner toasts replacing inert Radix Toaster
+- [x] Toast notifications in all 12 catch blocks
+- [x] app/error.tsx global error page
+- [x] app/loading.tsx loading spinner
+- [x] Empty states improved: icon + description in all sections
+- [x] Removed hardcoded className="dark" from <html>
+- [x] Sync Now shows success/error toast feedback
 
 ## Completados (HB#61)
 - [x] Fix B2: Token persistence con cookie httpOnly (cold start recovery)

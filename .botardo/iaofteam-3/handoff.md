@@ -40,10 +40,10 @@
 - ✅ B1/B3/B4/B8/A1/A2 + sync-data endpoint + TS strict
 
 ## Issues Pendientes
-1. A5: Error boundaries por sección
+1. ~~A5: Error boundaries por sección~~ ✅
 2. A6: Paginación en listas
 3. A7: Tree-shake shadcn components no usados
-4. F6: Toast notifications
+4. ~~F6: Toast notifications~~ ✅
 5. S1: Rate limiting
 6. F2-F5: Media upload, edit/delete, search
 
@@ -55,6 +55,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#62 (2026-04-18 18:30 BA): Fase 3 UX — Sonner toasts, error boundaries, empty states, error.tsx, loading.tsx
 - HB#61 (2026-04-18 17:00 BA): B2 token persistence (cookie-based), S3 disconnect cookie clear
 - HB#60 (2026-04-18 16:00 BA): B5/B6/B7/A4 — dashboards conectados a datos reales
 - HB#59 (2026-04-18 15:00 BA): B1/B3/B4/B8/A1/A2 fixes + sync-data endpoint

@@ -91,11 +91,19 @@
   - Demo data: 30 daily earnings points, 12 monthly, 7 spending records
   - Net earnings calculation (gross - refunds - chargebacks)
 
-- [ ] P1-3: Mass Messaging
-  - POST /chat-messages/mass — enviar a lista de fans
-  - GET /chat-messages/mass — listar mensajes masivos enviados
-  - DELETE /chat-messages/mass/{id} — eliminar
-  - UI: seleccionar fans, escribir mensaje, preview, enviar
+- [x] P1-3: Mass Messaging ✅ RALPH-09
+  - Nuevo componente: `src/components/dashboard/mass-messaging-section.tsx`
+  - Fetch smart lists: GET /api/fanvue/chats/lists/smart (4 built-in: all_fans, subscribers, expired_subscribers, top_spenders)
+  - Fetch custom lists: GET /api/fanvue/chats/lists/custom
+  - Send mass message: POST /api/fanvue/chats/mass-messages (text + mediaUuids + price + includedLists/excludedLists)
+  - List history: GET /api/fanvue/chat-messages/mass
+  - Delete mass message: DELETE /api/fanvue/chat-messages/mass/{id}
+  - List member preview: GET /api/fanvue/chats/lists/smart/{id} o /custom/{uuid}
+  - UI: 2 tabs (Compose/History), list selector con checkboxes, message composer, media UUID attachments, PPV price, exclusion lists, preview panel, confirmation dialog, history cards con status badges + delete
+  - Validation: min $2 PPV, media required for PPV, max 10 media, max 5000 chars
+  - Nuevo nav item "Mass Message" con icono Megaphone en sidebar
+  - Code-split via dynamic import, demo data fallback
+  - Zero any, error:unknown, Sonner toasts
 
 - [ ] P1-4: Smart Lists
   - GET /chat-smart-lists — obtener listas inteligentes
@@ -354,7 +362,7 @@
 | Fase | Total | Done | % |
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
-| FASE 7 (P1) | 5 | 2 | 40% |
+| FASE 7 (P1) | 5 | 3 | 60% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
@@ -363,7 +371,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **9** | **15%** |
+| **TOTAL** | **59** | **10** | **17%** |
 
 ---
 

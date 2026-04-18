@@ -17,6 +17,7 @@ import {
   Menu,
   Zap,
   Users,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,11 @@ const FanInsightsSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const MassMessagingSection = dynamic(
+  () => import("@/components/dashboard/mass-messaging-section").then((m) => ({ default: m.MassMessagingSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -104,7 +110,8 @@ type Section =
   | "aeliana"
   | "repo"
   | "connection"
-  | "insights";
+  | "insights"
+  | "mass-messaging";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -112,6 +119,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "content", label: "Content", icon: FileText },
   { id: "insights", label: "Fan Insights", icon: Users },
+  { id: "mass-messaging", label: "Mass Message", icon: Megaphone },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -302,6 +310,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Content"><ContentSection connected={connected} /></SectionErrorBoundary>;
       case "insights":
         return <SectionErrorBoundary sectionName="Fan Insights"><FanInsightsSection connected={connected} /></SectionErrorBoundary>;
+      case "mass-messaging":
+        return <SectionErrorBoundary sectionName="Mass Messaging"><MassMessagingSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Tag, Hash, Loader2, RefreshCw } from "lucide-react";
+import { Search, Filter, Tag, Hash, Loader2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +50,8 @@ export function DiscoveriesSection() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [hasRealData, setHasRealData] = useState(false);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const fetchDiscoveries = async () => {
     setLoading(true);
@@ -156,6 +158,13 @@ export function DiscoveriesSection() {
     });
   }, [discoveries, search, categoryFilter]);
 
+  // A6: Pagination
+  const totalPages = Math.ceil(filteredDiscoveries.length / PAGE_SIZE);
+  const paginatedDiscoveries = filteredDiscoveries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Reset page when filters change
+  useEffect(() => { setPage(1); }, [search, categoryFilter]);
+
   const statusColor = (status: string) => {
     switch (status) {
       case "implemented":
@@ -222,6 +231,11 @@ export function DiscoveriesSection() {
                 Demo data
               </Badge>
             )}
+            {totalPages > 1 && (
+              <Badge variant="outline" className="text-xs ml-auto">
+                Page {page} of {totalPages}
+              </Badge>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -253,7 +267,7 @@ export function DiscoveriesSection() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredDiscoveries.map((discovery) => (
+                    paginatedDiscoveries.map((discovery) => (
                       <TableRow
                         key={discovery.id}
                         className="border-border/30 hover:bg-muted/30 cursor-pointer"
@@ -303,6 +317,50 @@ export function DiscoveriesSection() {
               </Table>
             )}
           </ScrollArea>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border/30">
+              <p className="text-xs text-muted-foreground">
+                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredDiscoveries.length)} of {filteredDiscoveries.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="w-3 h-3" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                  .map((p, i, arr) => (
+                    <span key={p} className="flex items-center">
+                      {i > 0 && arr[i - 1] !== p - 1 && (
+                        <span className="text-xs text-muted-foreground px-1">...</span>
+                      )}
+                      <Button
+                        variant={p === page ? "default" : "outline"}
+                        size="sm"
+                        className="h-7 w-7 p-0 text-xs"
+                        onClick={() => setPage(p)}
+                      >
+                        {p}
+                      </Button>
+                    </span>
+                  ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  <ChevronRight className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

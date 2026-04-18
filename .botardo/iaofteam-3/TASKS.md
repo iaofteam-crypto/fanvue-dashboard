@@ -27,10 +27,11 @@
   - Habilita: complete-upload-session, update-post, update-chat
   - Spec: output/HB70-p0-implementation-spec.md Issue #4
 
-- [ ] P0-4: Crear endpoint `/api/fanvue/upload/route.ts` para 3-step media upload
-  - POST: crear upload session (POST /media/uploads)
-  - GET: obtener presigned URL (GET /media/uploads/{id}/parts/{n}/url)
-  - PATCH: completar session (PATCH /media/uploads/{id})
+- [x] P0-4: Crear endpoint `/api/fanvue/upload/route.ts` para 3-step media upload ✅ RALPH-04
+  - POST: crear upload session (POST /media/uploads) — input validation, rate limit 10/min
+  - GET: obtener presigned URL (GET /media/uploads/{id}/parts/{n}/url) — query param validation, rate limit 60/min
+  - PATCH: completar session (PATCH /media/uploads/{id}) — parts array validation, rate limit 10/min
+  - CSRF en POST y PATCH. Zod-free validation inline. Zero any.
   - Spec: output/HB70-p0-implementation-spec.md Issue #3
 
 - [ ] P0-5: Rewrite media upload en content-section.tsx — 3-step presigned URL flow
@@ -326,7 +327,7 @@
 ## Progreso RALPH LOOP
 | Fase | Total | Done | % |
 |------|-------|------|---|
-| FASE 6 (P0) | 7 | 3 | 43% |
+| FASE 6 (P0) | 7 | 4 | 57% |
 | FASE 7 (P1) | 5 | 0 | 0% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
@@ -336,7 +337,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **3** | **5%** |
+| **TOTAL** | **59** | **4** | **7%** |
 
 ---
 

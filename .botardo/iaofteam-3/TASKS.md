@@ -252,10 +252,24 @@
   - Nuevo nav item "Bulk Insights" con icono UsersRound en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P2-10: Chat Media
-  - GET /chats/{id}/media — media compartida en chat
-  - GET /chat-messages/{id}/media — resolver media UUIDs
-  - Gallery de media en cada conversacion
+- [x] P2-10: Chat Media ✅ RALPH-21
+  - GET /chats/{id}/media — media compartida en chat (via catch-all proxy)
+  - GET /chat-messages/{id}/media — resolver media UUIDs (via catch-all proxy)
+  - Modificado `messages-section.tsx`: nuevo Media tab en chat detail view
+  - Toggle Messages/Media en chat header con media count badge
+  - Media gallery grid responsive (2-5 columnas) con gradientes por tipo
+  - Type badges: image (sky), video (violet), audio (amber), document (emerald)
+  - Duration badge para video/audio, size badge, type icon en cada card
+  - Filter por tipo: All/Images/Video/Audio/Docs con counters
+  - Search por filename o sender name
+  - Media detail view: metadata panel (sender, shared date, size, UUID, dimensions, mime type)
+  - Preview placeholder con gradiente e icono por tipo
+  - Summary footer con counts por tipo
+  - resolveMessageMedia() helper para resolver UUIDs por mensaje
+  - Media count badges en chat list items (inbox)
+  - Demo data: 5 chats con 15 media items totales (images, videos, audio, PDFs)
+  - Zero any, error:unknown, Sonner toasts
+  - **FASE 8 (P2) 100% COMPLETA** ✅
 
 ## FASE 9: P3 — Features Avanzadas
 
@@ -454,7 +468,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 9 | 90% |
+| FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -462,7 +476,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **21** | **36%** |
+| **TOTAL** | **59** | **22** | **37%** |
 
 ---
 

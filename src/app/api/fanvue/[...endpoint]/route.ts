@@ -70,28 +70,14 @@ export async function POST(
     const path = endpoint.join("/");
     const url = `${FANVUE_API_BASE}/${path}`;
 
-    const contentType = request.headers.get("content-type") || "";
-    const isMultipart = contentType.includes("multipart/form-data");
-
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${accessToken}`,
-      "X-Fanvue-API-Version": FANVUE_API_VERSION,
-    };
-
-    // For multipart, forward the raw body and let fetch set Content-Type with boundary
-    // For JSON, parse and re-stringify (ensures clean body)
-    const body = isMultipart
-      ? request.body
-      : JSON.stringify(await request.json());
-
-    if (!isMultipart) {
-      headers["Content-Type"] = "application/json";
-    }
-
     const response = await fetch(url, {
       method: "POST",
-      headers,
-      body,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "X-Fanvue-API-Version": FANVUE_API_VERSION,
+      },
+      body: JSON.stringify(await request.json()),
     });
 
     // Try to parse as JSON, fall back to text

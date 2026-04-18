@@ -34,11 +34,16 @@
   - CSRF en POST y PATCH. Zod-free validation inline. Zero any.
   - Spec: output/HB70-p0-implementation-spec.md Issue #3
 
-- [ ] P0-5: Rewrite media upload en content-section.tsx — 3-step presigned URL flow
-  - Reemplazar FormData loop por chunked upload con presigned URLs
-  - Upload directo a S3 (no pasar por nuestro server)
-  - Progreso por chunk, paralelismo 3 chunks, retry en fallo
-  - Remover multipart handling del proxy POST handler
+- [x] P0-5: Rewrite media upload en content-section.tsx — 3-step presigned URL flow ✅ RALPH-05
+  - Nuevo `uploadMediaFile()`: 3-step (create session → chunked S3 upload → complete)
+  - Chunks de 10MB, paralelismo 3 chunks, retry 3 veces con exponential backoff
+  - Upload directo a S3 (no pasa por nuestro server)
+  - Progreso por chunk (per-chunk + per-file combined)
+  - MAX_FILE_SIZE: 500MB (antes 10MB)
+  - Soporta audio + document ademas de image + video
+  - Removido multipart handling del proxy POST handler
+  - ETag parsing con quote removal
+  - Sonner toasts para cada error
   - Spec: output/HB70-p0-implementation-spec.md Issue #3
 
 - [ ] P0-6: Crear endpoint `/api/webhooks/fanvue/route.ts`
@@ -327,7 +332,7 @@
 ## Progreso RALPH LOOP
 | Fase | Total | Done | % |
 |------|-------|------|---|
-| FASE 6 (P0) | 7 | 4 | 57% |
+| FASE 6 (P0) | 7 | 5 | 71% |
 | FASE 7 (P1) | 5 | 0 | 0% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
@@ -337,7 +342,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **4** | **7%** |
+| **TOTAL** | **59** | **5** | **8%** |
 
 ---
 

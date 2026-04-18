@@ -55,13 +55,18 @@ interface Post {
 interface MediaFile {
   file: File;
   preview: string;
-  type: "image" | "video";
+  type: "image" | "video" | "audio" | "document";
 }
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/mov", "video/quicktime"];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (Vercel Hobby limit is 4.5MB body, but Fanvue may accept chunked)
+const ACCEPTED_AUDIO_TYPES = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/aac"];
+const ACCEPTED_DOC_TYPES = ["application/pdf", "application/zip"];
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB — chunks upload directly to S3
 const MAX_FILES = 10;
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
+const MAX_PARALLEL_CHUNKS = 3;
+const MAX_CHUNK_RETRIES = 3;
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -122,7 +127,8 @@ export function ContentSection({ connected }: { connected: boolean }) {
         toast.error(`Maximum ${MAX_FILES} files allowed`);
         break;
       }
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type) && !ACCEPTED_VIDEO_TYPES.includes(file.type)) {
+      const allAccepted = [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES, ...ACCEPTED_AUDIO_TYPES, ...ACCEPTED_DOC_TYPES];
+      if (!allAccepted.includes(file.type)) {
         toast.error(`Unsupported file type: ${file.name}`);
         continue;
       }
@@ -131,7 +137,11 @@ export function ContentSection({ connected }: { connected: boolean }) {
         continue;
       }
       const preview = URL.createObjectURL(file);
-      const type = ACCEPTED_IMAGE_TYPES.includes(file.type) ? "image" as const : "video" as const;
+      let type: "image" | "video" | "audio" | "document" = "image";
+      if (ACCEPTED_IMAGE_TYPES.includes(file.type)) type = "image";
+      else if (ACCEPTED_VIDEO_TYPES.includes(file.type)) type = "video";
+      else if (ACCEPTED_AUDIO_TYPES.includes(file.type)) type = "audio";
+      else type = "document";
       valid.push({ file, preview, type });
 
       // Auto-set post type based on first media
@@ -139,6 +149,8 @@ export function ContentSection({ connected }: { connected: boolean }) {
         setNewPost((p) => ({ ...p, type: "photo" }));
       } else if (newPost.type === "text" && type === "video") {
         setNewPost((p) => ({ ...p, type: "video" }));
+      } else if (newPost.type === "text" && type === "audio") {
+        setNewPost((p) => ({ ...p, type: "audio" }));
       }
     }
 
@@ -183,34 +195,174 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
   }, [addFiles]);
 
+  // --- 3-Step Chunked Media Upload (presigned URL flow) ---
+  const uploadMediaFile = useCallback(async (
+    file: File,
+    mediaType: "image" | "video" | "audio" | "document",
+    onProgress: (pct: number, status: string) => void
+  ): Promise<string | null> => {
+    try {
+      // Step 1: Create upload session
+      onProgress(0, `Starting upload: ${file.name}`);
+      const sessionRes = await fetch("/api/fanvue/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: file.name, filename: file.name, mediaType }),
+      });
+
+      if (!sessionRes.ok) {
+        const errText = await sessionRes.text();
+        toast.error(`Failed to start upload: ${sessionRes.status}`);
+        console.error("Upload session error:", errText);
+        return null;
+      }
+
+      const session = await sessionRes.json() as { mediaUuid?: string; uploadId?: string };
+      if (!session.mediaUuid || !session.uploadId) {
+        toast.error("Upload session returned invalid data");
+        return null;
+      }
+
+      const { mediaUuid, uploadId } = session;
+
+      // Step 2: Upload chunks via presigned S3 URLs
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const parts: Array<{ PartNumber: number; ETag: string }> = [];
+
+      // Process chunks with concurrency limit
+      const uploadChunk = async (chunkIndex: number): Promise<void> => {
+        const partNumber = chunkIndex + 1;
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+
+        // Get presigned URL with retry
+        let presignedUrl = "";
+        for (let attempt = 1; attempt <= MAX_CHUNK_RETRIES; attempt++) {
+          try {
+            const urlRes = await fetch(
+              `/api/fanvue/upload?uploadId=${encodeURIComponent(uploadId)}&partNumber=${partNumber}`
+            );
+            if (!urlRes.ok) {
+              throw new Error(`Presigned URL request failed: ${urlRes.status}`);
+            }
+            const urlData = await urlRes.json() as { url?: string };
+            if (!urlData.url) throw new Error("No URL in response");
+            presignedUrl = urlData.url;
+            break;
+          } catch (err: unknown) {
+            if (attempt === MAX_CHUNK_RETRIES) {
+              throw err;
+            }
+            // Wait before retry (exponential backoff: 500ms, 1s, 2s)
+            await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+          }
+        }
+
+        // Upload chunk directly to S3 with retry
+        for (let attempt = 1; attempt <= MAX_CHUNK_RETRIES; attempt++) {
+          try {
+            const s3Res = await fetch(presignedUrl, {
+              method: "PUT",
+              body: chunk,
+              headers: { "Content-Type": "application/octet-stream" },
+            });
+
+            if (!s3Res.ok) {
+              throw new Error(`S3 upload failed: ${s3Res.status}`);
+            }
+
+            const etag = s3Res.headers.get("ETag");
+            if (etag) {
+              // Remove surrounding quotes from ETag if present
+              parts[chunkIndex] = {
+                PartNumber: partNumber,
+                ETag: etag.replace(/^"|"$/g, ""),
+              };
+            }
+            break;
+          } catch (err: unknown) {
+            if (attempt === MAX_CHUNK_RETRIES) {
+              throw err;
+            }
+            await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+          }
+        }
+      };
+
+      // Upload chunks with parallelism limit
+      let completedChunks = 0;
+      const inFlight = new Set<Promise<void>>();
+
+      for (let i = 0; i < totalChunks; i++) {
+        // Wait if we have too many concurrent uploads
+        if (inFlight.size >= MAX_PARALLEL_CHUNKS) {
+          await Promise.race(inFlight);
+        }
+
+        const promise = uploadChunk(i).then(() => {
+          completedChunks++;
+          const pct = Math.round((completedChunks / totalChunks) * 100);
+          onProgress(pct, `Uploading ${file.name}: chunk ${completedChunks}/${totalChunks}`);
+        }).catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : "Unknown error";
+          throw new Error(`Chunk ${i + 1} failed: ${msg}`);
+        });
+
+        inFlight.add(promise);
+        promise.finally(() => inFlight.delete(promise));
+      }
+
+      // Wait for all remaining chunks
+      await Promise.all(inFlight);
+
+      // Step 3: Complete upload session
+      onProgress(95, "Finalizing upload...");
+      const completeRes = await fetch("/api/fanvue/upload", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uploadId, parts }),
+      });
+
+      if (!completeRes.ok) {
+        const errText = await completeRes.text();
+        toast.error(`Failed to complete upload: ${completeRes.status}`);
+        console.error("Upload complete error:", errText);
+        return null;
+      }
+
+      onProgress(100, "Upload complete");
+      return mediaUuid;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+      console.error("Upload error:", err);
+      return null;
+    }
+  }, []);
+
   // --- Create post ---
   const handleCreatePost = async () => {
     setCreating(true);
     try {
       let mediaIds: string[] = [];
 
-      // Step 1: Upload media if any
+      // Upload media using 3-step presigned URL flow
       if (mediaFiles.length > 0) {
         setUploading(true);
         setUploadProgress(0);
 
         for (let i = 0; i < mediaFiles.length; i++) {
-          setUploadProgress(Math.round(((i) / mediaFiles.length) * 100));
-          const formData = new FormData();
-          formData.append("file", mediaFiles[i].file);
-          formData.append("type", mediaFiles[i].type);
-
-          const uploadRes = await fetch("/api/fanvue/media/upload", {
-            method: "POST",
-            body: formData,
+          const basePct = Math.round((i / mediaFiles.length) * 100);
+          const mediaUuid = await uploadMediaFile(mediaFiles[i].file, mediaFiles[i].type, (chunkPct, _status) => {
+            // Combine file-level and chunk-level progress
+            const fileWeight = 100 / mediaFiles.length;
+            const overallPct = Math.round(basePct + (chunkPct / 100) * fileWeight);
+            setUploadProgress(Math.min(overallPct, 99));
           });
 
-          if (uploadRes.ok) {
-            const uploadData = await uploadRes.json();
-            const mediaId = uploadData?.id || uploadData?.mediaId || uploadData?.data?.id;
-            if (mediaId) {
-              mediaIds.push(mediaId);
-            }
+          if (mediaUuid) {
+            mediaIds.push(mediaUuid);
           } else {
             toast.error(`Failed to upload ${mediaFiles[i].file.name}`);
           }
@@ -348,7 +500,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept={[...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES].join(",")}
+                    accept={[...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES, ...ACCEPTED_AUDIO_TYPES, ...ACCEPTED_DOC_TYPES].join(",")}
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files) addFiles(e.target.files);
@@ -363,7 +515,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
                           Drop files here or click to upload
                         </p>
                         <p className="text-xs text-muted-foreground/70 mt-1">
-                          Images (JPG, PNG, GIF, WebP) and Videos (MP4, WebM, MOV)
+                          Images (JPG, PNG, GIF, WebP), Videos (MP4, WebM, MOV), Audio, Documents
                         </p>
                         <p className="text-xs text-muted-foreground/70">
                           Max {formatFileSize(MAX_FILE_SIZE)} per file, up to {MAX_FILES} files

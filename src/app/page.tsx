@@ -18,6 +18,7 @@ import {
   Zap,
   Users,
   Megaphone,
+  ListFilter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +86,11 @@ const MassMessagingSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const SmartListsSection = dynamic(
+  () => import("@/components/dashboard/smart-lists-section").then((m) => ({ default: m.SmartListsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -111,7 +117,8 @@ type Section =
   | "repo"
   | "connection"
   | "insights"
-  | "mass-messaging";
+  | "mass-messaging"
+  | "smart-lists";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -120,6 +127,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "content", label: "Content", icon: FileText },
   { id: "insights", label: "Fan Insights", icon: Users },
   { id: "mass-messaging", label: "Mass Message", icon: Megaphone },
+  { id: "smart-lists", label: "Smart Lists", icon: ListFilter },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -312,6 +320,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Fan Insights"><FanInsightsSection connected={connected} /></SectionErrorBoundary>;
       case "mass-messaging":
         return <SectionErrorBoundary sectionName="Mass Messaging"><MassMessagingSection connected={connected} /></SectionErrorBoundary>;
+      case "smart-lists":
+        return <SectionErrorBoundary sectionName="Smart Lists"><SmartListsSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

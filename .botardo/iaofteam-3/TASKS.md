@@ -105,10 +105,21 @@
   - Code-split via dynamic import, demo data fallback
   - Zero any, error:unknown, Sonner toasts
 
-- [ ] P1-4: Smart Lists
-  - GET /chat-smart-lists — obtener listas inteligentes
-  - GET /chat-smart-lists/{id}/members — ver miembros
-  - UI: panel de listas con conteo de miembros, filtro por lista
+- [x] P1-4: Smart Lists ✅ RALPH-10
+  - Nuevo componente: `src/components/dashboard/smart-lists-section.tsx`
+  - Fetch smart lists: GET /api/fanvue/chats/lists/smart
+  - Fetch members: GET /api/fanvue/chats/lists/smart/{listId}?page=&size=
+  - 4 built-in smart lists: all_fans, subscribers, expired_subscribers, top_spenders (con iconos y colores unicos)
+  - Overview: grid de cards con descripcion, member count, badge "Auto"
+  - Detail view: click into list → member list con stats bar (total members, total spend, active subs, avg engagement)
+  - Member rows: avatar, name, sub badge (Crown VIP/Standard), expired badge, message count, total spend, last active, engagement score bar
+  - Sort by name/spent/recent/engagement
+  - Search members
+  - Pagination (20 per page, numbered buttons)
+  - Quick Insights panel: 4 stat boxes con member counts por lista
+  - Demo data fallback: 20 realistic members per page, totals por lista
+  - Nuevo nav item "Smart Lists" con icono ListFilter en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P1-5: Custom Lists CRUD
   - GET /chat-custom-lists — listar
@@ -362,7 +373,7 @@
 | Fase | Total | Done | % |
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
-| FASE 7 (P1) | 5 | 3 | 60% |
+| FASE 7 (P1) | 5 | 4 | 80% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
@@ -371,7 +382,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **10** | **17%** |
+| **TOTAL** | **59** | **11** | **19%** |
 
 ---
 

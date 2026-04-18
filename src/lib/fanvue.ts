@@ -168,15 +168,15 @@ export async function getValidAccessToken(): Promise<string> {
     try {
       const data = await refreshAccessToken(token.refreshToken);
 
-      await db.oAuthToken.update(
-        { where: { id: "fanvue_primary" } },
-        {
+      await db.oAuthToken.update({
+        where: { id: "fanvue_primary" },
+        data: {
           accessToken: data.access_token,
           refreshToken: data.refresh_token || token.refreshToken,
           expiresIn: data.expires_in,
           expiresAt: new Date(Date.now() + data.expires_in * 1000).toISOString(),
         },
-      );
+      });
 
       return data.access_token;
     } catch {

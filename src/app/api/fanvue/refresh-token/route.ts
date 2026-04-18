@@ -24,7 +24,7 @@ export async function POST() {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token || token.refreshToken,
         expiresIn: tokenData.expires_in,
-        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
+        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
         scope: tokenData.scope,
       },
     });

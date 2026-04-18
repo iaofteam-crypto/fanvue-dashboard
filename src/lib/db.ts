@@ -103,35 +103,36 @@ export const db = {
     }: {
       where: { id: string };
       update: Partial<OAuthTokenRecord>;
-      create: OAuthTokenRecord;
+      create: Partial<OAuthTokenRecord> & { id: string; provider: string; accessToken: string };
     }): Promise<OAuthTokenRecord> {
       const existing = store.tokens.get(where.id);
       const now = new Date().toISOString();
       const record: OAuthTokenRecord = existing
         ? { ...existing, ...update, updatedAt: now }
-        : { ...create, createdAt: now, updatedAt: now };
-
-      // Normalize expiresAt to string
-      if (record.expiresAt instanceof Date) {
-        record.expiresAt = (record.expiresAt as unknown as Date).toISOString();
-      }
+        : {
+            id: create.id,
+            provider: create.provider,
+            accessToken: create.accessToken,
+            refreshToken: create.refreshToken ?? null,
+            expiresIn: create.expiresIn ?? 0,
+            expiresAt: create.expiresAt ?? now,
+            scope: create.scope ?? null,
+            createdAt: now,
+            updatedAt: now,
+          };
 
       store.tokens.set(where.id, record);
       await kvSet(`token:${where.id}`, JSON.stringify(record), 86400); // 24h TTL
       return record;
     },
 
-    async update(args: { where: { id: string } }, data: Partial<OAuthTokenRecord>): Promise<OAuthTokenRecord> {
+    async update(args: { where: { id: string }; data: Partial<OAuthTokenRecord> }): Promise<OAuthTokenRecord> {
       const { id } = args.where;
       const existing = store.tokens.get(id);
       if (!existing) throw new Error(`Token ${id} not found`);
 
       const now = new Date().toISOString();
-      const record = { ...existing, ...data, updatedAt: now };
-
-      if (record.expiresAt instanceof Date) {
-        record.expiresAt = (record.expiresAt as unknown as Date).toISOString();
-      }
+      const record = { ...existing, ...args.data, updatedAt: now };
 
       store.tokens.set(id, record);
       await kvSet(`token:${id}`, JSON.stringify(record), 86400);

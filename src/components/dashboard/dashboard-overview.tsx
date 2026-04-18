@@ -10,6 +10,7 @@ import {
   TrendingDown,
   Activity,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,48 +25,169 @@ interface DashboardStats {
   earningsChange: number;
 }
 
+interface RecentActivityItem {
+  icon: typeof Users;
+  text: string;
+  time: string;
+  color: string;
+}
+
+interface SyncDataResponse {
+  keys: string[];
+  data: Record<string, { status: string; data: unknown; syncedAt: string }>;
+  syncedAt: string;
+}
+
+// Build recent activity from synced data
+function buildActivityFromSync(syncData: SyncDataResponse): RecentActivityItem[] {
+  const activities: RecentActivityItem[] = [];
+
+  const posts = syncData.data?.posts?.data;
+  if (Array.isArray(posts) && posts.length > 0) {
+    const latest = posts[0] as Record<string, unknown>;
+    activities.push({
+      icon: FileText,
+      text: `Latest post: ${(latest.title as string) || (latest.type as string) || "Untitled"}`,
+      time: "Latest",
+      color: "text-violet-400",
+    });
+    activities.push({
+      icon: FileText,
+      text: `${posts.length} total posts synced`,
+      time: "Sync data",
+      color: "text-amber-400",
+    });
+  }
+
+  const chats = syncData.data?.chats?.data;
+  if (Array.isArray(chats) && chats.length > 0) {
+    activities.push({
+      icon: MessageSquare,
+      text: `${chats.length} conversations synced`,
+      time: "Sync data",
+      color: "text-sky-400",
+    });
+  }
+
+  const subscribers = syncData.data?.subscribers?.data;
+  const subCount = Array.isArray(subscribers)
+    ? subscribers.length
+    : typeof subscribers === "object"
+      ? Number((subscribers as Record<string, unknown>).total || (subscribers as Record<string, unknown>).count || 0)
+      : 0;
+  if (subCount > 0) {
+    activities.push({
+      icon: Users,
+      text: `${subCount.toLocaleString()} subscribers tracked`,
+      time: "Sync data",
+      color: "text-emerald-400",
+    });
+  }
+
+  const earnings = syncData.data?.earnings?.data || syncData.data?.earnings_summary?.data;
+  if (earnings) {
+    const total = Array.isArray(earnings)
+      ? earnings.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.total || e.amount || 0), 0)
+      : Number((earnings as Record<string, unknown>).total || (earnings as Record<string, unknown>).totalEarnings || 0);
+    if (total > 0) {
+      activities.push({
+        icon: DollarSign,
+        text: `Earnings data synced: $${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        time: "Sync data",
+        color: "text-amber-400",
+      });
+    }
+  }
+
+  // Add sync timestamp
+  if (syncData.syncedAt) {
+    activities.push({
+      icon: RefreshCw,
+      text: `Last data sync: ${new Date(syncData.syncedAt).toLocaleString()}`,
+      time: "System",
+      color: "text-muted-foreground",
+    });
+  }
+
+  return activities;
+}
+
 export function DashboardOverview({ connected }: { connected: boolean }) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string>("Never");
+  const [activities, setActivities] = useState<RecentActivityItem[]>([]);
+  const [hasSyncedData, setHasSyncedData] = useState(false);
 
   const fetchStats = useCallback(async () => {
     if (!connected) return;
     setLoading(true);
     try {
-      const [earningsRes, subscribersRes, chatsRes, postsRes] = await Promise.allSettled([
-        fetch("/api/fanvue/insights/earnings-summary"),
-        fetch("/api/fanvue/insights/subscribers"),
-        fetch("/api/fanvue/chats"),
-        fetch("/api/fanvue/posts"),
-      ]);
+      // Try to get synced data first
+      const syncRes = await fetch("/api/sync-data");
+      const syncData: SyncDataResponse = await syncRes.json();
 
-      const earnings = earningsRes.status === "fulfilled" ? await earningsRes.value.json() : null;
-      const subscribers = subscribersRes.status === "fulfilled" ? await subscribersRes.value.json() : null;
-      const chats = chatsRes.status === "fulfilled" ? await chatsRes.value.json() : null;
-      const posts = postsRes.status === "fulfilled" ? await postsRes.value.json() : null;
+      const earnings = syncData.data?.earnings?.data || syncData.data?.earnings_summary?.data;
+      const subscribers = syncData.data?.subscribers?.data;
+      const chats = syncData.data?.chats?.data;
+      const posts = syncData.data?.posts?.data;
 
-      setStats({
-        subscribers: subscribers?.total || subscribers?.count || 0,
-        earnings: earnings?.total || earnings?.totalEarnings || 0,
-        messages: chats?.total || chats?.data?.length || chats?.length || 0,
-        posts: posts?.total || posts?.data?.length || posts?.length || 0,
-        subscriberChange: subscribers?.growth || 0,
-        earningsChange: earnings?.growth || 0,
-      });
+      const hasData = !!(earnings || subscribers || chats || posts);
 
-      setLastSync(new Date().toLocaleTimeString());
+      if (hasData) {
+        setHasSyncedData(true);
+        setLastSync(syncData.syncedAt ? new Date(syncData.syncedAt).toLocaleTimeString() : new Date().toLocaleTimeString());
+
+        setStats({
+          subscribers: Array.isArray(subscribers)
+            ? subscribers.length
+            : Number((subscribers as Record<string, unknown>)?.total || (subscribers as Record<string, unknown>)?.count || 0),
+          earnings: Array.isArray(earnings)
+            ? earnings.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.total || e.amount || 0), 0)
+            : Number((earnings as Record<string, unknown>)?.total || (earnings as Record<string, unknown>)?.totalEarnings || 0),
+          messages: Array.isArray(chats) ? chats.length : 0,
+          posts: Array.isArray(posts) ? posts.length : 0,
+          subscriberChange: 0, // Can't compute without historical data
+          earningsChange: 0,
+        });
+
+        setActivities(buildActivityFromSync(syncData));
+      } else {
+        // No synced data — show zero state with guidance
+        setStats({ subscribers: 0, earnings: 0, messages: 0, posts: 0, subscriberChange: 0, earningsChange: 0 });
+        setLastSync("No data");
+        setActivities([
+          { icon: AlertCircle, text: "No synced data yet. Go to Connection and click Sync Now.", time: "Action needed", color: "text-amber-400" },
+        ]);
+      }
     } catch {
-      // Use demo data if API fails
-      setStats({
-        subscribers: 1247,
-        earnings: 3842.5,
-        messages: 89,
-        posts: 156,
-        subscriberChange: 12.5,
-        earningsChange: 8.3,
-      });
-      setLastSync("Demo data");
+      // Fallback: try direct API calls
+      try {
+        const [earningsRes, subscribersRes, chatsRes, postsRes] = await Promise.allSettled([
+          fetch("/api/fanvue/insights/earnings-summary"),
+          fetch("/api/fanvue/insights/subscribers"),
+          fetch("/api/fanvue/chats"),
+          fetch("/api/fanvue/posts"),
+        ]);
+
+        const earnings = earningsRes.status === "fulfilled" && earningsRes.value.ok ? await earningsRes.value.json() : null;
+        const subscribers = subscribersRes.status === "fulfilled" && subscribersRes.value.ok ? await subscribersRes.value.json() : null;
+        const chats = chatsRes.status === "fulfilled" && chatsRes.value.ok ? await chatsRes.value.json() : null;
+        const posts = postsRes.status === "fulfilled" && postsRes.value.ok ? await postsRes.value.json() : null;
+
+        setStats({
+          subscribers: subscribers?.total || subscribers?.count || 0,
+          earnings: earnings?.total || earnings?.totalEarnings || 0,
+          messages: chats?.total || chats?.data?.length || chats?.length || 0,
+          posts: posts?.total || posts?.data?.length || posts?.length || 0,
+          subscriberChange: subscribers?.growth || 0,
+          earningsChange: earnings?.growth || 0,
+        });
+        setLastSync("Live API");
+      } catch {
+        setStats(null);
+        setLastSync("Error");
+      }
     } finally {
       setLoading(false);
     }
@@ -185,32 +307,32 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
         ))}
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Activity — derived from synced data */}
       <Card className="bg-card/50 border-border/50">
         <CardHeader>
           <CardTitle className="text-base">Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[
-              { icon: MessageSquare, text: "New message from fan", time: "2 min ago", color: "text-sky-400" },
-              { icon: Users, text: "New subscriber joined", time: "15 min ago", color: "text-emerald-400" },
-              { icon: DollarSign, text: "Tip received — $25.00", time: "1 hour ago", color: "text-amber-400" },
-              { icon: FileText, text: "Post published successfully", time: "3 hours ago", color: "text-violet-400" },
-              { icon: Users, text: "Subscriber milestone reached: 1,200+", time: "Yesterday", color: "text-emerald-400" },
-            ].map((activity, i) => (
-              <div key={i} className="flex items-center gap-3 py-2">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                  <activity.icon className={`w-4 h-4 ${activity.color}`} />
+            {activities.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                No activity data. Sync your Fanvue account to see recent activity.
+              </p>
+            ) : (
+              activities.map((activity, i) => (
+                <div key={i} className="flex items-center gap-3 py-2">
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                    <activity.icon className={`w-4 h-4 ${activity.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm">{activity.text}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {activity.time}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm">{activity.text}</p>
-                </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {activity.time}
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

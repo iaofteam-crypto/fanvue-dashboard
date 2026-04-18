@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Tag, Hash } from "lucide-react";
+import { Search, Filter, Tag, Hash, Loader2, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Discovery {
   id: string;
@@ -34,26 +34,107 @@ interface Discovery {
   createdAt: string;
 }
 
+// Fallback demo data
 const DEMO_DISCOVERIES: Discovery[] = [
   { id: "d1", refId: "D1", title: "AI Content Generation Opportunity", category: "Technology", tags: "AI, Content", status: "new", createdAt: "2024-01-15" },
   { id: "d2", refId: "D2", title: "Cross-Platform Engagement Strategy", category: "Marketing", tags: "Social, Growth", status: "new", createdAt: "2024-01-16" },
   { id: "d3", refId: "D3", title: "Premium Tier Pricing Analysis", category: "Revenue", tags: "Pricing, Analytics", status: "reviewed", createdAt: "2024-01-17" },
   { id: "d4", refId: "D4", title: "Fan Community Building Framework", category: "Community", tags: "Engagement, Fans", status: "new", createdAt: "2024-01-18" },
   { id: "d5", refId: "D5", title: "Content Calendar Optimization", category: "Operations", tags: "Scheduling, Content", status: "implemented", createdAt: "2024-01-19" },
-  { id: "d6", refId: "D6", title: "Video Content Monetization Path", category: "Revenue", tags: "Video, Monetization", status: "new", createdAt: "2024-01-20" },
-  { id: "d7", refId: "D7", title: "Direct Message Automation Rules", category: "Technology", tags: "AI, DMs", status: "new", createdAt: "2024-01-21" },
-  { id: "d8", refId: "D8", title: "Referral Program Design", category: "Growth", tags: "Referral, Growth", status: "reviewed", createdAt: "2024-01-22" },
-  { id: "d9", refId: "D9", title: "Exclusive Content Tier Strategy", category: "Content", tags: "Exclusive, Tiers", status: "new", createdAt: "2024-01-23" },
-  { id: "d10", refId: "D10", title: "Seasonal Content Themes", category: "Content", tags: "Seasonal, Planning", status: "new", createdAt: "2024-01-24" },
-  { id: "d11", refId: "D11", title: "Analytics Dashboard Integration", category: "Technology", tags: "Analytics, Dashboard", status: "implemented", createdAt: "2024-01-25" },
-  { id: "d12", refId: "D12", title: "Subscriber Churn Prevention", category: "Retention", tags: "Churn, Subscribers", status: "reviewed", createdAt: "2024-01-26" },
 ];
 
 export function DiscoveriesSection() {
-  const [discoveries, setDiscoveries] = useState<Discovery[]>(DEMO_DISCOVERIES);
-  const [loading] = useState(false);
+  const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [hasRealData, setHasRealData] = useState(false);
+
+  const fetchDiscoveries = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/sync-data");
+      const result = await res.json();
+
+      // Check if we have synced discovery data or data we can derive
+      const syncedKeys = result.keys || [];
+
+      // Check for discoveries in the sync data
+      if (syncedKeys.length > 0) {
+        // Try to derive discoveries from available data
+        const derived: Discovery[] = [];
+
+        // From posts
+        const posts = result.data?.posts?.data;
+        if (Array.isArray(posts)) {
+          posts.slice(0, 5).forEach((p: Record<string, unknown>, i: number) => {
+            derived.push({
+              id: `post_${i}`,
+              refId: `P${i + 1}`,
+              title: (p.title as string) || (p.type as string) || `Post #${i + 1}`,
+              category: "Content",
+              tags: "post",
+              status: "published",
+              createdAt: (p.createdAt as string) || new Date().toISOString().split("T")[0],
+            });
+          });
+        }
+
+        // From chats (show as engagement insights)
+        const chats = result.data?.chats?.data;
+        if (Array.isArray(chats)) {
+          derived.push({
+            id: "chat_insight",
+            refId: "C1",
+            title: `${chats.length} fan conversations tracked`,
+            category: "Engagement",
+            tags: "chats, engagement",
+            status: "new",
+            createdAt: new Date().toISOString().split("T")[0],
+          });
+        }
+
+        // From earnings
+        const earnings = result.data?.earnings?.data || result.data?.earnings_summary?.data;
+        if (earnings) {
+          const total = Array.isArray(earnings)
+            ? earnings.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.total || e.amount || 0), 0)
+            : Number((earnings as Record<string, unknown>)?.total || 0);
+          if (total > 0) {
+            derived.push({
+              id: "earnings_insight",
+              refId: "E1",
+              title: `Total earnings data available: $${total.toLocaleString()}`,
+              category: "Revenue",
+              tags: "earnings, analytics",
+              status: "new",
+              createdAt: new Date().toISOString().split("T")[0],
+            });
+          }
+        }
+
+        if (derived.length > 0) {
+          setDiscoveries(derived);
+          setHasRealData(true);
+        } else {
+          setDiscoveries(DEMO_DISCOVERIES);
+          setHasRealData(false);
+        }
+      } else {
+        setDiscoveries(DEMO_DISCOVERIES);
+        setHasRealData(false);
+      }
+    } catch {
+      setDiscoveries(DEMO_DISCOVERIES);
+      setHasRealData(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDiscoveries();
+  }, []);
 
   const categories = useMemo(() => {
     const cats = new Set(discoveries.map((d) => d.category));
@@ -75,19 +156,31 @@ export function DiscoveriesSection() {
 
   const statusColor = (status: string) => {
     switch (status) {
-      case "implemented": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case "reviewed": return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-      default: return "bg-sky-500/10 text-sky-400 border-sky-500/20";
+      case "implemented":
+      case "published":
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+      case "reviewed":
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+      default:
+        return "bg-sky-500/10 text-sky-400 border-sky-500/20";
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Discoveries</h1>
-        <p className="text-muted-foreground text-sm">
-          Explore insights and opportunities from handoff analysis
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Discoveries</h1>
+          <p className="text-muted-foreground text-sm">
+            {hasRealData
+              ? "Insights derived from your synced Fanvue data"
+              : "Explore insights and opportunities from handoff analysis"}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchDiscoveries} disabled={loading}>
+          <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* Filters */}
@@ -122,6 +215,11 @@ export function DiscoveriesSection() {
             <Badge variant="outline" className="text-xs">
               {filteredDiscoveries.length} of {discoveries.length} discoveries
             </Badge>
+            {!hasRealData && (
+              <Badge variant="outline" className="text-xs text-amber-400">
+                Demo data
+              </Badge>
+            )}
           </div>
         </CardContent>
       </Card>

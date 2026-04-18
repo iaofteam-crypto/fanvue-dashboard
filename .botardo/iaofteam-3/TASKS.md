@@ -196,10 +196,22 @@
   - Demo tips: generados deterministicamente por postId (1-4 tips por post)
   - Sonner toasts. Zero any, error:unknown
 
-- [ ] P2-6: Vault Folders
-  - GET /agency/creators/{id}/vault-folders — listar
-  - POST para crear folders
-  - UI: navegador de vault con folders
+- [x] P2-6: Vault Folders ✅ RALPH-17
+  - GET /vault/folders — listar folders (via catch-all proxy)
+  - POST /vault/folders — crear folder
+  - PATCH /vault/folders/{id} — renombrar folder
+  - DELETE /vault/folders/{id} — eliminar folder
+  - GET /vault/folders/{id}/media — listar media en folder
+  - POST /vault/folders/{id}/media — agregar media a folder (attach)
+  - DELETE /vault/folders/{id}/media/{mediaUuid} — remover media (detach)
+  - Nuevo componente: `src/components/dashboard/vault-folders-section.tsx`
+  - 2 views (overview grid + detail media gallery)
+  - Overview: stats bar (folders, total media, images, videos), create form inline, cards con hover actions (rename/delete), search, delete confirmation destructive
+  - Detail: media grid 5-column responsive (image/video/audio/document), type badge, duration badge para video, hover overlay con remove button, add media form (input UUID), media type filter counts, back navigation
+  - Rename inline (Enter/Esc). Delete confirmation destructive. Detach media confirmation.
+  - Demo data: 5 folders, 12 media items (images, videos, audio, document)
+  - Nuevo nav item "Vault" con icono Vault en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P2-7: Tracking Links
   - GET /tracking-links — listar links
@@ -416,7 +428,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 5 | 50% |
+| FASE 8 (P2) | 10 | 6 | 60% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -424,7 +436,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **17** | **29%** |
+| **TOTAL** | **59** | **18** | **31%** |
 
 ---
 

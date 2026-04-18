@@ -18,6 +18,9 @@ import {
   Pin,
   PinOff,
   Repeat2,
+  ChevronDown,
+  ChevronUp,
+  Send,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +61,15 @@ interface Post {
   media?: Array<{ type?: string; url?: string }>;
 }
 
+interface Comment {
+  id: string;
+  author: string;
+  authorAvatar?: string;
+  content: string;
+  createdAt?: string;
+  likesCount?: number;
+}
+
 interface MediaFile {
   file: File;
   preview: string;
@@ -89,6 +101,11 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pinningId, setPinningId] = useState<string | null>(null);
   const [repostingId, setRepostingId] = useState<string | null>(null);
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
+  const [commentsLoading, setCommentsLoading] = useState<string | null>(null);
+  const [newCommentText, setNewCommentText] = useState("");
+  const [postingComment, setPostingComment] = useState<string | null>(null);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -482,6 +499,104 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
   };
 
+  // --- Comments ---
+  const handleToggleComments = async (postId: string) => {
+    if (expandedPostId === postId) {
+      setExpandedPostId(null);
+      return;
+    }
+    setExpandedPostId(postId);
+    // Fetch comments if not already loaded
+    if (commentsMap[postId] && commentsMap[postId].length > 0) return;
+    setCommentsLoading(postId);
+    try {
+      const res = await fetch(`/api/fanvue/posts/${postId}/comments`);
+      if (res.ok) {
+        const data = await res.json() as { data?: Comment[]; comments?: Comment[] };
+        const list = Array.isArray(data?.data) ? data.data : Array.isArray(data?.comments) ? data.comments : [];
+        setCommentsMap((prev) => ({ ...prev, [postId]: list }));
+      } else {
+        // Demo comments
+        setCommentsMap((prev) => ({
+          ...prev,
+          [postId]: generateDemoComments(postId),
+        }));
+      }
+    } catch {
+      setCommentsMap((prev) => ({
+        ...prev,
+        [postId]: generateDemoComments(postId),
+      }));
+    } finally {
+      setCommentsLoading(null);
+    }
+  };
+
+  const generateDemoComments = (postId: string): Comment[] => {
+    const seed = parseInt(postId, 10) || 1;
+    const names = ["Alex", "Jordan", "Sam", "Taylor", "Morgan", "Casey", "Riley", "Quinn"];
+    const messages = [
+      "This is amazing content! Thanks for sharing",
+      "Love this so much, can't wait for more",
+      "Incredible work as always",
+      "This made my day, thank you!",
+      "Your best post yet, seriously",
+      "So glad I subscribed for this",
+      "Worth every penny",
+      "Please do more content like this!",
+    ];
+    const count = (seed * 3 + 2) % 5 + 1;
+    return Array.from({ length: count }, (_, i) => ({
+      id: `${postId}-c${i}`,
+      author: names[(seed + i) % names.length],
+      content: messages[(seed * 2 + i) % messages.length],
+      createdAt: new Date(Date.now() - (i + 1) * 3600000 * (seed % 3 + 1)).toISOString(),
+      likesCount: (seed + i * 7) % 20,
+    }));
+  };
+
+  const handlePostComment = async (postId: string) => {
+    const text = newCommentText.trim();
+    if (!text) return;
+    setPostingComment(postId);
+    try {
+      const res = await fetch(`/api/fanvue/posts/${postId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text }),
+      });
+      if (res.ok) {
+        const data = await res.json() as { data?: Comment; comment?: Comment };
+        const newComment = data?.data || data?.comment || {
+          id: `new-${Date.now()}`,
+          author: "You",
+          content: text,
+          createdAt: new Date().toISOString(),
+          likesCount: 0,
+        };
+        setCommentsMap((prev) => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), newComment],
+        }));
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === postId
+              ? { ...p, commentsCount: (p.commentsCount || 0) + 1 }
+              : p
+          )
+        );
+        setNewCommentText("");
+        toast.success("Comment posted");
+      } else {
+        toast.error("Failed to post comment");
+      }
+    } catch {
+      toast.error("Network error posting comment");
+    } finally {
+      setPostingComment(null);
+    }
+  };
+
   const handleDeletePost = async (postId: string) => {
     setDeletingId(postId);
     try {
@@ -825,10 +940,19 @@ export function ContentSection({ connected }: { connected: boolean }) {
                     <Eye className="w-3 h-3" />
                     {post.likesCount || 0}
                   </span>
-                  <span className="flex items-center gap-1">
+                  <button
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                    onClick={(e) => { e.stopPropagation(); handleToggleComments(post.id); }}
+                    title={expandedPostId === post.id ? "Hide comments" : "Show comments"}
+                  >
                     <MessageSquare className="w-3 h-3" />
                     {post.commentsCount || 0}
-                  </span>
+                    {expandedPostId === post.id ? (
+                      <ChevronUp className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                  </button>
                   <button
                     className={`flex items-center gap-1 transition-colors ${post.isReposted ? "text-emerald-500" : "text-muted-foreground hover:text-emerald-500"}`}
                     onClick={(e) => { e.stopPropagation(); handleRepost(post.id, !!post.isReposted); }}
@@ -850,6 +974,81 @@ export function ContentSection({ connected }: { connected: boolean }) {
                 </span>
               </div>
             </CardContent>
+          {/* Comments Section */}
+          {expandedPostId === post.id && (
+            <div className="px-4 pb-4 border-t border-border/50">
+              {commentsLoading === post.id ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground ml-2">Loading comments...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2.5 mt-3 max-h-48 overflow-y-auto">
+                    {(commentsMap[post.id] || []).length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-3">No comments yet. Be the first to comment!</p>
+                    ) : (
+                      (commentsMap[post.id] || []).map((comment) => (
+                        <div key={comment.id} className="flex gap-2">
+                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              {comment.author.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium">{comment.author}</span>
+                              {comment.createdAt && (
+                                <span className="text-[10px] text-muted-foreground">
+                                  {new Date(comment.createdAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">{comment.content}</p>
+                            {(comment.likesCount ?? 0) > 0 && (
+                              <span className="text-[10px] text-muted-foreground/60 mt-0.5 inline-flex items-center gap-0.5">
+                                <Eye className="w-2 h-2" />{comment.likesCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {/* New Comment Input */}
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border/30">
+                    <Input
+                      placeholder="Write a comment..."
+                      value={expandedPostId === post.id ? newCommentText : ""}
+                      onChange={(e) => setNewCommentText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey && expandedPostId === post.id) {
+                          e.preventDefault();
+                          handlePostComment(post.id);
+                        }
+                      }}
+                      className="h-7 text-xs bg-muted/50 border-border/50"
+                      disabled={postingComment === post.id}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-primary"
+                      onClick={() => handlePostComment(post.id)}
+                      disabled={postingComment === post.id || !newCommentText.trim()}
+                      title="Post comment"
+                    >
+                      {postingComment === post.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Send className="w-3 h-3" />
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           </Card>
         ))}
       </div>

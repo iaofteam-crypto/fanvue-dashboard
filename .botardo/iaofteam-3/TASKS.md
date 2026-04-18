@@ -160,10 +160,19 @@
   - Demo data: repostsCount en todos los posts demo (18, 7, 34, 52, 0)
   - Sonner toasts para feedback
 
-- [ ] P2-3: Post Comments
-  - GET /posts/{uuid}/comments — listar comentarios
-  - POST /posts/{uuid}/comments — crear comentario
-  - UI: seccion de comentarios debajo de cada post
+- [x] P2-3: Post Comments ✅ RALPH-14
+  - GET /api/fanvue/posts/{uuid}/comments — listar comentarios (via catch-all proxy)
+  - POST /api/fanvue/posts/{uuid}/comments — crear comentario (via catch-all proxy)
+  - Modificado content-section.tsx: Comment interface, expandedPostId state, commentsMap cache
+  - handleToggleComments: expandir/colapsar seccion de comentarios en cada card
+  - handlePostComment: enviar comentario nuevo con Enter o boton Send
+  - UI: click en contador de comentarios → expande panel con lista + input
+  - Comentarios: avatar con inicial, nombre, fecha, texto, likes count
+  - Input: h-7 compacto con Send button, Enter para enviar
+  - Max-height 48 con scroll para lista de comentarios
+  - Demo comments: generados determinísticamente por postId (1-5 comentarios por post)
+  - ChevronDown/ChevronUp indica estado expandido/colapsado
+  - Sonner toasts. Zero any, error:unknown
 
 - [ ] P2-4: Post Likes
   - GET /posts/{uuid}/likes — ver likes
@@ -393,7 +402,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 2 | 20% |
+| FASE 8 (P2) | 10 | 3 | 30% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -401,7 +410,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **14** | **24%** |
+| **TOTAL** | **59** | **15** | **25%** |
 
 ---
 

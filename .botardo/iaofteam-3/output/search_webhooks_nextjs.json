@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://vitiya99.medium.com/battle-tested-architecture-processing-infinite-webhook-events-with-agenda-js-queue-nestjs-faaf6dc9a961",
+    "name": "Battle-Tested Architecture: Processing Infinite Webhook",
+    "snippet": "This article breaks down the production-grade architecture we built to handle webhook events at scale using NestJS, Agenda. js , and MongoDB. No ... Read more",
+    "host_name": "vitiya99.medium.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/posts/gallevin_%F0%9D%97%AA%F0%9D%97%B5%F0%9D%97%AE%F0%9D%98%81-%F0%9D%97%B1%F0%9D%97%BC%F0%9D%97%B2%F0%9D%98%80-%F0%9D%97%AE-%F0%9D%97%BF%F0%9D%97%B2%F0%9D%97%AE%F0%9D%97%B9-%F0%9D%97%B3%F0%9D%97%B6%F0%9D%97%BB%F0%9D%98%81-activity-7439020848021131265-7DGG",
+    "name": "Real-time Payment System Simulation with Next.js and",
+    "snippet": "The goal was to simulate how a real - time payments platform works internally with APIs and payment processors in the cloud. ... real fintech ... Read more",
+    "host_name": "www.linkedin.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://webhook.site",
+    "name": "Webhook.site - Test, transform and automate Web requests",
+    "snippet": "Webhook.site generates free, unique URLs and e-mail addresses and lets you see everything that's sent there instantly. Read more",
+    "host_name": "webhook.site",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.apideck.com/blog/what-is-a-webhook",
+    "name": "What Is a Webhook? How Webhooks Work, With Examples",
+    "snippet": "5 Apr 2026 — A webhook is an HTTP callback that delivers data from one application to another in real time when a specific event occurs. Instead of your ... Read more",
+    "host_name": "www.apideck.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/resend/resend-webhooks-ingester",
+    "name": "Resend Webhooks Ingester",
+    "snippet": "Receives and verifies Resend webhooks using Svix signatures ; Stores all webhook events in your database (append-only log); Supports all Resend event types: ... Read more",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.mux.com/blog/how-to-build-video-activity-notifications-in-next-js",
+    "name": "How to build video activity notifications in Next.js",
+    "snippet": "31 May 2024 — This post explores how you can use Mux and Knock to build out scaleable, thoughtful, and battle-tested notifications for your video apps.",
+    "host_name": "www.mux.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/pulse/webhooks-real-time-communication-modern-applications-monzil-pifdc",
+    "name": "Webhooks: Real-Time Communication for Modern",
+    "snippet": "Webhooks have revolutionized how applications communicate with each other in real - time . Unlike traditional polling methods, where a client ...",
+    "host_name": "www.linkedin.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=EbxSB6dPDq4",
+    "name": "NextJS 15 Authentication & Webhooks with Clerk",
+    "snippet": "I'm going to walk you through clerk authentication step by step and you'll also learn in details how to use web hooks clerk web hooks in your next js15 application.",
+    "host_name": "www.youtube.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -68,6 +68,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#68 (2026-04-18 23:30 BA): IA1 — Fanvue MCP, Webhooks, Upload Tutorial deep dive. v2 roadmap proposal written.
 - HB#67 (2026-04-18 22:30 BA): DISCOVERY — Fanvue API llms.txt (70+ endpoints), 3-step media upload, webhooks, MCP, vault. F2 needs rewrite.
 - HB#66 (2026-04-18 21:00 BA): F2 media upload (drag-drop, preview, multipart proxy) — ALL 38 audit items done
 - HB#65 (2026-04-18 20:30 BA): F3 PPV price input, F4 create post full fields + delete post, F5 search messages, DELETE proxy handler

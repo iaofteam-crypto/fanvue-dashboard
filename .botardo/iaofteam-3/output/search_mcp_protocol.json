@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://github.com/modelcontextprotocol/servers",
+    "name": "modelcontextprotocol/servers: Model Context Protocol  - GitHub",
+    "snippet": "This repository is a collection of reference implementations for the Model Context Protocol (MCP), as well as references to community built servers and ... Missing: dashboard | Show results with: dashboard",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://modelcontextprotocol.io/docs/getting-started/intro",
+    "name": "What is the Model Context Protocol (MCP)? - Model Context Protocol",
+    "snippet": "MCP (Model Context Protocol) is an open-source standard for connecting AI applications to external systems. Using MCP, AI applications like Claude or ... Missing: creator 2026",
+    "host_name": "modelcontextprotocol.io",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps",
+    "name": "MCP Apps - Bringing UI Capabilities To MCP Clients",
+    "snippet": "“MCP Apps extends the Model Context Protocol in a way that puts humans at the center. The industry has embedded assistants into individual ...",
+    "host_name": "blog.modelcontextprotocol.io",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/mcp-server/the-rise-of-mcp-protocol-adoption-in-2026-and-emerging-monetization-models-cb03438e985c",
+    "name": "The Rise of MCP: Protocol Adoption in 2026 and Emerging",
+    "snippet": "The solution was the Model Context Protocol (MCP), an open standard through which AI models communicate with external tools and data sources.",
+    "host_name": "medium.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.firecrawl.dev/blog/best-mcp-servers-for-developers",
+    "name": "10 Best MCP Servers for Developers in 2026 - Firecrawl",
+    "snippet": "The best MCP servers for developers in 2026 — covering web scraping, design, browser automation, code execution, deployment, and more.",
+    "host_name": "www.firecrawl.dev",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.anthropic.com/news/model-context-protocol",
+    "name": "Introducing the Model Context Protocol - Anthropic",
+    "snippet": "The Model Context Protocol is an open standard that enables developers to build secure, two-way connections between their data sources and AI-powered tools. Missing: dashboard | Show results with: dashboard",
+    "host_name": "www.anthropic.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://skyvia.com/blog/ai-mcp-server",
+    "name": "AI MCP Server: A Guide to the Model Context Protocol - Skyvia",
+    "snippet": "Learn about MCP Server AI, the open-source standard connecting AI to real-world data. Explore the Model Context Protocol and its use cases.",
+    "host_name": "skyvia.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=kAVRFYgCPg0",
+    "name": "MCP Creator Reveals the 2026 Roadmap for AI Agents - YouTube",
+    "snippet": "David Soria Parra, co-creator of the Model Context Protocol (MCP) and Member of Technical Staff at Anthropic, delivers the keynote on where ... Missing: implementation dashboard",
+    "host_name": "www.youtube.com",
+    "rank": 7,
+    "date": "Apr 13, 2026",
+    "favicon": ""
+  }
+]

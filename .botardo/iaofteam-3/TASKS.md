@@ -5,6 +5,14 @@
 - [x] Conectar dashboards a datos reales — Fase 2 completa
 - [x] Token persistence — Todos los bugs críticos resueltos
 - [x] Fase 3 UX/Visual — Sonner toasts, error boundaries, empty states
+- [x] Fase 4 Security — Rate limiting, CSRF, input validation, error sanitization
+
+## Completados (HB#63)
+- [x] S1: In-memory IP-based rate limiter (chat: 10/min, sync: 2/min, fanvue proxy: 60/min)
+- [x] S2: CSRF origin check on all POST endpoints
+- [x] S3: Error message sanitization (no internal leaks)
+- [x] S4: Input validation on /api/chat (50 msg max, 4000 char max)
+- [x] New lib/rate-limit.ts + lib/security.ts modules
 
 ## Completados (HB#62)
 - [x] Fix A5: SectionErrorBoundary wrapping all 9 sections
@@ -38,10 +46,8 @@
 - [x] Nuevo endpoint: /api/sync-data
 
 ## Pendientes (prioridad)
-- [ ] Fix A5: Error boundaries por sección
 - [ ] Fix A6: Paginación en listas
 - [ ] Fix A7: Tree-shake shadcn components no usados
-- [ ] Fix F6: Toast notifications para acciones
-- [ ] Fix S1: Rate limiting en API routes
 - [ ] Fix F2: Media upload en posts
 - [ ] Fix F3-F5: PPV pricing, edit/delete posts, search messages
+- [ ] Fase 5: Reliability (error boundaries already done, retry logic, health checks)

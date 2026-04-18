@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/get-creator-upload-part-url",
+    "name": "Get signed URL for upload part | Fanvue API Documentation",
+    "snippet": "Return a presigned URL to upload a specific part number for creator's media upload session. Scopes required: write:creator, write:media.",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/media/get-user-media-by-uuid",
+    "name": "Get media by UUID | Fanvue API Documentation",
+    "snippet": "Returns a specific media item by its UUID for the authenticated user. For media with status other than FINALISED, only uuid and status are returned.",
+    "host_name": "api.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/introduction/welcome",
+    "name": "Welcome | Fanvue API Documentation",
+    "snippet": "The Fanvue API gives you direct access to your creator platform data and tools. Whether you're a content creator looking to build custom workflows or an ...",
+    "host_name": "api.fanvue.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/update-creator-post",
+    "name": "Update a post for a creator | Fanvue API Documentation",
+    "snippet": "Update an existing post on behalf of a creator. All fields are optional — only provided fields will be updated.",
+    "host_name": "api.fanvue.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/llms.txt",
+    "name": "llms.txt - Fanvue",
+    "snippet": "# Fanvue API Documentation ## Docs - [Fanvue Developer Platform](https://api ... Media Upload](https://api.fanvue.com/docs/tutorials/multipart-media-upload ...",
+    "host_name": "api.fanvue.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/agencies/get-creator-custom-list-members",
+    "name": "Get creator's custom list members | Fanvue API Documentation",
+    "snippet": "POSTAdd media to creator vault folder · DELRemove media from creator vault folder · PATCHUpdate a scheduled mass message ...",
+    "host_name": "api.fanvue.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/versions/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "API versioning ensures backward compatibility and allows us to introduce improvements without breaking existing integrations.",
+    "host_name": "api.fanvue.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/authentication/scopes",
+    "name": "Scopes | Fanvue API Documentation",
+    "snippet": "write:media Upload, modify, and manage media files and content assets. write:post Create, edit, and manage posts and content on behalf of users. read:insights ...",
+    "host_name": "api.fanvue.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/integrations/mcp-ai-assistants",
+    "name": "MCP (AI Assistants) | Fanvue API Documentation",
+    "snippet": "Media: Upload and manage media files; Insights: Analytics and earnings data; Creators: Follower and subscriber management; Agencies: Multi-creator management ...",
+    "host_name": "api.fanvue.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/tutorials/example-chatbots",
+    "name": "Example Chatbots | Fanvue API Documentation",
+    "snippet": "To help you get started with the Fanvue API, we provide example chatbot applications that demonstrate how to integrate with our API using OAuth 2.0 ...",
+    "host_name": "api.fanvue.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

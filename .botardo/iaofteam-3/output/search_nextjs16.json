@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://dev.to/bean_bean/nextjs-performance-optimization-the-2026-complete-guide-1a9k",
+    "name": "Next.js Performance Optimization: The 2026 Complete Guide",
+    "snippet": "✓ Set revalidate or cache tags on all data fetches · ✓ Add priority to above-the-fold images · ✓ Use sizes ...",
+    "host_name": "dev.to",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://nextjs.org/docs/app/guides/local-development",
+    "name": "How to optimize your local development environment",
+    "snippet": "1. Check your computer's antivirus · 2. Update Next.js and use Turbopack · 3. Check your imports · 4. Check your Tailwind CSS ...",
+    "host_name": "nextjs.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@chandansingh73718/deployment-and-production-optimization-in-next-js-e016a944b972",
+    "name": "Deployment and Production Optimization in Next.js",
+    "snippet": "Track performance ; Identify issues; Improve user experience. SEO Optimization. Next.js makes SEO easier with server-side rendering. Best ...",
+    "host_name": "medium.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://nextjs.org/docs/app/getting-started/deploying",
+    "name": "Getting Started: Deploying",
+    "snippet": "3 days ago — The following examples demonstrate best practices for containerizing Next.js applications : Docker Standalone Output - Deploy a Next.js ...",
+    "host_name": "nextjs.org",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tech-insider.org/nextjs-tutorial-full-stack-app-2026",
+    "name": "Next.js 16.2 Tutorial: 400% Faster Dev Server [2026]",
+    "snippet": "Mar 21, 2026 — This complete Next . js tutorial walks you through building a full-stack task management application — from initial setup to production deployment ...",
+    "host_name": "tech-insider.org",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/docs/frameworks/full-stack/nextjs",
+    "name": "Next.js on Vercel",
+    "snippet": "Mar 2, 2026 — Image Optimization helps you achieve faster page loads by reducing the size of images and using modern image formats. When deploying to Vercel , ...",
+    "host_name": "vercel.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://nextjs.org/blog/next-16",
+    "name": "Next.js 16",
+    "snippet": "Oct 21, 2025 — Next . js 16 includes Cache Components, stable Turbopack, file system caching, React Compiler support, smarter routing, new caching APIs, ...",
+    "host_name": "nextjs.org",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zenn.dev/takabo/articles/9afac267693b30",
+    "name": "Next.js 16 + Vercelのサイトを Performance 81→99 に改善",
+    "snippet": "Mar 23, 2026 — Next . js 16 + Vercel のサイトを Performance 81→99 に改善した全記録. 2026 /03/23 に公開.",
+    "host_name": "zenn.dev",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

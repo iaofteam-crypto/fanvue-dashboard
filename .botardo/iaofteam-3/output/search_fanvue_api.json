@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://api.fanvue.com/docs/introduction/welcome",
+    "name": "Welcome | Fanvue API Documentation",
+    "snippet": "The Fanvue API gives you direct access to your creator platform data and tools. Whether you're a content creator looking to build custom workflows or an ... Missing: 2026 | Show results with: 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/welcome",
+    "name": "Fanvue Developer Platform | Fanvue API Documentation",
+    "snippet": "Build internal or commercial CRMs that automate and streamline creator and fan management for agencies, using Fanvue's APIs. GET /agency/creators ... Missing: media upload 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://legal.fanvue.com/api-policy",
+    "name": "API Access & Usage Policy | Fanvue",
+    "snippet": "This API Access & Usage Policy (the “Policy”) governs use of Fanvue's application programming interfaces (the “API”).",
+    "host_name": "legal.fanvue.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/versions/overview",
+    "name": "Overview | Fanvue API Documentation",
+    "snippet": "API versioning ensures backward compatibility and allows us to introduce improvements without breaking existing integrations. Missing: creator platform features 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://api.fanvue.com/docs/api-reference/reference/vault/attach-media-to-vault-folder",
+    "name": "Add media to folder | Fanvue API Documentation",
+    "snippet": "Add one or more media items to the specified folder. Media items must belong to the authenticated user. Scope required: write:media. Missing: platform upload 2026",
+    "host_name": "api.fanvue.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  }
+]

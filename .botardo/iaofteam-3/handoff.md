@@ -46,8 +46,19 @@
 4. ~~F6: Toast~~ ✅
 5. ~~S1-S4: Security~~ ✅
 6. ~~F3-F5: PPV pricing, delete posts, search messages~~ ✅
-7. ~~F2: Media upload~~ ✅
+7. ~~F2: Media upload~~ ✅ (needs rewrite for 3-step presigned URL)
 8. **ALL 38 AUDIT FINDINGS ADDRESSED** — zero remaining Fanvue tasks
+
+## Discovery: Fanvue API Full Map (HB#67)
+- **llms.txt**: https://api.fanvue.com/docs/llms.txt — 70+ endpoints documented
+- **OpenAPI 3.1**: https://api.fanvue.com/openapi.json (auth required)
+- **Media upload is 3-step presigned URL flow** (not multipart POST)
+  1. POST /v1/media/upload-session → session ID
+  2. GET /v1/media/upload-session/:id/part-url → presigned S3 URL
+  3. PUT to presigned URL, then POST /v1/media/upload-session/:id/complete
+- **Undocumented features available**: Webhooks (6 events), Mass Messages, Smart Lists, Custom Lists, Vault Folders, Tracking Links, MCP Integration, Post pin/repost/comments, Chat Templates, Bulk Fan Insights
+- **Vercel Fluid Compute**: Automatic cold start optimization on Hobby plan
+- **F2 media upload needs rewrite** to use presigned URL pattern
 
 ## Variables de Entorno Vercel
 - FANVUE_CLIENT_ID
@@ -57,6 +68,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#67 (2026-04-18 22:30 BA): DISCOVERY — Fanvue API llms.txt (70+ endpoints), 3-step media upload, webhooks, MCP, vault. F2 needs rewrite.
 - HB#66 (2026-04-18 21:00 BA): F2 media upload (drag-drop, preview, multipart proxy) — ALL 38 audit items done
 - HB#65 (2026-04-18 20:30 BA): F3 PPV price input, F4 create post full fields + delete post, F5 search messages, DELETE proxy handler
 - HB#64 (2026-04-18 19:30 BA): A7 tree-shake (-3414 lines), A6 pagination

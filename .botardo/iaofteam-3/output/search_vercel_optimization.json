@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://vercel.com/pricing",
+    "name": "Vercel Pricing: Hobby, Pro, and Enterprise plans",
+    "snippet": "Find a plan to power your apps. ; Hobby . The perfect starting place for your web app or personal project. Free forever. Import your repo, deploy in seconds ; Pro. Read more\nFind a plan to power your apps. ; Hobby. The perfect starting place for your web app or personal project. Free forever. Import your repo, deploy in seconds ; Pro.",
+    "host_name": "vercel.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/docs/plans/hobby",
+    "name": "Vercel Hobby Plan",
+    "snippet": "27 Feb 2026 — The Hobby plan is free and aimed at developers with personal projects, and small-scale applications. It offers a generous set of features for individual users. Read more",
+    "host_name": "vercel.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.truefoundry.com/blog/understanding-vercel-ai-gateway-pricing",
+    "name": "Vercel AI Pricing Plans 2026: How Much Does It Cost?",
+    "snippet": "21 Jan 2026 — The Vercel Edge Runtime is a V8-based, lightweight JS environment with many limitations. It doesn't support the full Node.js API (no filesystem, ... Read more",
+    "host_name": "www.truefoundry.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/kb/guide/how-can-i-improve-serverless-function-lambda-cold-start-performance-on-vercel",
+    "name": "How can I improve function cold start performance on Vercel?",
+    "snippet": "10 Nov 2025 — This guide will help you improve the performance of your functions and understand how to determine if the latency increase is from a cold start . Read more\nThis guide will help you improve the performance of your functions and understand how to determine if the latency increase is from a cold start. Missing: Hobby runtime",
+    "host_name": "vercel.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/78513027/coldstart-of-vercels-serverless-function-suddenly-became-very-slow",
+    "name": "coldstart of vercel's serverless function suddenly became",
+    "snippet": "I used and deployed next.js using vercel . Some pages that normally use getServersideProps took about 2 seconds with a long coldstart . Read more",
+    "host_name": "stackoverflow.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/docs/functions/limitations",
+    "name": "Vercel Functions Limits",
+    "snippet": "24 Feb 2026 — Edge runtime. Vercel Functions using the Edge runtime must begin sending a response within 25 seconds to maintain streaming capabilities ... Read more",
+    "host_name": "vercel.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/docs/pricing",
+    "name": "Pricing on Vercel",
+    "snippet": "27 Feb 2026 — This page provides an overview of Vercel's pricing model and outlines all billable metrics and their pricing models. Read more",
+    "host_name": "vercel.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://vercel.com/docs/fluid-compute",
+    "name": "Fluid compute",
+    "snippet": "29 Jan 2026 — Automatic cold start optimizations : Reduces the effects of cold starts through automatic bytecode optimization, and function pre-warming on ... Read more\nAutomatic cold start optimizations: Reduces the effects of cold starts through automatic bytecode optimization, and function pre-warming on ...",
+    "host_name": "vercel.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -66,6 +66,7 @@ export function MessagesSection({ connected }: { connected: boolean }) {
         const data = await res.json();
         const msgList = Array.isArray(data) ? data : data?.data || data?.messages || [];
         setMessages(msgList);
+        setLoading(false);
         return;
       }
     } catch {

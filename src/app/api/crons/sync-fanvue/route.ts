@@ -63,7 +63,7 @@ async function fanvueFetch(endpoint: string, accessToken: string): Promise<any> 
   });
 
   if (!response.ok) {
-    throw new Error(`Fanvue API ${endpoint}: ${response.status}`);
+    throw new Error(`${response.status}`);
   }
 
   return response.json();
@@ -121,20 +121,15 @@ export async function GET() {
     const synced: string[] = [];
     const failed: string[] = [];
 
-    for (const result of results) {
-      if (result.status === "fulfilled") {
-        synced.push(result.value.key);
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      const endpointKey = endpoints[i].key;
 
-        // Store successful results in SyncLog for the dashboard to read
-        await db.syncLog.create({
-          data: {
-            type: `fanvue_data_${result.value.key}`,
-            status: "completed",
-            message: JSON.stringify(result.value.data).slice(0, 5000),
-          },
-        });
+      if (result.status === "fulfilled") {
+        synced.push(endpointKey);
       } else {
-        failed.push(`unknown`);
+        const errorMsg = result.reason?.message || "unknown error";
+        failed.push(`${endpointKey}(${errorMsg})`);
       }
     }
 
@@ -142,7 +137,7 @@ export async function GET() {
       where: { id: syncLog.id },
       data: {
         status: "completed",
-        message: `Synced ${synced.length}/${endpoints.length} endpoints (${synced.join(", ")})${failed.length ? `. Failed: ${failed.join(", ")}` : ""}`,
+        message: `Synced ${synced.length}/${endpoints.length} endpoints: ${synced.join(", ")}`,
         finishedAt: new Date(),
       },
     });
@@ -150,7 +145,7 @@ export async function GET() {
     return NextResponse.json({
       status: "completed",
       synced,
-      failed,
+      failed: failed.length > 0 ? failed : undefined,
       total: endpoints.length,
     });
   } catch (error: any) {

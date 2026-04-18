@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getValidAccessToken, FANVUE_API_BASE } from "@/lib/fanvue";
+import { getValidAccessToken, FANVUE_API_BASE, setTokenCookie } from "@/lib/fanvue";
 import { isGitHubConfigured, getFileContent } from "@/lib/github";
 
 // Shared Fanvue sync logic — used by both manual and cron sync
-async function performFanvueSync(): Promise<{ synced: string[]; failed: string[] }> {
-  const accessToken = await getValidAccessToken();
+async function performFanvueSync(request?: NextRequest): Promise<{ synced: string[]; failed: string[] }> {
+  const accessToken = await getValidAccessToken(request);
 
   const endpoints = [
     { key: "me", path: "/users/me" },
@@ -82,7 +82,7 @@ async function performRepoSync(): Promise<string> {
   }
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
     const fanvueSync = await db.syncLog.create({
       type: "fanvue_manual",
@@ -93,13 +93,19 @@ export async function POST() {
       status: "running",
     });
 
-    // ✅ FIX B4: Actually sync Fanvue data
-    let fanvueResult = { synced: [] as string[], failed: [] as string[] };
-    const token = await db.oAuthToken.findUnique({ where: { id: "fanvue_primary" } });
+    // Check for token (store or cookie)
+    let hasToken = !!(await db.oAuthToken.findUnique({ where: { id: "fanvue_primary" } }));
+    if (!hasToken) {
+      const { getTokenFromRequest } = await import("@/lib/fanvue");
+      hasToken = !!getTokenFromRequest(request);
+    }
 
-    if (token) {
+    // Actually sync Fanvue data
+    let fanvueResult = { synced: [] as string[], failed: [] as string[] };
+
+    if (hasToken) {
       try {
-        fanvueResult = await performFanvueSync();
+        fanvueResult = await performFanvueSync(request);
         await db.syncLog.update({
           where: { id: fanvueSync.id },
           data: {
@@ -122,7 +128,7 @@ export async function POST() {
       });
     }
 
-    // ✅ Actually sync repo data
+    // Actually sync repo data
     const repoResult = await performRepoSync();
     await db.syncLog.update({
       where: { id: repoSync.id },
@@ -131,7 +137,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      fanvue: token ? { synced: fanvueResult.synced, failed: fanvueResult.failed } : "skipped",
+      fanvue: hasToken ? { synced: fanvueResult.synced, failed: fanvueResult.failed } : "skipped",
       repo: repoResult,
     });
   } catch (error: unknown) {

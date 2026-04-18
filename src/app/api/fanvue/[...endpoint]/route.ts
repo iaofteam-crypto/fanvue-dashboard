@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { endpoint } = await params;
-    const accessToken = await getValidAccessToken();
+    const accessToken = await getValidAccessToken(request);
     const path = endpoint.join("/");
     const searchParams = request.nextUrl.searchParams.toString();
     const url = `${FANVUE_API_BASE}/${path}${searchParams ? `?${searchParams}` : ""}`;
@@ -36,7 +36,7 @@ export async function POST(
 ) {
   try {
     const { endpoint } = await params;
-    const accessToken = await getValidAccessToken();
+    const accessToken = await getValidAccessToken(request);
     const path = endpoint.join("/");
     const body = await request.json();
     const url = `${FANVUE_API_BASE}/${path}`;

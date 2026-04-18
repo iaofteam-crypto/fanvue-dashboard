@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exchangeCodeForTokens } from "@/lib/fanvue";
+import { exchangeCodeForTokens, setTokenCookie } from "@/lib/fanvue";
 import { db } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
     // Exchange code for tokens
     const tokenData = await exchangeCodeForTokens(code, codeVerifier);
 
+    const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000).toISOString();
+
     // Store tokens in database
     await db.oAuthToken.upsert({
       where: { id: "fanvue_primary" },
@@ -46,7 +48,7 @@ export async function GET(request: NextRequest) {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
         expiresIn: tokenData.expires_in,
-        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
+        expiresAt,
         scope: tokenData.scope,
       },
       create: {
@@ -55,15 +57,24 @@ export async function GET(request: NextRequest) {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
         expiresIn: tokenData.expires_in,
-        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
+        expiresAt,
         scope: tokenData.scope,
       },
     });
 
-    // Clear OAuth cookies
+    // Clear OAuth cookies and set token persistence cookie
     const response = NextResponse.redirect(new URL("/?connected=true", request.url));
     response.cookies.delete("fanvue_code_verifier");
     response.cookies.delete("fanvue_oauth_state");
+
+    // ✅ FIX B2: Persist token in httpOnly cookie (survives cold starts)
+    setTokenCookie(response, {
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresIn: tokenData.expires_in,
+      expiresAt,
+      scope: tokenData.scope,
+    });
 
     return response;
   } catch (error: unknown) {

@@ -3,6 +3,12 @@
 ## Prioridad CEO
 - [x] Aplicar fixes críticos de la auditoría (HB#57) — Fase 1 completa
 - [x] Conectar dashboards a datos reales — Fase 2 completa
+- [x] Token persistence — Todos los bugs críticos resueltos
+
+## Completados (HB#61)
+- [x] Fix B2: Token persistence con cookie httpOnly (cold start recovery)
+- [x] Auth status lee cookie como fallback
+- [x] Disconnect limpia cookie
 
 ## Completados (HB#60)
 - [x] Fix B5: Analytics fetch desde /api/sync-data con demo fallback
@@ -21,7 +27,6 @@
 - [x] Nuevo endpoint: /api/sync-data
 
 ## Pendientes (prioridad)
-- [ ] Fix B2: Persistencia de tokens (Vercel KV o cookies encriptadas)
 - [ ] Fix A5: Error boundaries por sección
 - [ ] Fix A6: Paginación en listas
 - [ ] Fix A7: Tree-shake shadcn components no usados

@@ -1,5 +1,6 @@
 // Fanvue API Client — OAuth2 PKCE + API wrappers
 
+import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 
 const FANVUE_AUTH_URL = "https://auth.fanvue.com/oauth2/auth";
@@ -31,6 +32,8 @@ const SCOPES = [
   "write:agency",
 ];
 
+const TOKEN_COOKIE_NAME = "fanvue_token";
+
 // ─── PKCE Helpers ────────────────────────────────────────────────────
 
 export function generateRandomString(length = 32): string {
@@ -58,6 +61,82 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
+}
+
+// ─── Cookie Helpers for Token Persistence ────────────────────────────
+
+// Encode token record for cookie storage (base64url)
+function encodeTokenCookie(data: Record<string, unknown>): string {
+  const json = JSON.stringify(data);
+  return Buffer.from(json).toString("base64url");
+}
+
+// Decode token from cookie
+function decodeTokenCookie(encoded: string): Record<string, unknown> | null {
+  try {
+    const json = Buffer.from(encoded, "base64url").toString("utf-8");
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Set the token persistence cookie on a response.
+ * Call this after successful token exchange or refresh.
+ */
+export function setTokenCookie(
+  response: { cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void } },
+  record: { accessToken: string; refreshToken: string | null; expiresIn: number; expiresAt: string; scope: string | null }
+): void {
+  const cookieValue = encodeTokenCookie({
+    at: record.accessToken,
+    rt: record.refreshToken,
+    ei: record.expiresIn,
+    ea: record.expiresAt,
+    sc: record.scope,
+  });
+  response.cookies.set(TOKEN_COOKIE_NAME, cookieValue, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 7 days (refresh_token should survive)
+    path: "/",
+  });
+}
+
+/**
+ * Clear the token persistence cookie.
+ */
+export function clearTokenCookie(
+  response: { cookies: { delete: (name: string) => void } }
+): void {
+  response.cookies.delete(TOKEN_COOKIE_NAME);
+}
+
+/**
+ * Read token from cookie on a request.
+ */
+export function getTokenFromRequest(request: NextRequest): {
+  accessToken: string;
+  refreshToken: string | null;
+  expiresIn: number;
+  expiresAt: string;
+  scope: string | null;
+} | null {
+  const cookieVal = request.cookies.get(TOKEN_COOKIE_NAME)?.value;
+  if (!cookieVal) return null;
+
+  const decoded = decodeTokenCookie(cookieVal);
+  if (!decoded) return null;
+
+  return {
+    accessToken: decoded.at as string,
+    refreshToken: (decoded.rt as string) || null,
+    expiresIn: (decoded.ei as number) || 0,
+    expiresAt: (decoded.ea as string) || new Date().toISOString(),
+    scope: (decoded.sc as string) || null,
+  };
 }
 
 // ─── OAuth URLs ──────────────────────────────────────────────────────
@@ -150,10 +229,47 @@ export async function refreshAccessToken(
 
 export { FANVUE_API_BASE };
 
-export async function getValidAccessToken(): Promise<string> {
-  const token = await db.oAuthToken.findUnique({
+/**
+ * Get a valid access token. Handles:
+ * 1. In-memory store → KV store → cookie rehydration (cold start recovery)
+ * 2. Auto-refresh if token is near expiry
+ *
+ * Pass `request` to enable cookie-based rehydration on cold starts.
+ */
+export async function getValidAccessToken(request?: NextRequest): Promise<string> {
+  // Try in-memory/KV store first
+  let token = await db.oAuthToken.findUnique({
     where: { id: "fanvue_primary" },
   });
+
+  // ✅ FIX B2: Rehydrate from cookie on cold start (in-memory empty, no KV)
+  if (!token && request) {
+    const cookieToken = getTokenFromRequest(request);
+    if (cookieToken) {
+      // Rehydrate into store
+      const now = new Date().toISOString();
+      const rehydrated = await db.oAuthToken.upsert({
+        where: { id: "fanvue_primary" },
+        update: {
+          accessToken: cookieToken.accessToken,
+          refreshToken: cookieToken.refreshToken,
+          expiresIn: cookieToken.expiresIn,
+          expiresAt: cookieToken.expiresAt,
+          scope: cookieToken.scope,
+        },
+        create: {
+          id: "fanvue_primary",
+          provider: "fanvue",
+          accessToken: cookieToken.accessToken,
+          refreshToken: cookieToken.refreshToken,
+          expiresIn: cookieToken.expiresIn,
+          expiresAt: cookieToken.expiresAt,
+          scope: cookieToken.scope,
+        },
+      });
+      token = rehydrated;
+    }
+  }
 
   if (!token) {
     throw new Error("Not connected to Fanvue");
@@ -168,7 +284,7 @@ export async function getValidAccessToken(): Promise<string> {
     try {
       const data = await refreshAccessToken(token.refreshToken);
 
-      await db.oAuthToken.update({
+      const updated = await db.oAuthToken.update({
         where: { id: "fanvue_primary" },
         data: {
           accessToken: data.access_token,
@@ -178,7 +294,7 @@ export async function getValidAccessToken(): Promise<string> {
         },
       });
 
-      return data.access_token;
+      return updated.accessToken;
     } catch {
       await db.oAuthToken.delete({ where: { id: "fanvue_primary" } });
       throw new Error("Token expired and refresh failed. Please reconnect.");
@@ -187,5 +303,3 @@ export async function getValidAccessToken(): Promise<string> {
 
   return token.accessToken;
 }
-
-

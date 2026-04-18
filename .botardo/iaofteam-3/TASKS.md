@@ -77,11 +77,19 @@
   - Nuevo nav item "Fan Insights" con icono Users en sidebar
   - Spec: output/HB69-ia3-api-deep-dive.md Insights endpoints
 
-- [ ] P1-2: Earnings mejorado con datos reales
-  - GET /insights/earnings — grafico de ganancias por periodo
-  - GET /insights/earnings-summary — resumen agregado
-  - GET /insights/spending — reembolsos/chargebacks
-  - Graficos interactivos (bar chart por dia, line chart tendencia)
+- [x] P1-2: Earnings mejorado con datos reales ✅ RALPH-08
+  - Fetch directo: GET /api/fanvue/insights/earnings + earnings-summary + spending (paralelo via Promise.allSettled)
+  - Fallback a /api/sync-data para subscribers y engagement
+  - Period selector funcional: 7d/30d/90d/12m con filtro real (no solo label)
+  - Period-over-period change % (compara vs periodo anterior)
+  - 3 tabs: Earnings, Spending, Engagement
+  - Earnings: daily bar chart + trend line chart + stacked area (subs/tips/PPV) + revenue breakdown bars
+  - Spending: refunds + chargebacks table con status badges, deduction rate, summary cards
+  - Engagement: pie chart + key metrics bars
+  - Custom tooltip con currency formatting
+  - Nuevo componente: src/components/ui/tabs.tsx (shadcn-compatible)
+  - Demo data: 30 daily earnings points, 12 monthly, 7 spending records
+  - Net earnings calculation (gross - refunds - chargebacks)
 
 - [ ] P1-3: Mass Messaging
   - POST /chat-messages/mass — enviar a lista de fans
@@ -346,7 +354,7 @@
 | Fase | Total | Done | % |
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
-| FASE 7 (P1) | 5 | 1 | 20% |
+| FASE 7 (P1) | 5 | 2 | 40% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
@@ -355,7 +363,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **8** | **14%** |
+| **TOTAL** | **59** | **9** | **15%** |
 
 ---
 

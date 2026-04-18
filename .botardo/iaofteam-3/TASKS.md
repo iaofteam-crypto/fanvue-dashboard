@@ -149,9 +149,16 @@
   - Color: pin button active en primary, inactive en muted
   - Sonner toasts para feedback
 
-- [ ] P2-2: Repost Content
-  - POST /posts/{uuid}/repost — repostear
-  - Boton de repost en cards
+- [x] P2-2: Repost Content ✅ RALPH-13
+  - POST /api/fanvue/posts/{uuid}/repost — repostear
+  - DELETE /api/fanvue/posts/{uuid}/repost — deshacer repost
+  - Modificado content-section.tsx: agregado isReposted + repostsCount a Post interface
+  - handleRepost: toggle POST/DELETE via catch-all proxy con optimistic update
+  - Boton repost (Repeat2 icon) en cada post card con loading spinner
+  - Color emerald-500 cuando esta repostado, muted cuando no
+  - Contador de reposts visible en cada card
+  - Demo data: repostsCount en todos los posts demo (18, 7, 34, 52, 0)
+  - Sonner toasts para feedback
 
 - [ ] P2-3: Post Comments
   - GET /posts/{uuid}/comments — listar comentarios
@@ -386,7 +393,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 1 | 10% |
+| FASE 8 (P2) | 10 | 2 | 20% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -394,7 +401,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **13** | **22%** |
+| **TOTAL** | **59** | **14** | **24%** |
 
 ---
 

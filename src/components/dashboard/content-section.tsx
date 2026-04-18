@@ -17,6 +17,7 @@ import {
   X,
   Pin,
   PinOff,
+  Repeat2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,8 @@ interface Post {
   commentsCount?: number;
   isLocked?: boolean;
   isPinned?: boolean;
+  isReposted?: boolean;
+  repostsCount?: number;
   price?: number;
   media?: Array<{ type?: string; url?: string }>;
 }
@@ -85,6 +88,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [newPost, setNewPost] = useState({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pinningId, setPinningId] = useState<string | null>(null);
+  const [repostingId, setRepostingId] = useState<string | null>(null);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -108,11 +112,11 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
     // Demo data
     setPosts([
-      { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
-      { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
-      { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
-      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, isLocked: false, isPinned: true, createdAt: new Date(Date.now() - 345600000).toISOString() },
-      { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, isLocked: false, createdAt: new Date().toISOString() },
+      { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, repostsCount: 18, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
+      { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, repostsCount: 7, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
+      { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, repostsCount: 34, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
+      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, repostsCount: 52, isLocked: false, isPinned: true, createdAt: new Date(Date.now() - 345600000).toISOString() },
+      { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, repostsCount: 0, isLocked: false, createdAt: new Date().toISOString() },
     ]);
     setLoading(false);
   }, [connected]);
@@ -431,6 +435,50 @@ export function ContentSection({ connected }: { connected: boolean }) {
       toast.error(`Network error ${currentlyPinned ? "unpinning" : "pinning"} post`);
     } finally {
       setPinningId(null);
+    }
+  };
+
+  const handleRepost = async (postId: string, currentlyReposted: boolean) => {
+    setRepostingId(postId);
+    try {
+      if (currentlyReposted) {
+        // Undo repost
+        const res = await fetch(`/api/fanvue/posts/${postId}/repost`, {
+          method: "DELETE",
+        });
+        if (res.ok || res.status === 204) {
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === postId
+                ? { ...p, isReposted: false, repostsCount: Math.max(0, (p.repostsCount || 0) - 1) }
+                : p
+            )
+          );
+          toast.success("Repost removed");
+        } else {
+          toast.error("Failed to remove repost");
+        }
+      } else {
+        const res = await fetch(`/api/fanvue/posts/${postId}/repost`, {
+          method: "POST",
+        });
+        if (res.ok) {
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === postId
+                ? { ...p, isReposted: true, repostsCount: (p.repostsCount || 0) + 1 }
+                : p
+            )
+          );
+          toast.success("Post reposted");
+        } else {
+          toast.error("Failed to repost");
+        }
+      }
+    } catch {
+      toast.error("Network error reposting");
+    } finally {
+      setRepostingId(null);
     }
   };
 
@@ -781,6 +829,19 @@ export function ContentSection({ connected }: { connected: boolean }) {
                     <MessageSquare className="w-3 h-3" />
                     {post.commentsCount || 0}
                   </span>
+                  <button
+                    className={`flex items-center gap-1 transition-colors ${post.isReposted ? "text-emerald-500" : "text-muted-foreground hover:text-emerald-500"}`}
+                    onClick={(e) => { e.stopPropagation(); handleRepost(post.id, !!post.isReposted); }}
+                    disabled={repostingId === post.id}
+                    title={post.isReposted ? "Undo repost" : "Repost"}
+                  >
+                    {repostingId === post.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Repeat2 className={`w-3 h-3 ${post.isReposted ? "fill-current" : ""}`} />
+                    )}
+                    {post.repostsCount || 0}
+                  </button>
                 </div>
                 <span>
                   {post.createdAt

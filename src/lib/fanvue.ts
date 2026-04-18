@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 
 const FANVUE_AUTH_URL = "https://auth.fanvue.com/oauth2/auth";
 const FANVUE_TOKEN_URL = "https://auth.fanvue.com/oauth2/token";
-const FANVUE_API_BASE = "https://api.fanvue.com/v1";
+const FANVUE_API_BASE = "https://api.fanvue.com";
 
 /** Fanvue API version — required header X-Fanvue-API-Version */
 const FANVUE_API_VERSION = "2025-06-26";

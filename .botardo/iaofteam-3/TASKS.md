@@ -13,9 +13,11 @@
   - Archivo: `src/app/api/sync/route.ts` — performFanvueSync headers
   - Spec: output/HB70-p0-implementation-spec.md Issue #1
 
-- [ ] P0-2: Verificar y corregir `FANVUE_API_BASE` — remover `/v1` prefix si es incorrecto
+- [x] P0-2: Corregir `FANVUE_API_BASE` — remover `/v1` prefix ✅ RALPH-02
   - Archivo: `src/lib/fanvue.ts` line 8
-  - Testear ambos: `api.fanvue.com/v1/users/me` vs `api.fanvue.com/users/me`
+  - Cambiado de `https://api.fanvue.com/v1` a `https://api.fanvue.com`
+  - Evidencia: OpenAPI spec servers, llms.txt, SDK examples — ninguno usa /v1
+  - Versioning ahora via header (P0-1), no URL prefix
   - Spec: output/HB70-p0-implementation-spec.md Issue #2
 
 - [ ] P0-3: Agregar PATCH handler al Fanvue proxy
@@ -322,7 +324,7 @@
 ## Progreso RALPH LOOP
 | Fase | Total | Done | % |
 |------|-------|------|---|
-| FASE 6 (P0) | 7 | 1 | 14% |
+| FASE 6 (P0) | 7 | 2 | 29% |
 | FASE 7 (P1) | 5 | 0 | 0% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
@@ -332,7 +334,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **1** | **2%** |
+| **TOTAL** | **59** | **2** | **3%** |
 
 ---
 

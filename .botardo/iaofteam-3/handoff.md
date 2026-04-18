@@ -69,7 +69,7 @@
 ## P0 Code Issues (HB#70 — IA5 Tech Analysis)
 Precise spec in `output/HB70-p0-implementation-spec.md`
 1. ~~**CRITICAL**: Missing `X-Fanvue-API-Version: 2025-06-26` header on ALL Fanvue API calls (4 files, ~12 lines)~~ ✅ RALPH-01
-2. **CRITICAL**: `FANVUE_API_BASE` may be wrong (`/v1` prefix vs documented no-prefix) — needs verification
+2. ~~**CRITICAL**: `FANVUE_API_BASE` may be wrong (`/v1` prefix vs documented no-prefix) — needs verification~~ ✅ RALPH-02 — Removed `/v1`. Now `https://api.fanvue.com` (matching OpenAPI spec).
 3. **CRITICAL**: Media upload uses wrong pattern (multipart POST vs 3-step presigned URL) — needs full rewrite
 4. **HIGH**: Missing PATCH handler in proxy (needed for complete-upload-session, update-post, update-chat)
 5. **HIGH**: No webhook endpoint (Fanvue supports 5 event types with HMAC-SHA256 verification)
@@ -83,6 +83,7 @@ Precise spec in `output/HB70-p0-implementation-spec.md`
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#RALPH-02 (2026-04-19 01:30 BA): RALPH LOOP ciclo 2 — P0-2 COMPLETADO. Corregido FANVUE_API_BASE: removido `/v1` prefix. Ahora `https://api.fanvue.com` (alinea con OpenAPI spec, llms.txt, SDK examples). Versioning via header (P0-1). Build clean. 58→57 tareas. Proxima: P0-3 (PATCH handler).
 - HB#RALPH-01 (2026-04-19 01:15 BA): RALPH LOOP ciclo 1 — P0-1 COMPLETADO. Agregado `X-Fanvue-API-Version: 2025-06-26` header a todas las llamadas Fanvue API (4 archivos: fanvue.ts, [...endpoint]/route.ts GET/POST/DELETE, sync-fanvue/route.ts, sync/route.ts). Build clean. 59→58 tareas restantes. Proxima: P0-2 (FANVUE_API_BASE /v1 fix).
 - HB#RALPH-00 (2026-04-19 01:00 BA): RALPH LOOP ACTIVADO. CEO directive. 59 tareas en 10 fases (P0→DevOps). TASKS.md reescrito completo. Crons cada 30min configurados. Proxima tarea: P0-1 (version header).
 - HB#70 (2026-04-19 00:30 BA): IA5 — Tech Analysis. Analyzed all 4 files that call Fanvue API. Found 4 critical issues: missing version header (all calls), wrong base URL (/v1), broken media upload (multipart vs presigned), missing PATCH handler. Wrote precise implementation spec with line numbers and code changes.

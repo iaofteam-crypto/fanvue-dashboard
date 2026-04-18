@@ -6,6 +6,12 @@
 - [x] Token persistence — Todos los bugs críticos resueltos
 - [x] Fase 3 UX/Visual — Sonner toasts, error boundaries, empty states
 - [x] Fase 4 Security — Rate limiting, CSRF, input validation, error sanitization
+- [x] Fase 5: A7 tree-shake + A6 pagination
+
+## Completados (HB#64)
+- [x] A7: Removed 28 unused shadcn components (-3414 lines)
+- [x] A6: Pagination in Discoveries table (10 items/page)
+- [x] Removed dead toast.tsx/toaster.tsx/use-toast.ts
 
 ## Completados (HB#63)
 - [x] S1: In-memory IP-based rate limiter (chat: 10/min, sync: 2/min, fanvue proxy: 60/min)
@@ -46,8 +52,5 @@
 - [x] Nuevo endpoint: /api/sync-data
 
 ## Pendientes (prioridad)
-- [ ] Fix A6: Paginación en listas
-- [ ] Fix A7: Tree-shake shadcn components no usados
 - [ ] Fix F2: Media upload en posts
 - [ ] Fix F3-F5: PPV pricing, edit/delete posts, search messages
-- [ ] Fase 5: Reliability (error boundaries already done, retry logic, health checks)

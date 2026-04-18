@@ -40,15 +40,12 @@
 - ✅ B1/B3/B4/B8/A1/A2 + sync-data endpoint + TS strict
 
 ## Issues Pendientes
-1. ~~A5: Error boundaries por sección~~ ✅
-2. A6: Paginación en listas
-3. A7: Tree-shake shadcn components no usados
-4. ~~F6: Toast notifications~~ ✅
-5. ~~S1: Rate limiting~~ ✅
-6. ~~S2: CSRF protection~~ ✅
-7. ~~S3: Error sanitization~~ ✅
-8. ~~S4: Input validation~~ ✅
-9. F2-F5: Media upload, edit/delete, search
+1. ~~A5: Error boundaries~~ ✅
+2. ~~A6: Paginación~~ ✅
+3. ~~A7: Tree-shake~~ ✅
+4. ~~F6: Toast~~ ✅
+5. ~~S1-S4: Security~~ ✅
+6. F2-F5: Media upload, edit/delete, search
 
 ## Variables de Entorno Vercel
 - FANVUE_CLIENT_ID
@@ -58,6 +55,7 @@
 - (Opcional) GITHUB_TOKEN + GITHUB_REPO para repo browser
 
 ## Log
+- HB#64 (2026-04-18 19:30 BA): A7 tree-shake (-3414 lines), A6 pagination
 - HB#63 (2026-04-18 19:00 BA): Fase 4 Security — rate limiting, CSRF, input validation, error sanitization
 - HB#62 (2026-04-18 18:30 BA): Fase 3 UX — Sonner toasts, error boundaries, empty states, error.tsx, loading.tsx
 - HB#61 (2026-04-18 17:00 BA): B2 token persistence (cookie-based), S3 disconnect cookie clear

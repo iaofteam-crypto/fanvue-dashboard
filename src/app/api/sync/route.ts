@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getValidAccessToken, FANVUE_API_BASE, setTokenCookie } from "@/lib/fanvue";
 import { isGitHubConfigured, getFileContent } from "@/lib/github";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { verifyOrigin, sanitizeErrorMessage } from "@/lib/security";
 
 // Shared Fanvue sync logic — used by both manual and cron sync
 async function performFanvueSync(request?: NextRequest): Promise<{ synced: string[]; failed: string[] }> {
@@ -83,6 +85,21 @@ async function performRepoSync(): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
+  // S1: Rate limit sync (2/min — expensive operation)
+  const rateLimit = checkRateLimit(request, { maxRequests: 2 });
+  if (!rateLimit.allowed) {
+    const retryAfter = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+    return NextResponse.json(
+      { error: "Sync too frequently. Please wait." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
+  // S2: CSRF check on POST
+  if (!verifyOrigin(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const fanvueSync = await db.syncLog.create({
       type: "fanvue_manual",
@@ -141,9 +158,9 @@ export async function POST(request: NextRequest) {
       repo: repoResult,
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Sync error:", error);
     return NextResponse.json(
-      { error: msg },
+      { error: sanitizeErrorMessage(error) },
       { status: 500 }
     );
   }
@@ -157,9 +174,8 @@ export async function GET() {
     });
     return NextResponse.json(logs);
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: msg },
+      { error: sanitizeErrorMessage(error) },
       { status: 500 }
     );
   }

@@ -2,14 +2,57 @@ import { NextRequest, NextResponse } from "next/server";
 import ZAI from "z-ai-web-dev-sdk";
 import { db } from "@/lib/db";
 import { buildAelianaPrompt } from "@/lib/aeliana";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizeErrorMessage } from "@/lib/security";
+
+const MAX_MESSAGES = 50;
+const MAX_MESSAGE_LENGTH = 4000;
 
 export async function POST(request: NextRequest) {
+  // S1: Rate limit chat requests (10/min — LLM calls are expensive)
+  const rateLimit = checkRateLimit(request, { maxRequests: 10 });
+  if (!rateLimit.allowed) {
+    const retryAfter = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+    return NextResponse.json(
+      { error: "Too many chat requests. Please wait." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+
   try {
     const { messages, mode } = await request.json();
 
+    // S4: Validate messages input
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
         { error: "Messages array is required" },
+        { status: 400 }
+      );
+    }
+
+    if (messages.length > MAX_MESSAGES) {
+      return NextResponse.json(
+        { error: `Maximum ${MAX_MESSAGES} messages allowed` },
+        { status: 400 }
+      );
+    }
+
+    // Validate each message has required fields
+    const isValid = messages.every(
+      (m: unknown) =>
+        typeof m === "object" &&
+        m !== null &&
+        "role" in m &&
+        "content" in m &&
+        typeof (m as { role: unknown }).role === "string" &&
+        typeof (m as { content: unknown }).content === "string" &&
+        ((m as { role: string }).role === "user" || (m as { role: string }).role === "assistant" || (m as { role: string }).role === "system") &&
+        (m as { content: string }).content.length <= MAX_MESSAGE_LENGTH
+    );
+
+    if (!isValid) {
+      return NextResponse.json(
+        { error: "Invalid message format. Each message must have role (user/assistant/system) and content (max 4000 chars)." },
         { status: 400 }
       );
     }
@@ -62,9 +105,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: messageContent });
   } catch (error: unknown) {
     console.error("AELIANA chat error:", error);
-    const msg = error instanceof Error ? error.message : "Failed to generate response";
     return NextResponse.json(
-      { error: msg },
+      { error: sanitizeErrorMessage(error) },
       { status: 500 }
     );
   }

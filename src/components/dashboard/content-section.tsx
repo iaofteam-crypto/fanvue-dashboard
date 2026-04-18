@@ -59,6 +59,7 @@ interface Post {
   isReposted?: boolean;
   isLiked?: boolean;
   repostsCount?: number;
+  tipsTotal?: number;
   price?: number;
   media?: Array<{ type?: string; url?: string }>;
 }
@@ -112,6 +113,9 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [likesDialogPostId, setLikesDialogPostId] = useState<string | null>(null);
   const [likersList, setLikersList] = useState<Array<{ id: string; name: string; avatar?: string }>>([]);
   const [likersLoading, setLikersLoading] = useState(false);
+  const [tipsDialogPostId, setTipsDialogPostId] = useState<string | null>(null);
+  const [tipsList, setTipsList] = useState<Array<{ id: string; sender: string; amount: number; createdAt?: string; message?: string }>>([]);
+  const [tipsLoading, setTipsLoading] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -135,11 +139,11 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
     // Demo data
     setPosts([
-      { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, repostsCount: 18, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
-      { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, repostsCount: 7, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
-      { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, repostsCount: 34, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
-      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, repostsCount: 52, isLocked: false, isPinned: true, createdAt: new Date(Date.now() - 345600000).toISOString() },
-      { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, repostsCount: 0, isLocked: false, createdAt: new Date().toISOString() },
+      { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, repostsCount: 18, tipsTotal: 85, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
+      { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, repostsCount: 7, tipsTotal: 40, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
+      { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, repostsCount: 34, tipsTotal: 150, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
+      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, repostsCount: 52, tipsTotal: 210, isLocked: false, isPinned: true, createdAt: new Date(Date.now() - 345600000).toISOString() },
+      { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, repostsCount: 0, tipsTotal: 0, isLocked: false, createdAt: new Date().toISOString() },
     ]);
     setLoading(false);
   }, [connected]);
@@ -669,6 +673,46 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
   };
 
+  // --- Tips ---
+  const handleViewTips = async (postId: string) => {
+    setTipsDialogPostId(postId);
+    setTipsLoading(true);
+    try {
+      const res = await fetch(`/api/fanvue/posts/${postId}/tips`);
+      if (res.ok) {
+        const data = await res.json() as {
+          data?: Array<{ id: string; from?: string; username?: string; amount?: number; createdAt?: string; message?: string }>
+        };
+        const list = Array.isArray(data?.data) ? data.data : [];
+        setTipsList(list.map((t) => ({
+          id: t.id,
+          sender: t.from || t.username || "Unknown",
+          amount: t.amount || 0,
+          createdAt: t.createdAt,
+          message: t.message,
+        })));
+      } else {
+        // Demo tips
+        const names = ["Alex", "Jordan", "Sam", "Taylor", "Morgan", "Casey"];
+        const seed = parseInt(postId, 10) || 1;
+        const count = seed % 4 + 1;
+        setTipsList(
+          Array.from({ length: count }, (_, i) => ({
+            id: `${postId}-t${i}`,
+            sender: names[(seed + i * 2) % names.length],
+            amount: [5, 10, 15, 20, 25, 50][(seed + i) % 6],
+            createdAt: new Date(Date.now() - (i + 1) * 7200000).toISOString(),
+            message: i === 0 ? "Love your content!" : undefined,
+          }))
+        );
+      }
+    } catch {
+      setTipsList([]);
+    } finally {
+      setTipsLoading(false);
+    }
+  };
+
   const handleDeletePost = async (postId: string) => {
     setDeletingId(postId);
     try {
@@ -1055,6 +1099,16 @@ export function ContentSection({ connected }: { connected: boolean }) {
                     )}
                     {post.repostsCount || 0}
                   </button>
+                  {(post.tipsTotal ?? 0) > 0 && (
+                    <button
+                      className="flex items-center gap-1 text-amber-500 hover:text-amber-400 transition-colors"
+                      onClick={(e) => { e.stopPropagation(); handleViewTips(post.id); }}
+                      title="View tips"
+                    >
+                      <DollarSign className="w-3 h-3" />
+                      {post.tipsTotal}
+                    </button>
+                  )}
                 </div>
                 <span>
                   {post.createdAt
@@ -1166,6 +1220,54 @@ export function ContentSection({ connected }: { connected: boolean }) {
                       </span>
                     </div>
                     <span className="text-sm">{liker.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Tips Dialog */}
+      <Dialog open={!!tipsDialogPostId} onOpenChange={(open) => { if (!open) setTipsDialogPostId(null); }}>
+        <DialogContent className="bg-card border-border max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Tips</DialogTitle>
+          </DialogHeader>
+          <div className="mt-3 max-h-64 overflow-y-auto">
+            {tipsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <span className="text-xs text-muted-foreground ml-2">Loading tips...</span>
+              </div>
+            ) : tipsList.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">No tips yet</p>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs text-muted-foreground">{tipsList.length} tip{tipsList.length !== 1 ? "s" : ""}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    ${tipsList.reduce((sum, t) => sum + t.amount, 0).toFixed(2)}
+                  </Badge>
+                </div>
+                {tipsList.map((tip) => (
+                  <div key={tip.id} className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                      <DollarSign className="w-3.5 h-3.5 text-amber-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{tip.sender}</span>
+                        <span className="text-xs font-semibold text-emerald-500">${tip.amount.toFixed(2)}</span>
+                      </div>
+                      {tip.message && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5 italic">{tip.message}</p>
+                      )}
+                      {tip.createdAt && (
+                        <span className="text-[10px] text-muted-foreground/60">
+                          {new Date(tip.createdAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -186,9 +186,15 @@
   - Demo likers: generados deterministicamente por postId (3-10 por post)
   - Sonner toasts. Zero any, error:unknown
 
-- [ ] P2-5: Post Tips
-  - GET /posts/{uuid}/tips — ver tips de un post
-  - Mostrar total de tips ganados por post
+- [x] P2-5: Post Tips ✅ RALPH-16
+  - GET /api/fanvue/posts/{uuid}/tips — ver tips de un post (via catch-all proxy)
+  - tipsTotal agregado a Post interface
+  - handleViewTips: fetch tips → Dialog con lista de tips
+  - Tips Dialog: avatar DollarSign amber, nombre, monto en emerald-500, mensaje, fecha
+  - Header del dialog: cantidad de tips + total en Badge
+  - Boton DollarSign + total en post cards (solo visible si tipsTotal > 0), color amber-500
+  - Demo tips: generados deterministicamente por postId (1-4 tips por post)
+  - Sonner toasts. Zero any, error:unknown
 
 - [ ] P2-6: Vault Folders
   - GET /agency/creators/{id}/vault-folders — listar
@@ -410,7 +416,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 4 | 40% |
+| FASE 8 (P2) | 10 | 5 | 50% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -418,7 +424,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **16** | **27%** |
+| **TOTAL** | **59** | **17** | **29%** |
 
 ---
 

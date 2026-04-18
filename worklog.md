@@ -76,3 +76,37 @@ Stage Summary:
 - Dead code removed (FanvueClient ~110 lines)
 - Fase 2 of audit roadmap complete
 - Next priority: B2 (token persistence) or Fase 3 (functionality features)
+
+---
+Task ID: 4
+Agent: iaofteam-3 (OFIA-BOT)
+Task: HB#61 TICK_WORKER — B2 Token persistence (last critical bug)
+
+Work Log:
+- git pull --rebase origin main (success)
+- Read handoff.md, TASKS.md — confirmed Fase 2 complete, B2 is last critical bug
+- Read SYNC_PROMPT.md from botardo-os (no breaking changes)
+- Read fanvue.ts, callback/route.ts, auth/status, auth/disconnect, sync/route, fanvue proxy
+- Designed cookie-based token persistence strategy:
+  - OAuth callback sets httpOnly cookie with base64url-encoded token data
+  - getValidAccessToken(request?) rehydrates from cookie on cold starts
+  - auth/status checks cookie as fallback when store empty
+  - auth/disconnect clears both store and cookie
+  - Cookie: httpOnly, secure (prod), sameSite:lax, 7d maxAge, base64url
+- Updated fanvue.ts: added setTokenCookie, clearTokenCookie, getTokenFromRequest, encodeTokenCookie, decodeTokenCookie
+- Modified getValidAccessToken to accept optional NextRequest, rehydrate from cookie
+- Updated callback/route.ts to set token cookie after successful exchange
+- Updated auth/status/route.ts to check cookie fallback
+- Updated auth/disconnect/route.ts to clear cookie via NextResponse
+- Updated fanvue/[endpoint]/route.ts GET+POST to pass request
+- Updated sync/route.ts POST to accept NextRequest, pass to sync logic
+- TypeScript check: clean. Build: clean (15 routes, 0 errors)
+- Updated handoff.md and TASKS.md
+- Committed and pushed to origin main (5609ca6)
+
+Stage Summary:
+- B2 RESOLVED: Token persistence via httpOnly cookie
+- ALL 8 critical bugs from HB#57 audit now fixed (B1-B8)
+- Tokens survive Vercel cold starts without Vercel KV
+- Three-layer persistence: in-memory → Vercel KV (optional) → cookie (always)
+- Remaining: A5-A7 architecture, F-features, S-security

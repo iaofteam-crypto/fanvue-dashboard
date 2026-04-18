@@ -138,10 +138,16 @@
 
 ## FASE 8: P2 — Feature Parity vs Competidores
 
-- [ ] P2-1: Post Pinning
-  - POST /posts/{uuid}/pin — pin post
-  - DELETE /posts/{uuid}/pin — unpin
-  - Icono de pin en cards de posts
+- [x] P2-1: Post Pinning ✅ RALPH-12
+  - POST /api/fanvue/posts/{uuid}/pin — pin post
+  - DELETE /api/fanvue/posts/{uuid}/pin — unpin post
+  - Modificado content-section.tsx: agregado isPinned a Post interface, handleTogglePin (POST/DELETE via proxy)
+  - Pin icon (Pin/PinOff) en cada post card, con loading state
+  - Badge "Pinned" con icono Pin en cards de posts pinned
+  - Sort: pinned posts always first (antes de createdAt desc)
+  - Demo data: post "Day in my life" marcado como pinned
+  - Color: pin button active en primary, inactive en muted
+  - Sonner toasts para feedback
 
 - [ ] P2-2: Repost Content
   - POST /posts/{uuid}/repost — repostear
@@ -380,7 +386,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 0 | 0% |
+| FASE 8 (P2) | 10 | 1 | 10% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -388,7 +394,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **12** | **20%** |
+| **TOTAL** | **59** | **13** | **22%** |
 
 ---
 

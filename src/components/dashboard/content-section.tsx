@@ -15,6 +15,8 @@ import {
   DollarSign,
   Upload,
   X,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +50,7 @@ interface Post {
   likesCount?: number;
   commentsCount?: number;
   isLocked?: boolean;
+  isPinned?: boolean;
   price?: number;
   media?: Array<{ type?: string; url?: string }>;
 }
@@ -81,6 +84,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [creating, setCreating] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pinningId, setPinningId] = useState<string | null>(null);
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -107,7 +111,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
       { id: "1", title: "Behind the scenes", content: "Exclusive BTS content from today's shoot!", type: "photo", status: "published", likesCount: 245, commentsCount: 32, isLocked: false, createdAt: new Date(Date.now() - 86400000).toISOString() },
       { id: "2", title: "Weekly Q&A", content: "Answering your questions this week!", type: "text", status: "published", likesCount: 189, commentsCount: 56, isLocked: false, createdAt: new Date(Date.now() - 172800000).toISOString() },
       { id: "3", title: "Premium photo set", content: "Exclusive collection for subscribers only", type: "photo", status: "published", likesCount: 412, commentsCount: 28, isLocked: true, price: 9.99, createdAt: new Date(Date.now() - 259200000).toISOString() },
-      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, isLocked: false, createdAt: new Date(Date.now() - 345600000).toISOString() },
+      { id: "4", title: "Day in my life", content: "Vlog from yesterday", type: "video", status: "published", likesCount: 567, commentsCount: 89, isLocked: false, isPinned: true, createdAt: new Date(Date.now() - 345600000).toISOString() },
       { id: "5", title: "Cooking tutorial", content: "Making my favorite pasta recipe", type: "video", status: "draft", likesCount: 0, commentsCount: 0, isLocked: false, createdAt: new Date().toISOString() },
     ]);
     setLoading(false);
@@ -407,6 +411,29 @@ export function ContentSection({ connected }: { connected: boolean }) {
     }
   };
 
+  const handleTogglePin = async (postId: string, currentlyPinned: boolean) => {
+    setPinningId(postId);
+    try {
+      const method = currentlyPinned ? "DELETE" : "POST";
+      const res = await fetch(`/api/fanvue/posts/${postId}/pin`, {
+        method,
+      });
+      if (res.ok || res.status === 204) {
+        // Optimistically update
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, isPinned: !currentlyPinned } : p))
+        );
+        toast.success(currentlyPinned ? "Post unpinned" : "Post pinned");
+      } else {
+        toast.error(`Failed to ${currentlyPinned ? "unpin" : "pin"} post`);
+      }
+    } catch {
+      toast.error(`Network error ${currentlyPinned ? "unpinning" : "pinning"} post`);
+    } finally {
+      setPinningId(null);
+    }
+  };
+
   const handleDeletePost = async (postId: string) => {
     setDeletingId(postId);
     try {
@@ -672,7 +699,14 @@ export function ContentSection({ connected }: { connected: boolean }) {
             <p className="font-medium text-sm">No posts yet</p>
             <p className="text-xs mt-1">Create your first post to get started</p>
           </div>
-        ) : posts.map((post) => (
+        ) : [...posts]
+          // Sort: pinned posts first, then by createdAt desc
+          .sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          })
+          .map((post) => (
           <Card key={post.id} className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -687,6 +721,12 @@ export function ContentSection({ connected }: { connected: boolean }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
+                  {post.isPinned && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">
+                      <Pin className="w-2.5 h-2.5 mr-0.5" />
+                      Pinned
+                    </Badge>
+                  )}
                   {post.isLocked && <Lock className="w-3 h-3 text-amber-400" />}
                   {!post.isLocked && <Globe className="w-3 h-3 text-muted-foreground" />}
                   {post.status === "draft" && (
@@ -698,7 +738,23 @@ export function ContentSection({ connected }: { connected: boolean }) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 ml-auto text-muted-foreground hover:text-destructive"
+                    className={`h-6 w-6 ml-auto ${post.isPinned ? "text-primary hover:text-primary/70" : "text-muted-foreground hover:text-primary"}`}
+                    onClick={(e) => { e.stopPropagation(); handleTogglePin(post.id, !!post.isPinned); }}
+                    disabled={pinningId === post.id}
+                    title={post.isPinned ? "Unpin post" : "Pin post"}
+                  >
+                    {pinningId === post.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : post.isPinned ? (
+                      <PinOff className="w-3 h-3" />
+                    ) : (
+                      <Pin className="w-3 h-3" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
                     onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id); }}
                     disabled={deletingId === post.id}
                   >

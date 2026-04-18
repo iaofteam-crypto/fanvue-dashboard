@@ -102,6 +102,11 @@ const VaultFoldersSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const TrackingLinksSection = dynamic(
+  () => import("@/components/dashboard/tracking-links-section").then((m) => ({ default: m.TrackingLinksSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -131,7 +136,8 @@ type Section =
   | "mass-messaging"
   | "smart-lists"
   | "custom-lists"
-  | "vault";
+  | "vault"
+  | "tracking";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -143,6 +149,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "smart-lists", label: "Smart Lists", icon: ListFilter },
   { id: "custom-lists", label: "Custom Lists", icon: FolderOpen },
   { id: "vault", label: "Vault", icon: Vault },
+  { id: "tracking", label: "Tracking", icon: Link2 },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -341,6 +348,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Custom Lists"><CustomListsSection connected={connected} /></SectionErrorBoundary>;
       case "vault":
         return <SectionErrorBoundary sectionName="Vault"><VaultFoldersSection connected={connected} /></SectionErrorBoundary>;
+      case "tracking":
+        return <SectionErrorBoundary sectionName="Tracking"><TrackingLinksSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

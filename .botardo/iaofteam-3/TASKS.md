@@ -213,10 +213,18 @@
   - Nuevo nav item "Vault" con icono Vault en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P2-7: Tracking Links
-  - GET /tracking-links — listar links
+- [x] P2-7: Tracking Links ✅ RALPH-18
+  - GET /tracking-links — listar links (via catch-all proxy)
   - GET /tracking-links/{id}/users — ver usuarios por link
-  - UI: tabla de links con metricas (clicks, conversiones, revenue)
+  - POST /tracking-links — crear tracking link
+  - DELETE /tracking-links/{id} — eliminar tracking link
+  - Nuevo componente: `src/components/dashboard/tracking-links-section.tsx`
+  - 2 views (overview table + detail users)
+  - Overview: stats bar (clicks, conversions, revenue, subscribers), create form (name + destination + source), table con columnas (link, clicks, conv%, revenue, subs, actions), source badges con colores por plataforma (instagram pink, twitter sky, tiktok violet, youtube red, reddit orange, email emerald), copy link button, delete con confirmacion, search
+  - Detail: stats del link seleccionado (4 cards), tabla de usuarios (user, clicks, converted badge sub/yes, spent, last visit), back navigation
+  - Demo data: 6 links, 8 usuarios
+  - Nuevo nav item "Tracking" con icono Link2 en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P2-8: Subscriber Count en Dashboard
   - GET /insights/subscribers — conteo actual
@@ -428,7 +436,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 6 | 60% |
+| FASE 8 (P2) | 10 | 7 | 70% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -436,7 +444,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **18** | **31%** |
+| **TOTAL** | **59** | **19** | **32%** |
 
 ---
 

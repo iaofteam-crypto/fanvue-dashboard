@@ -64,11 +64,18 @@
 
 ## FASE 7: P1 — Features de Alta Prioridad
 
-- [ ] P1-1: Fan Insights panel
-  - Usar GET /insights/fan-insights/{fanId} para perfil individual
-  - Usar GET /insights/top-spenders para ranking de fans
-  - Mostrar: total gastado, subscripcion activa, frecuencia de mensajes, LTV estimado
-  - Nueva seccion o tab dentro de Messages
+- [x] P1-1: Fan Insights panel ✅ RALPH-07
+  - Nuevo componente: `src/components/dashboard/fan-insights-section.tsx`
+  - Top Spenders ranking (via GET /api/fanvue/insights/top-spenders) con demo fallback
+  - Fan Detail View (via GET /api/fanvue/insights/fan-insights/{fanId}) con 4 stat cards
+  - Shows: total spent, estimated LTV, message count/frequency, engagement score
+  - Subscription details: status, tier, duration, start date
+  - Spending breakdown: subs vs tips vs PPV con progress bars
+  - Activity timeline: last active, first active, frequency
+  - Sort by revenue/messages/recent, search filter, rank badges (1st/2nd/3rd)
+  - 10 demo fans con datos realistas, code-split via dynamic import
+  - Nuevo nav item "Fan Insights" con icono Users en sidebar
+  - Spec: output/HB69-ia3-api-deep-dive.md Insights endpoints
 
 - [ ] P1-2: Earnings mejorado con datos reales
   - GET /insights/earnings — grafico de ganancias por periodo
@@ -339,7 +346,7 @@
 | Fase | Total | Done | % |
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
-| FASE 7 (P1) | 5 | 0 | 0% |
+| FASE 7 (P1) | 5 | 1 | 20% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
@@ -348,7 +355,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **7** | **12%** |
+| **TOTAL** | **59** | **8** | **14%** |
 
 ---
 

@@ -16,6 +16,7 @@ import {
   Sun,
   Menu,
   Zap,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +74,11 @@ const ConnectionSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const FanInsightsSection = dynamic(
+  () => import("@/components/dashboard/fan-insights-section").then((m) => ({ default: m.FanInsightsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -97,13 +103,15 @@ type Section =
   | "tasks"
   | "aeliana"
   | "repo"
-  | "connection";
+  | "connection"
+  | "insights";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "content", label: "Content", icon: FileText },
+  { id: "insights", label: "Fan Insights", icon: Users },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -292,6 +300,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Messages"><MessagesSection connected={connected} /></SectionErrorBoundary>;
       case "content":
         return <SectionErrorBoundary sectionName="Content"><ContentSection connected={connected} /></SectionErrorBoundary>;
+      case "insights":
+        return <SectionErrorBoundary sectionName="Fan Insights"><FanInsightsSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

@@ -174,6 +174,7 @@ export function RepoBrowserSection() {
       if (res.ok) {
         const data = await res.json();
         setFileContent(data.content || JSON.stringify(data, null, 2));
+        setLoading(false);
         return;
       }
     } catch {

@@ -134,7 +134,7 @@ export function ConnectionSection({
           {[
             { label: "Grant Type", value: "Authorization Code + PKCE" },
             { label: "Scopes", value: "openid, offline_access, read:self, read:creator, read:insights, read:fan, read:chat, read:media, read:post, read:tracking_links, read:agency, write:chat, write:creator, write:media, write:post, write:tracking_links, write:agency" },
-            { label: "Token Storage", value: "Encrypted database (httpOnly cookies)" },
+            { label: "Token Storage", value: "In-memory + Vercel KV (optional Redis)" },
             { label: "Auto-Refresh", value: "Enabled (5 min before expiry)" },
           ].map((item) => (
             <div
@@ -160,8 +160,8 @@ export function ConnectionSection({
         </CardHeader>
         <CardContent className="space-y-3">
           {[
-            { task: "Fanvue Data Sync", schedule: "Every hour", icon: Zap },
-            { task: "Repository Sync", schedule: "Every 30 minutes", icon: RefreshCw },
+            { task: "Fanvue Data Sync", schedule: "Daily at 12:00 UTC", icon: Zap },
+            { task: "Repository Sync", schedule: "Daily at 00:00 UTC", icon: RefreshCw },
           ].map((item) => (
             <div
               key={item.task}

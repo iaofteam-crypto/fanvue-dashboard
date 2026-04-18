@@ -86,8 +86,8 @@ async function kvDel(key: string): Promise<void> {
 
 export const db = {
   oAuthToken: {
-    async findUnique(where: { where: { id: string } }): Promise<OAuthTokenRecord | null> {
-      const { id } = where;
+    async findUnique(args: { where: { id: string } }): Promise<OAuthTokenRecord | null> {
+      const { id } = args.where;
       // Try KV first
       const kvVal = await kvGet(`token:${id}`);
       if (kvVal) {
@@ -121,8 +121,8 @@ export const db = {
       return record;
     },
 
-    async update(where: { where: { id: string } }, data: Partial<OAuthTokenRecord>): Promise<OAuthTokenRecord> {
-      const { id } = where;
+    async update(args: { where: { id: string } }, data: Partial<OAuthTokenRecord>): Promise<OAuthTokenRecord> {
+      const { id } = args.where;
       const existing = store.tokens.get(id);
       if (!existing) throw new Error(`Token ${id} not found`);
 
@@ -138,31 +138,34 @@ export const db = {
       return record;
     },
 
-    async delete(where: { where: { id: string } }): Promise<void> {
-      const { id } = where;
+    async delete(args: { where: { id: string } }): Promise<void> {
+      const { id } = args.where;
       store.tokens.delete(id);
       await kvDel(`token:${id}`);
     },
   },
 
   syncLog: {
-    async create(data: Omit<SyncLogRecord, "id"> & { id?: string }): Promise<SyncLogRecord> {
+    async create(data: Partial<Omit<SyncLogRecord, "id">> & { id?: string }): Promise<SyncLogRecord> {
       const id = data.id || crypto.randomUUID();
       const now = new Date().toISOString();
       const record: SyncLogRecord = {
-        ...data,
         id,
+        type: data.type || "unknown",
+        status: data.status || "running",
+        message: data.message ?? null,
         startedAt: data.startedAt || now,
+        finishedAt: data.finishedAt ?? null,
       };
       store.syncLogs.set(id, record);
       return record;
     },
 
-    async update(where: { where: { id: string } }, data: Partial<SyncLogRecord>): Promise<SyncLogRecord> {
-      const { id } = where;
+    async update(args: { where: { id: string }; data: Partial<SyncLogRecord> }): Promise<SyncLogRecord> {
+      const { id } = args.where;
       const existing = store.syncLogs.get(id);
       if (!existing) throw new Error(`SyncLog ${id} not found`);
-      const record = { ...existing, ...data };
+      const record = { ...existing, ...args.data };
       store.syncLogs.set(id, record);
       return record;
     },
@@ -187,13 +190,23 @@ export const db = {
     }: {
       where: { id: string };
       update: Partial<DiscoveryRecord>;
-      create: DiscoveryRecord;
+      create: Partial<DiscoveryRecord> & { id: string; refId: string; title: string };
     }): Promise<DiscoveryRecord> {
       const existing = store.discoveries.get(where.id);
       const now = new Date().toISOString();
       const record: DiscoveryRecord = existing
         ? { ...existing, ...update, updatedAt: now }
-        : { ...create, createdAt: now, updatedAt: now };
+        : {
+            id: create.id,
+            refId: create.refId,
+            title: create.title,
+            category: create.category || "general",
+            tags: create.tags ?? null,
+            summary: create.summary ?? null,
+            status: create.status || "new",
+            createdAt: now,
+            updatedAt: now,
+          };
 
       store.discoveries.set(where.id, record);
       return record;

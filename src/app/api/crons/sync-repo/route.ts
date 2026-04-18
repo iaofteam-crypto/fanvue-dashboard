@@ -5,7 +5,8 @@ import { getFileContent } from "@/lib/github";
 export async function GET() {
   try {
     const syncLog = await db.syncLog.create({
-      data: { type: "repo_cron", status: "running" },
+      type: "repo_cron",
+      status: "running",
     });
 
     try {
@@ -23,7 +24,7 @@ export async function GET() {
         if (title) {
           await db.discovery.upsert({
             where: { id: `discovery_${refId}` },
-            update: { title, updatedAt: new Date() },
+            update: { title, updatedAt: new Date().toISOString() },
             create: {
               id: `discovery_${refId}`,
               refId,
@@ -40,13 +41,13 @@ export async function GET() {
         data: {
           status: "completed",
           message: `Synced repo, found ${count} discoveries`,
-          finishedAt: new Date(),
+          finishedAt: new Date().toISOString(),
         },
       });
     } catch (error: any) {
       await db.syncLog.update({
         where: { id: syncLog.id },
-        data: { status: "error", message: error.message, finishedAt: new Date() },
+        data: { status: "error", message: error.message, finishedAt: new Date().toISOString() },
       });
     }
 

@@ -1,58 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-
-const FANVUE_API_BASE = "https://api.fanvue.com/v1";
-
-async function getValidAccessToken(): Promise<string> {
-  const token = await db.oAuthToken.findUnique({
-    where: { id: "fanvue_primary" },
-  });
-
-  if (!token) {
-    throw new Error("Not connected to Fanvue");
-  }
-
-  // Check if token needs refresh (within 5 minutes of expiry)
-  if (token.expiresAt && new Date(token.expiresAt.getTime() - 5 * 60 * 1000) < new Date()) {
-    if (!token.refreshToken) {
-      throw new Error("Token expired and no refresh token available");
-    }
-
-    try {
-      const response = await fetch("https://auth.fanvue.com/oauth2/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          grant_type: "refresh_token",
-          client_id: process.env.FANVUE_CLIENT_ID!,
-          client_secret: process.env.FANVUE_CLIENT_SECRET!,
-          refresh_token: token.refreshToken,
-        }).toString(),
-      });
-
-      if (!response.ok) throw new Error("Refresh failed");
-
-      const data = await response.json();
-
-      await db.oAuthToken.update({
-        where: { id: "fanvue_primary" },
-        data: {
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token || token.refreshToken,
-          expiresIn: data.expires_in,
-          expiresAt: new Date(Date.now() + data.expires_in * 1000),
-        },
-      });
-
-      return data.access_token;
-    } catch {
-      await db.oAuthToken.delete({ where: { id: "fanvue_primary" } });
-      throw new Error("Token expired and refresh failed. Please reconnect.");
-    }
-  }
-
-  return token.accessToken;
-}
+import { getValidAccessToken, FANVUE_API_BASE } from "@/lib/fanvue";
 
 export async function GET(
   request: NextRequest,
@@ -74,10 +21,11 @@ export async function GET(
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: error.message },
-      { status: error.message.includes("Not connected") ? 401 : 500 }
+      { error: msg },
+      { status: msg.includes("Not connected") ? 401 : 500 }
     );
   }
 }
@@ -104,10 +52,11 @@ export async function POST(
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: error.message },
-      { status: error.message.includes("Not connected") ? 401 : 500 }
+      { error: msg },
+      { status: msg.includes("Not connected") ? 401 : 500 }
     );
   }
 }

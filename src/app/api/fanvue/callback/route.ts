@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
         expiresIn: tokenData.expires_in,
-        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
+        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
         scope: tokenData.scope,
       },
       create: {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
         expiresIn: tokenData.expires_in,
-        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
+        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString(),
         scope: tokenData.scope,
       },
     });

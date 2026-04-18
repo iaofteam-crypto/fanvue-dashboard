@@ -1,59 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getValidAccessToken, FANVUE_API_BASE } from "@/lib/fanvue";
 
-const FANVUE_API_BASE = "https://api.fanvue.com/v1";
-
-async function getValidAccessToken(): Promise<string> {
-  const token = await db.oAuthToken.findUnique({
-    where: { id: "fanvue_primary" },
-  });
-
-  if (!token) {
-    throw new Error("No Fanvue token");
-  }
-
-  // Refresh if within 5 minutes of expiry
-  if (token.expiresAt && new Date(token.expiresAt.getTime() - 5 * 60 * 1000) < new Date()) {
-    if (!token.refreshToken) {
-      throw new Error("Token expired and no refresh token");
-    }
-
-    try {
-      const response = await fetch("https://auth.fanvue.com/oauth2/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          grant_type: "refresh_token",
-          client_id: process.env.FANVUE_CLIENT_ID!,
-          client_secret: process.env.FANVUE_CLIENT_SECRET!,
-          refresh_token: token.refreshToken,
-        }).toString(),
-      });
-
-      if (!response.ok) throw new Error("Refresh failed");
-
-      const data = await response.json();
-      await db.oAuthToken.update({
-        where: { id: "fanvue_primary" },
-        data: {
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token || token.refreshToken,
-          expiresIn: data.expires_in,
-          expiresAt: new Date(Date.now() + data.expires_in * 1000),
-        },
-      });
-
-      return data.access_token;
-    } catch {
-      await db.oAuthToken.delete({ where: { id: "fanvue_primary" } });
-      throw new Error("Token expired and refresh failed");
-    }
-  }
-
-  return token.accessToken;
-}
-
-async function fanvueFetch(endpoint: string, accessToken: string): Promise<any> {
+async function fanvueFetch(endpoint: string, accessToken: string): Promise<unknown> {
   const url = `${FANVUE_API_BASE}${endpoint}`;
   const response = await fetch(url, {
     headers: {
@@ -71,29 +20,19 @@ async function fanvueFetch(endpoint: string, accessToken: string): Promise<any> 
 
 export async function GET() {
   const syncLog = await db.syncLog.create({
-    data: { type: "fanvue_cron", status: "running" },
+    type: "fanvue_cron",
+    status: "running",
   });
 
   try {
-    const token = await db.oAuthToken.findUnique({
-      where: { id: "fanvue_primary" },
-    });
-
-    if (!token) {
-      await db.syncLog.update({
-        where: { id: syncLog.id },
-        data: { status: "skipped", message: "No Fanvue token stored", finishedAt: new Date() },
-      });
-      return NextResponse.json({ status: "skipped", reason: "no_token" });
-    }
-
     let accessToken: string;
     try {
       accessToken = await getValidAccessToken();
-    } catch (refreshError: any) {
+    } catch (refreshError: unknown) {
+      const msg = refreshError instanceof Error ? refreshError.message : "Unknown error";
       await db.syncLog.update({
         where: { id: syncLog.id },
-        data: { status: "error", message: `Token refresh failed: ${refreshError.message}`, finishedAt: new Date() },
+        data: { status: "error", message: `Token refresh failed: ${msg}`, finishedAt: new Date().toISOString() },
       });
       return NextResponse.json({ status: "error", reason: "token_refresh_failed" });
     }
@@ -138,7 +77,7 @@ export async function GET() {
       data: {
         status: "completed",
         message: `Synced ${synced.length}/${endpoints.length} endpoints: ${synced.join(", ")}`,
-        finishedAt: new Date(),
+        finishedAt: new Date().toISOString(),
       },
     });
 
@@ -148,14 +87,15 @@ export async function GET() {
       failed: failed.length > 0 ? failed : undefined,
       total: endpoints.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
     await db.syncLog.update({
       where: { id: syncLog.id },
-      data: { status: "error", message: error.message, finishedAt: new Date() },
+      data: { status: "error", message: msg, finishedAt: new Date().toISOString() },
     });
 
     return NextResponse.json(
-      { status: "error", error: error.message },
+      { status: "error", error: msg },
       { status: 500 }
     );
   }

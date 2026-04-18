@@ -1,5 +1,7 @@
 // Fanvue API Client — OAuth2 PKCE + API wrappers
 
+import { db } from "@/lib/db";
+
 const FANVUE_AUTH_URL = "https://auth.fanvue.com/oauth2/auth";
 const FANVUE_TOKEN_URL = "https://auth.fanvue.com/oauth2/token";
 const FANVUE_API_BASE = "https://api.fanvue.com/v1";
@@ -142,6 +144,48 @@ export async function refreshAccessToken(
   }
 
   return response.json();
+}
+
+// ─── Shared Token Helper (used by API routes) ─────────────────────────
+
+export { FANVUE_API_BASE };
+
+export async function getValidAccessToken(): Promise<string> {
+  const token = await db.oAuthToken.findUnique({
+    where: { id: "fanvue_primary" },
+  });
+
+  if (!token) {
+    throw new Error("Not connected to Fanvue");
+  }
+
+  // Check if token needs refresh (within 5 minutes of expiry)
+  if (token.expiresAt && new Date(token.expiresAt).getTime() - 5 * 60 * 1000 < Date.now()) {
+    if (!token.refreshToken) {
+      throw new Error("Token expired and no refresh token available");
+    }
+
+    try {
+      const data = await refreshAccessToken(token.refreshToken);
+
+      await db.oAuthToken.update(
+        { where: { id: "fanvue_primary" } },
+        {
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token || token.refreshToken,
+          expiresIn: data.expires_in,
+          expiresAt: new Date(Date.now() + data.expires_in * 1000).toISOString(),
+        },
+      );
+
+      return data.access_token;
+    } catch {
+      await db.oAuthToken.delete({ where: { id: "fanvue_primary" } });
+      throw new Error("Token expired and refresh failed. Please reconnect.");
+    }
+  }
+
+  return token.accessToken;
 }
 
 // ─── API Client ──────────────────────────────────────────────────────

@@ -48,10 +48,10 @@ type Section =
   | "repo"
   | "connection";
 
-const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard; badge?: string }[] = [
+const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "messages", label: "Messages", icon: MessageSquare, badge: "3" },
+  { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "content", label: "Content", icon: FileText },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
@@ -59,6 +59,9 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard; bad
   { id: "repo", label: "Repo Browser", icon: FolderOpen },
   { id: "connection", label: "Connection", icon: Link2 },
 ];
+
+// Mobile bottom nav — primary 5 items
+const MOBILE_NAV_IDS: Section[] = ["dashboard", "messages", "content", "aeliana", "connection"];
 
 // Move SidebarContent outside the parent component
 function SidebarNav({
@@ -104,14 +107,7 @@ function SidebarNav({
             >
               <item.icon className="w-4 h-4 flex-shrink-0" />
               <span className="flex-1 text-left">{item.label}</span>
-              {item.badge && (
-                <Badge
-                  variant="destructive"
-                  className="text-xs px-1.5 py-0 h-4 min-w-[16px] flex items-center justify-center"
-                >
-                  {item.badge}
-                </Badge>
-              )}
+
             </button>
           ))}
         </nav>
@@ -221,7 +217,12 @@ export default function Home() {
     window.location.href = "/api/fanvue/authorize";
   };
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
+    try {
+      await fetch("/api/auth/disconnect", { method: "POST" });
+    } catch {
+      // ignore
+    }
     currentConnectionState = false;
     connectionListeners.forEach((l) => l());
   };
@@ -346,7 +347,10 @@ export default function Home() {
         {isMobile && (
           <nav className="border-t border-border/50 bg-card/95 backdrop-blur-sm md:hidden flex-shrink-0">
             <div className="flex items-center justify-around px-2 py-1">
-              {NAV_ITEMS.slice(0, 5).map((item) => (
+              {MOBILE_NAV_IDS.map((sectionId) => {
+                const item = NAV_ITEMS.find((n) => n.id === sectionId);
+                if (!item) return null;
+                return (
                 <button
                   key={item.id}
                   onClick={() => navigateTo(item.id)}
@@ -358,13 +362,9 @@ export default function Home() {
                 >
                   <item.icon className="w-4.5 h-4.5" />
                   <span className="text-[10px]">{item.label}</span>
-                  {item.badge && (
-                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-destructive rounded-full text-[8px] flex items-center justify-center text-destructive-foreground font-bold">
-                      {item.badge}
-                    </span>
-                  )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </nav>
         )}

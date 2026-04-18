@@ -11,14 +11,14 @@ export async function GET() {
       return NextResponse.json({ connected: false });
     }
 
-    const isExpired = token.expiresAt && new Date() > token.expiresAt;
+    const isExpired = token.expiresAt ? new Date(token.expiresAt) < new Date() : false;
 
     return NextResponse.json({
       connected: true,
-      expiresAt: token.expiresAt?.toISOString(),
+      expiresAt: token.expiresAt,
       isExpired,
       scope: token.scope,
-      lastUpdated: token.updatedAt?.toISOString(),
+      lastUpdated: token.updatedAt,
     });
   } catch (error: any) {
     return NextResponse.json(

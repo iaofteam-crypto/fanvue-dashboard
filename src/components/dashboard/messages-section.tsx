@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Send, ArrowLeft, User, Loader2 } from "lucide-react";
+import { Send, ArrowLeft, User, Loader2, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 interface Chat {
   id: string;
@@ -45,6 +46,7 @@ export function MessagesSection({ connected }: { connected: boolean }) {
         setChats(chatList);
       }
     } catch {
+      toast.error("Failed to load conversations");
       // Demo data
       setChats([
         { id: "1", fan: { id: "f1", displayName: "Alex Johnson" }, lastMessage: "Hey! Love your latest content 🔥", unreadCount: 2 },
@@ -70,6 +72,7 @@ export function MessagesSection({ connected }: { connected: boolean }) {
         return;
       }
     } catch {
+      toast.error("Failed to load messages");
       // ignore
     }
     // Demo messages
@@ -112,6 +115,7 @@ export function MessagesSection({ connected }: { connected: boolean }) {
         setNewMessage("");
       }
     } catch {
+      toast.error("Failed to send message");
       // Add locally anyway for demo
       setMessages((prev) => [
         ...prev,
@@ -131,7 +135,9 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   if (!connected) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <p>Connect your Fanvue account to view messages</p>
+        <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+        <p className="font-medium text-sm">Messages unavailable</p>
+        <p className="text-xs mt-1">Connect your Fanvue account to view messages</p>
       </div>
     );
   }
@@ -249,7 +255,9 @@ export function MessagesSection({ connected }: { connected: boolean }) {
               </div>
             ) : chats.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                <p>No conversations yet</p>
+                <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="font-medium text-sm">No conversations yet</p>
+                <p className="text-xs mt-1">Messages from your fans will appear here</p>
               </div>
             ) : (
               <div>

@@ -22,11 +22,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { SectionErrorBoundary } from "@/components/dashboard/section-error-boundary";
 
 // ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
@@ -283,31 +285,33 @@ export default function Home() {
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
-        return <DashboardOverview connected={connected} />;
+        return <SectionErrorBoundary sectionName="Dashboard"><DashboardOverview connected={connected} /></SectionErrorBoundary>;
       case "analytics":
-        return <AnalyticsSection connected={connected} />;
+        return <SectionErrorBoundary sectionName="Analytics"><AnalyticsSection connected={connected} /></SectionErrorBoundary>;
       case "messages":
-        return <MessagesSection connected={connected} />;
+        return <SectionErrorBoundary sectionName="Messages"><MessagesSection connected={connected} /></SectionErrorBoundary>;
       case "content":
-        return <ContentSection connected={connected} />;
+        return <SectionErrorBoundary sectionName="Content"><ContentSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
-        return <DiscoveriesSection />;
+        return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":
-        return <TasksSection />;
+        return <SectionErrorBoundary sectionName="Tasks"><TasksSection /></SectionErrorBoundary>;
       case "aeliana":
-        return <AelianaChatSection />;
+        return <SectionErrorBoundary sectionName="AELIANA AI"><AelianaChatSection /></SectionErrorBoundary>;
       case "repo":
-        return <RepoBrowserSection />;
+        return <SectionErrorBoundary sectionName="Repo Browser"><RepoBrowserSection /></SectionErrorBoundary>;
       case "connection":
         return (
-          <ConnectionSection
-            connected={connected}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-          />
+          <SectionErrorBoundary sectionName="Connection">
+            <ConnectionSection
+              connected={connected}
+              onConnect={handleConnect}
+              onDisconnect={handleDisconnect}
+            />
+          </SectionErrorBoundary>
         );
       default:
-        return <DashboardOverview connected={connected} />;
+        return <SectionErrorBoundary sectionName="Dashboard"><DashboardOverview connected={connected} /></SectionErrorBoundary>;
     }
   };
 

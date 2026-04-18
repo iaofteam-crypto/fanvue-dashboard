@@ -17,7 +17,8 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
 
 // Fallback demo data shown when no synced data is available
 const DEMO_EARNINGS = [
@@ -225,7 +226,7 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
         }
       })
       .catch(() => {
-        // Keep demo data on fetch failure
+        toast.error("Failed to load analytics data");
       })
       .finally(() => setLoading(false));
   }, [connected]);
@@ -233,7 +234,9 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
   if (!connected) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <p>Connect your Fanvue account to view analytics</p>
+        <BarChart3 className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+        <p className="font-medium text-sm">Analytics unavailable</p>
+        <p className="text-xs mt-1">Connect your Fanvue account to view analytics</p>
       </div>
     );
   }

@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface DashboardStats {
   subscribers: number;
@@ -161,6 +162,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
         ]);
       }
     } catch {
+      toast.error("Failed to load sync data");
       // Fallback: try direct API calls
       try {
         const [earningsRes, subscribersRes, chatsRes, postsRes] = await Promise.allSettled([
@@ -185,6 +187,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
         });
         setLastSync("Live API");
       } catch {
+        toast.error("Failed to load dashboard stats");
         setStats(null);
         setLastSync("Error");
       }
@@ -315,9 +318,11 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
         <CardContent>
           <div className="space-y-4">
             {activities.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                No activity data. Sync your Fanvue account to see recent activity.
-              </p>
+              <div className="flex flex-col items-center py-4 text-center">
+                <RefreshCw className="w-8 h-8 text-muted-foreground/30 mb-2" />
+                <p className="text-sm text-muted-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Sync your Fanvue account to see recent activity</p>
+              </div>
             ) : (
               activities.map((activity, i) => (
                 <div key={i} className="flex items-center gap-3 py-2">

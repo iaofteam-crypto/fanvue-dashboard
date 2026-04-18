@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Discovery {
   id: string;
@@ -125,6 +126,7 @@ export function DiscoveriesSection() {
         setHasRealData(false);
       }
     } catch {
+      toast.error("Failed to load discoveries");
       setDiscoveries(DEMO_DISCOVERIES);
       setHasRealData(false);
     } finally {

@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface RepoFile {
   name: string;
@@ -178,7 +179,7 @@ export function RepoBrowserSection() {
         return;
       }
     } catch {
-      // ignore
+      toast.error("Failed to fetch file content");
     }
     setFileContent("# File content will appear here once fetched from the repository.\n\n*This is a preview — connect GitHub to see real file contents.*");
     setLoading(false);

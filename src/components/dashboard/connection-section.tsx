@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
 export function ConnectionSection({
@@ -31,9 +32,14 @@ export function ConnectionSection({
   const handleSync = async () => {
     setSyncing(true);
     try {
-      await fetch("/api/sync", { method: "POST" });
+      const res = await fetch("/api/sync", { method: "POST" });
+      if (res.ok) {
+        toast.success("Data sync completed");
+      } else {
+        toast.error("Sync failed");
+      }
     } catch {
-      // ignore
+      toast.error("Sync request failed");
     } finally {
       setTimeout(() => setSyncing(false), 2000);
     }

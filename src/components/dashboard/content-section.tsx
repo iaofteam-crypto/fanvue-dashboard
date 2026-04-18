@@ -10,6 +10,7 @@ import {
   Loader2,
   Eye,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -66,6 +68,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
         return;
       }
     } catch {
+      toast.error("Failed to load posts");
       // ignore
     }
     // Demo data
@@ -100,7 +103,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
         fetchPosts();
       }
     } catch {
-      // ignore
+      toast.error("Failed to create post");
     } finally {
       setCreating(false);
     }
@@ -109,7 +112,9 @@ export function ContentSection({ connected }: { connected: boolean }) {
   if (!connected) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <p>Connect your Fanvue account to manage content</p>
+        <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+        <p className="font-medium text-sm">Content unavailable</p>
+        <p className="text-xs mt-1">Connect your Fanvue account to manage content</p>
       </div>
     );
   }
@@ -218,6 +223,12 @@ export function ContentSection({ connected }: { connected: boolean }) {
         {loading ? (
           <div className="col-span-full flex items-center justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+            <p className="font-medium text-sm">No posts yet</p>
+            <p className="text-xs mt-1">Create your first post to get started</p>
           </div>
         ) : posts.map((post) => (
           <Card key={post.id} className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors">

@@ -62,6 +62,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
         const data = await res.json();
         const postList = Array.isArray(data) ? data : data?.data || data?.posts || [];
         setPosts(postList);
+        setLoading(false);
         return;
       }
     } catch {

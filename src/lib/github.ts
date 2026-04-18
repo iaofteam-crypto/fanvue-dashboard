@@ -36,7 +36,7 @@ async function githubFetch(endpoint: string): Promise<any> {
       Accept: "application/vnd.github.v3+json",
       "User-Agent": "Fanvue-Ops-Dashboard",
     },
-    next: { revalidate: 300 }, // Cache for 5 minutes
+    cache: "no-store",
   });
 
   if (!response.ok) {

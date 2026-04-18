@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getFileContent, listDirectory } from "@/lib/github";
+import { getFileContent } from "@/lib/github";
 
 export async function GET() {
   try {

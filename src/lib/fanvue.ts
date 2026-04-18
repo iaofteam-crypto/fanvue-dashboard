@@ -60,16 +60,6 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
 
 // ─── OAuth URLs ──────────────────────────────────────────────────────
 
-export function getAuthorizationUrl(): string {
-  const verifier = generateRandomString(64);
-  const challenge = generateCodeChallenge(verifier); // async but we'll handle in route
-  const state = generateRandomString(32);
-  const scope = SCOPES.join(" ");
-
-  // We need this to be async, so we return a promise
-  return "";
-}
-
 export async function buildAuthorizationUrl(): Promise<{
   url: string;
   verifier: string;

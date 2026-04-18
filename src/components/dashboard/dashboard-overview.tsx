@@ -26,6 +26,18 @@ interface DashboardStats {
   earningsChange: number;
 }
 
+interface SubscriberInsights {
+  total: number;
+  active?: number;
+  expired?: number;
+  growthRate?: number;
+  newThisMonth?: number;
+  churnedThisMonth?: number;
+  avgSubscriptionLength?: number;
+  tiers?: Record<string, number>;
+  topTier?: string;
+}
+
 interface RecentActivityItem {
   icon: typeof Users;
   text: string;
@@ -115,6 +127,7 @@ function buildActivityFromSync(syncData: SyncDataResponse): RecentActivityItem[]
 
 export function DashboardOverview({ connected }: { connected: boolean }) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [subInsights, setSubInsights] = useState<SubscriberInsights | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string>("Never");
   const [activities, setActivities] = useState<RecentActivityItem[]>([]);
@@ -196,9 +209,35 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     }
   }, [connected]);
 
+  const fetchSubscriberInsights = useCallback(async () => {
+    try {
+      const res = await fetch("/api/fanvue/insights/subscribers");
+      if (res.ok) {
+        const data = await res.json();
+        const parsed = Array.isArray(data) ? data[0] : data;
+        if (parsed && typeof parsed === "object") {
+          setSubInsights({
+            total: Number(parsed.total || parsed.count || parsed.subscribers || 0),
+            active: Number(parsed.active || 0),
+            expired: Number(parsed.expired || 0),
+            growthRate: Number(parsed.growthRate || parsed.growth || 0),
+            newThisMonth: Number(parsed.newThisMonth || parsed.newThisPeriod || 0),
+            churnedThisMonth: Number(parsed.churnedThisMonth || parsed.churned || 0),
+            avgSubscriptionLength: Number(parsed.avgSubscriptionLength || 0),
+            tiers: parsed.tiers ? (parsed.tiers as Record<string, number>) : undefined,
+            topTier: parsed.topTier ? String(parsed.topTier) : undefined,
+          });
+        }
+      }
+    } catch {
+      // Subscriber insights unavailable — keep existing stats
+    }
+  }, []);
+
   useEffect(() => {
     fetchStats();
-  }, [fetchStats]);
+    fetchSubscriberInsights();
+  }, [fetchStats, fetchSubscriberInsights]);
 
   if (!connected) {
     return (
@@ -225,13 +264,23 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     );
   }
 
+  // Subscriber widget data — prefer dedicated insights, fallback to sync stats
+  const subscriberCount = subInsights?.total ?? stats?.subscribers ?? 0;
+  const subscriberChange = subInsights?.growthRate ?? stats?.subscriberChange ?? 0;
+
   const statCards = [
     {
       title: "Subscribers",
-      value: stats?.subscribers.toLocaleString() || "—",
-      change: stats?.subscriberChange,
+      value: subscriberCount.toLocaleString() || "—",
+      change: subscriberChange,
       icon: Users,
       color: "text-emerald-400",
+      detail: subInsights ? {
+        active: subInsights.active,
+        expired: subInsights.expired,
+        newThisMonth: subInsights.newThisMonth,
+        churnedThisMonth: subInsights.churnedThisMonth,
+      } : undefined,
     },
     {
       title: "Earnings",
@@ -305,10 +354,128 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
                   <span className="text-muted-foreground ml-1">vs last period</span>
                 </div>
               )}
+              {"detail" in card && card.detail && (
+                <div className="mt-2 pt-2 border-t border-border/50 grid grid-cols-2 gap-x-4 gap-y-1">
+                  {(card.detail as { active?: number; expired?: number; newThisMonth?: number; churnedThisMonth?: number }).active !== undefined && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Active</span>
+                      <span className="font-medium text-emerald-400">{(card.detail as { active: number }).active.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {(card.detail as { expired?: number }).expired !== undefined && (card.detail as { expired: number }).expired > 0 && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Expired</span>
+                      <span className="font-medium text-orange-400">{(card.detail as { expired: number }).expired.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {(card.detail as { newThisMonth?: number }).newThisMonth !== undefined && (card.detail as { newThisMonth: number }).newThisMonth > 0 && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">New</span>
+                      <span className="font-medium text-sky-400">+{(card.detail as { newThisMonth: number }).newThisMonth.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {(card.detail as { churnedThisMonth?: number }).churnedThisMonth !== undefined && (card.detail as { churnedThisMonth: number }).churnedThisMonth > 0 && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Churned</span>
+                      <span className="font-medium text-red-400">-{(card.detail as { churnedThisMonth: number }).churnedThisMonth.toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* Subscriber Breakdown Widget */}
+      {subInsights && subInsights.total > 0 && (
+        <Card className="bg-card/50 border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="w-4 h-4 text-emerald-400" />
+                Subscriber Insights
+              </CardTitle>
+              <Badge variant="outline" className="text-[10px] px-2 py-0">
+                {subInsights.total.toLocaleString()} total
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Active subscribers */}
+              <div className="space-y-1.5">
+                <div className="text-xs text-muted-foreground">Active Subscribers</div>
+                <div className="text-xl font-bold text-emerald-400">
+                  {subInsights.active ?? subInsights.total}
+                </div>
+                {subInsights.total > 0 && subInsights.active !== undefined && (
+                  <div className="w-full bg-muted rounded-full h-1.5">
+                    <div
+                      className="bg-emerald-400 h-1.5 rounded-full transition-all"
+                      style={{ width: `${Math.min(100, ((subInsights.active / subInsights.total) * 100)).toFixed(0)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+              {/* New this month */}
+              <div className="space-y-1.5">
+                <div className="text-xs text-muted-foreground">New This Month</div>
+                <div className="text-xl font-bold text-sky-400">
+                  +{subInsights.newThisMonth ?? 0}
+                </div>
+                {subInsights.growthRate !== undefined && subInsights.growthRate !== 0 && (
+                  <div className="flex items-center text-xs">
+                    {subInsights.growthRate > 0 ? (
+                      <TrendingUp className="w-3 h-3 text-emerald-400 mr-1" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3 text-red-400 mr-1" />
+                    )}
+                    <span className={subInsights.growthRate > 0 ? "text-emerald-400" : "text-red-400"}>
+                      {subInsights.growthRate > 0 ? "+" : ""}
+                      {subInsights.growthRate}%
+                    </span>
+                    <span className="text-muted-foreground ml-1">growth</span>
+                  </div>
+                )}
+              </div>
+              {/* Expired */}
+              <div className="space-y-1.5">
+                <div className="text-xs text-muted-foreground">Expired</div>
+                <div className="text-xl font-bold text-orange-400">
+                  {subInsights.expired ?? 0}
+                </div>
+                {subInsights.churnedThisMonth !== undefined && subInsights.churnedThisMonth > 0 && (
+                  <div className="text-xs text-red-400">
+                    -{subInsights.churnedThisMonth} churned this month
+                  </div>
+                )}
+              </div>
+              {/* Avg length */}
+              <div className="space-y-1.5">
+                <div className="text-xs text-muted-foreground">Avg Subscription</div>
+                <div className="text-xl font-bold">
+                  {subInsights.avgSubscriptionLength ? `${subInsights.avgSubscriptionLength}d` : "---"}
+                </div>
+              </div>
+            </div>
+            {/* Tiers breakdown */}
+            {subInsights.tiers && Object.keys(subInsights.tiers).length > 0 && (
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="text-xs text-muted-foreground mb-2">Subscription Tiers</div>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(subInsights.tiers).map(([tier, count]) => (
+                    <Badge key={tier} variant="outline" className="text-xs px-2.5 py-1">
+                      <span className="capitalize">{tier}</span>
+                      <span className="ml-1 font-bold">{Number(count).toLocaleString()}</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activity — derived from synced data */}
       <Card className="bg-card/50 border-border/50">

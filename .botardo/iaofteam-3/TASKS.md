@@ -226,9 +226,14 @@
   - Nuevo nav item "Tracking" con icono Link2 en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P2-8: Subscriber Count en Dashboard
-  - GET /insights/subscribers — conteo actual
-  - Widget en dashboard overview
+- [x] P2-8: Subscriber Count en Dashboard ✅ RALPH-19
+  - GET /insights/subscribers — conteo actual via catch-all proxy
+  - Modificado `dashboard-overview.tsx`: nuevo `fetchSubscriberInsights()` en paralelo con fetchStats
+  - SubscriberInsights interface: total, active, expired, growthRate, newThisMonth, churnedThisMonth, avgSubscriptionLength, tiers
+  - Subscriber card mejorado: muestra active/expired/new/churned en 2x2 grid dentro del card cuando datos disponibles
+  - Nuevo Subscriber Insights widget debajo de stat cards: 4 metricas (active con progress bar, new con growth rate, expired con churn, avg subscription length), tiers breakdown con badges
+  - Preferencia de datos: dedicated insights API > sync-data fallback
+  - Sonner toasts. Zero any, error:unknown
 
 - [ ] P2-9: Bulk Fan Insights
   - GET /insights/bulk-fan-insights — insights de multiples fans
@@ -436,7 +441,7 @@
 |------|-------|------|---|
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
-| FASE 8 (P2) | 10 | 7 | 70% |
+| FASE 8 (P2) | 10 | 8 | 80% |
 | FASE 9 (P3) | 6 | 0 | 0% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
@@ -444,7 +449,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **19** | **32%** |
+| **TOTAL** | **59** | **20** | **34%** |
 
 ---
 

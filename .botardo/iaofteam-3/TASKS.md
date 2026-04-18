@@ -51,6 +51,12 @@
 - [x] TypeScript: todos error:any → error:unknown
 - [x] Nuevo endpoint: /api/sync-data
 
+## Completados (HB#65)
+- [x] F3: PPV price input — conditional $ field when accessLevel="ppv", validated before submit
+- [x] F4: Create post now sends type + accessLevel + price to API (was only title + content)
+- [x] F4: Delete post button on each card with loading state + toast feedback
+- [x] DELETE handler in Fanvue proxy (rate limit 30/min + CSRF)
+- [x] F5: Search conversations by name/message + unread-only filter toggle
+
 ## Pendientes (prioridad)
-- [ ] Fix F2: Media upload en posts
-- [ ] Fix F3-F5: PPV pricing, edit/delete posts, search messages
+- [ ] Fix F2: Media upload en posts (multipart/form-data proxy)

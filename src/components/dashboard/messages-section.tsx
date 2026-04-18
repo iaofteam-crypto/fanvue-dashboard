@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Send, ArrowLeft, User, Loader2, MessageSquare } from "lucide-react";
+import { Send, ArrowLeft, User, Loader2, MessageSquare, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,8 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterUnreadOnly, setFilterUnreadOnly] = useState(false);
 
   const fetchChats = useCallback(async () => {
     if (!connected) return;
@@ -142,6 +144,13 @@ export function MessagesSection({ connected }: { connected: boolean }) {
     );
   }
 
+  const filteredChats = chats.filter((chat) => {
+    const name = chat.fan?.displayName || chat.participant?.username || `Chat ${chat.id}`;
+    const matchesSearch = !searchQuery || name.toLowerCase().includes(searchQuery.toLowerCase()) || (chat.lastMessage || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesUnread = !filterUnreadOnly || (chat.unreadCount && chat.unreadCount > 0);
+    return matchesSearch && matchesUnread;
+  });
+
   if (selectedChat) {
     const chatName = chats.find((c) => c.id === selectedChat)?.fan?.displayName
       || chats.find((c) => c.id === selectedChat)?.participant?.username
@@ -229,22 +238,47 @@ export function MessagesSection({ connected }: { connected: boolean }) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-muted-foreground text-sm">
-          Manage conversations with your fans
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Messages</h1>
+          <p className="text-muted-foreground text-sm">
+            Manage conversations with your fans
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Button
+          variant={filterUnreadOnly ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterUnreadOnly(!filterUnreadOnly)}
+          className="flex-shrink-0"
+        >
+          Unread only
+          {chats.reduce((sum, c) => sum + (c.unreadCount || 0), 0) > 0 && (
+            <Badge variant={filterUnreadOnly ? "secondary" : "destructive"} className="ml-2">
+              {chats.reduce((sum, c) => sum + (c.unreadCount || 0), 0)}
+            </Badge>
+          )}
+        </Button>
       </div>
 
       <Card className="bg-card/50 border-border/50">
         <CardHeader>
           <CardTitle className="text-base">
             Inbox
-            {chats.reduce((sum, c) => sum + (c.unreadCount || 0), 0) > 0 && (
-              <Badge variant="destructive" className="ml-2">
-                {chats.reduce((sum, c) => sum + (c.unreadCount || 0), 0)} unread
-              </Badge>
-            )}
+            <span className="text-muted-foreground font-normal ml-2">
+              {filteredChats.length} of {chats.length} conversations
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -253,15 +287,15 @@ export function MessagesSection({ connected }: { connected: boolean }) {
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
-            ) : chats.length === 0 ? (
+            ) : filteredChats.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                <MessageSquare className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-medium text-sm">No conversations yet</p>
-                <p className="text-xs mt-1">Messages from your fans will appear here</p>
+                <Search className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="font-medium text-sm">No matching conversations</p>
+                <p className="text-xs mt-1">Try adjusting your search or filter</p>
               </div>
             ) : (
               <div>
-                {chats.map((chat) => (
+                {filteredChats.map((chat) => (
                   <button
                     key={chat.id}
                     onClick={() => handleSelectChat(chat.id)}

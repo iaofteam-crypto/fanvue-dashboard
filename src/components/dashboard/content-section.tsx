@@ -11,6 +11,8 @@ import {
   Eye,
   MessageSquare,
   FileText,
+  Trash2,
+  DollarSign,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,8 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [newPost, setNewPost] = useState({ title: "", content: "", type: "text", accessLevel: "all" });
+  const [newPost, setNewPost] = useState({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async () => {
     if (!connected) return;
@@ -89,23 +92,51 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const handleCreatePost = async () => {
     setCreating(true);
     try {
+      const payload: Record<string, string | number> = {
+        title: newPost.title,
+        content: newPost.content,
+        type: newPost.type,
+        accessLevel: newPost.accessLevel,
+      };
+      if (newPost.accessLevel === "ppv" && newPost.price) {
+        payload.price = parseFloat(newPost.price);
+      }
       const res = await fetch("/api/fanvue/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newPost.title,
-          content: newPost.content,
-        }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
+        toast.success("Post published successfully");
         setDialogOpen(false);
-        setNewPost({ title: "", content: "", type: "text", accessLevel: "all" });
+        setNewPost({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
         fetchPosts();
+      } else {
+        toast.error("Failed to publish post");
       }
     } catch {
       toast.error("Failed to create post");
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    setDeletingId(postId);
+    try {
+      const res = await fetch(`/api/fanvue/posts/${postId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        toast.success("Post deleted");
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+      } else {
+        toast.error("Failed to delete post");
+      }
+    } catch {
+      toast.error("Failed to delete post");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -199,9 +230,26 @@ export function ContentSection({ connected }: { connected: boolean }) {
                   </Select>
                 </div>
               </div>
+              {newPost.accessLevel === "ppv" && (
+                <div className="space-y-2">
+                  <Label>Price (USD)</Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      min="0.50"
+                      step="0.50"
+                      placeholder="9.99"
+                      value={newPost.price}
+                      onChange={(e) => setNewPost({ ...newPost, price: e.target.value })}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              )}
               <Button
                 onClick={handleCreatePost}
-                disabled={creating || !newPost.title.trim()}
+                disabled={creating || !newPost.title.trim() || (newPost.accessLevel === "ppv" && (!newPost.price || parseFloat(newPost.price) <= 0))}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {creating ? (
@@ -250,6 +298,22 @@ export function ContentSection({ connected }: { connected: boolean }) {
                   {post.status === "draft" && (
                     <Badge variant="outline" className="text-xs ml-1">Draft</Badge>
                   )}
+                  {post.price != null && post.price > 0 && (
+                    <Badge variant="secondary" className="text-xs ml-1">${post.price}</Badge>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 ml-auto text-muted-foreground hover:text-destructive"
+                    onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id); }}
+                    disabled={deletingId === post.id}
+                  >
+                    {deletingId === post.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3 h-3" />
+                    )}
+                  </Button>
                 </div>
               </div>
             </CardHeader>

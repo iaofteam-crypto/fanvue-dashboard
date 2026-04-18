@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getValidAccessToken, FANVUE_API_BASE } from "@/lib/fanvue";
+import { getValidAccessToken, FANVUE_API_BASE, FANVUE_API_VERSION } from "@/lib/fanvue";
 
 async function fanvueFetch(endpoint: string, accessToken: string): Promise<unknown> {
   const url = `${FANVUE_API_BASE}${endpoint}`;
@@ -8,6 +8,7 @@ async function fanvueFetch(endpoint: string, accessToken: string): Promise<unkno
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
+      "X-Fanvue-API-Version": FANVUE_API_VERSION,
     },
   });
 

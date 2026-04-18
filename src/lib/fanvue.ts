@@ -7,6 +7,9 @@ const FANVUE_AUTH_URL = "https://auth.fanvue.com/oauth2/auth";
 const FANVUE_TOKEN_URL = "https://auth.fanvue.com/oauth2/token";
 const FANVUE_API_BASE = "https://api.fanvue.com/v1";
 
+/** Fanvue API version — required header X-Fanvue-API-Version */
+const FANVUE_API_VERSION = "2025-06-26";
+
 const CLIENT_ID = process.env.FANVUE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.FANVUE_CLIENT_SECRET!;
 const REDIRECT_URI = process.env.FANVUE_REDIRECT_URI!;
@@ -227,7 +230,7 @@ export async function refreshAccessToken(
 
 // ─── Shared Token Helper (used by API routes) ─────────────────────────
 
-export { FANVUE_API_BASE };
+export { FANVUE_API_BASE, FANVUE_API_VERSION };
 
 /**
  * Get a valid access token. Handles:

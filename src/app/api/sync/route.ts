@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getValidAccessToken, FANVUE_API_BASE, setTokenCookie } from "@/lib/fanvue";
+import { getValidAccessToken, FANVUE_API_BASE, FANVUE_API_VERSION, setTokenCookie } from "@/lib/fanvue";
 import { isGitHubConfigured, getFileContent } from "@/lib/github";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { verifyOrigin, sanitizeErrorMessage } from "@/lib/security";
@@ -28,6 +28,7 @@ async function performFanvueSync(request?: NextRequest): Promise<{ synced: strin
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
+          "X-Fanvue-API-Version": FANVUE_API_VERSION,
         },
       });
       if (!response.ok) throw new Error(`${response.status}`);

@@ -6,7 +6,7 @@
 
 ## FASE 6: P0 — Fixes Criticos de API (HB#70 spec)
 
-- [ ] P0-1: Agregar `X-Fanvue-API-Version: 2025-06-26` header a TODAS las llamadas Fanvue API
+- [x] P0-1: Agregar `X-Fanvue-API-Version: 2025-06-26` header a TODAS las llamadas Fanvue API ✅ RALPH-01
   - Archivo: `src/lib/fanvue.ts` — agregar constante `FANVUE_API_VERSION`
   - Archivo: `src/app/api/fanvue/[...endpoint]/route.ts` — GET, POST, DELETE headers
   - Archivo: `src/app/api/crons/sync-fanvue/route.ts` — fanvueFetch headers
@@ -322,7 +322,7 @@
 ## Progreso RALPH LOOP
 | Fase | Total | Done | % |
 |------|-------|------|---|
-| FASE 6 (P0) | 7 | 0 | 0% |
+| FASE 6 (P0) | 7 | 1 | 14% |
 | FASE 7 (P1) | 5 | 0 | 0% |
 | FASE 8 (P2) | 10 | 0 | 0% |
 | FASE 9 (P3) | 6 | 0 | 0% |
@@ -332,7 +332,7 @@
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **0** | **0%** |
+| **TOTAL** | **59** | **1** | **2%** |
 
 ---
 

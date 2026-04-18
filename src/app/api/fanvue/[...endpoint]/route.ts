@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getValidAccessToken, FANVUE_API_BASE } from "@/lib/fanvue";
+import { getValidAccessToken, FANVUE_API_BASE, FANVUE_API_VERSION } from "@/lib/fanvue";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { verifyOrigin, sanitizeErrorMessage } from "@/lib/security";
 
@@ -28,6 +28,7 @@ export async function GET(
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
+        "X-Fanvue-API-Version": FANVUE_API_VERSION,
       },
     });
 
@@ -74,6 +75,7 @@ export async function POST(
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
+      "X-Fanvue-API-Version": FANVUE_API_VERSION,
     };
 
     // For multipart, forward the raw body and let fetch set Content-Type with boundary
@@ -141,6 +143,7 @@ export async function DELETE(
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
+        "X-Fanvue-API-Version": FANVUE_API_VERSION,
       },
     });
 

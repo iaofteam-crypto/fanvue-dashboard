@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import ZAI from "z-ai-web-dev-sdk";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,8 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use z-ai-web-dev-sdk for AI chat
-    const { createChatCompletion } = await import("z-ai-web-dev-sdk");
+    const zai = await ZAI.create();
 
     const modePrefixes: Record<string, string> = {
       ceo: "In CEO Mode, focus on strategic vision, long-term planning, and executive decisions. ",
@@ -37,17 +37,23 @@ You are AELIANA, the AI Chief Operations Officer for a Fanvue creator business. 
 - Stay positive but realistic about challenges
 - Use concise, structured communication`;
 
-    const result = await createChatCompletion({
-      model: "claude-sonnet-4-20250514",
+    const completion = await zai.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
         ...messages,
       ],
     });
 
-    return NextResponse.json({
-      message: result.choices?.[0]?.message?.content || "No response generated",
-    });
+    const messageContent = completion.choices?.[0]?.message?.content;
+
+    if (!messageContent) {
+      return NextResponse.json(
+        { error: "No response generated" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ message: messageContent });
   } catch (error: any) {
     console.error("AELIANA chat error:", error);
     return NextResponse.json(

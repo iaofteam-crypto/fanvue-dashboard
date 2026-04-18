@@ -20,11 +20,13 @@ const SCOPES = [
   "read:media",
   "read:post",
   "read:tracking_links",
+  "read:agency",
   "write:chat",
   "write:creator",
   "write:media",
   "write:post",
   "write:tracking_links",
+  "write:agency",
 ];
 
 // ─── PKCE Helpers ────────────────────────────────────────────────────

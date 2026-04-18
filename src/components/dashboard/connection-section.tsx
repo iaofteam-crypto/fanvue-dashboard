@@ -133,7 +133,7 @@ export function ConnectionSection({
         <CardContent className="space-y-3">
           {[
             { label: "Grant Type", value: "Authorization Code + PKCE" },
-            { label: "Scopes", value: "openid, offline_access, read:self, read:insights, read:fan, read:chat, read:media, read:post, write:chat, write:media, write:post" },
+            { label: "Scopes", value: "openid, offline_access, read:self, read:creator, read:insights, read:fan, read:chat, read:media, read:post, read:tracking_links, read:agency, write:chat, write:creator, write:media, write:post, write:tracking_links, write:agency" },
             { label: "Token Storage", value: "Encrypted database (httpOnly cookies)" },
             { label: "Auto-Refresh", value: "Enabled (5 min before expiry)" },
           ].map((item) => (

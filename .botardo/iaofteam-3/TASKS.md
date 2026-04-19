@@ -437,10 +437,13 @@
   - `messages-section.tsx`: focusedChatIndex state + chatListRef, ArrowDown/Up para navegar chat list, Enter para abrir chat, scroll into view, highlight con bg-primary/10 ring-1
   - Build clean. Zero TypeScript errors
 
-- [ ] UX-6: Breadcrumbs y navegacion
-  - Breadcrumbs en secciones anidadas
-  - Boton "Back" en chat detail
-  - URL state para deep linking
+- [x] UX-6: Breadcrumbs y navegacion ✅ RALPH-36
+  - Breadcrumbs en secciones anidadas: componente `section-breadcrumbs.tsx` reutilizable con items, ChevronRight separadores, font-medium para ultimo item, hover:underline para clickables
+  - 10 secciones con breadcrumbs en detail views: messages, fan-insights, bulk-insights, smart-lists, custom-lists, vault, tracking, ab-testing, scheduled, chat-templates
+  - Boton close en repo-browser.tsx (X icon para deseleccionar archivo)
+  - URL state via hash: navigateTo() actualiza window.location.hash, lectura en mount, hashchange listener para browser back/forward
+  - SECTION_LABELS record + ALL_SECTIONS array en page.tsx para hash routing
+  - Build clean. Zero TypeScript errors
 
 - [ ] UX-7: Animaciones y transiciones
   - Framer Motion para page transitions
@@ -574,13 +577,13 @@
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
-| FASE 10 (UX) | 8 | 5 | 63% |
+| FASE 10 (UX) | 8 | 6 | 75% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **33** | **56%** |
+| **TOTAL** | **59** | **34** | **58%** |
 
 ---
 

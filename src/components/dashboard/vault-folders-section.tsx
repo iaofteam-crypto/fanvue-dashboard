@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
 // --- Types ---
 
@@ -381,8 +382,10 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
   // --- Detail view (media in a selected folder) ---
 
   if (selectedFolderId && selectedFolder) {
+    const breadcrumbItems = [{ label: "Vault" }, { label: selectedFolder.name }];
     return (
       <div className="space-y-4">
+        <SectionBreadcrumbs items={breadcrumbItems} />
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

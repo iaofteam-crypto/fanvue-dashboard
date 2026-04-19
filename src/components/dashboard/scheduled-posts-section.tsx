@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
 // --- Types ---
 
@@ -547,6 +548,8 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
           <ArrowLeft className="w-4 h-4" />
           Back to queue
         </button>
+
+        <SectionBreadcrumbs items={[{ label: "Scheduled" }, { label: activePost.title }]} />
 
         {/* Editing mode */}
         {editingPostId === activePost.id ? (

@@ -9,6 +9,7 @@ import {
   Loader2,
   ExternalLink,
   RefreshCw,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -290,8 +291,11 @@ export function RepoBrowserSection() {
                   href={`https://github.com/iaofteam-crypto/fanvue_ops/blob/main/${selectedFile}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-auto"
+                  className="ml-auto flex items-center gap-1"
                 >
+                  <Button variant="ghost" size="sm" className="h-6 px-2" onClick={() => { setSelectedFile(null); setFileContent(""); }}>
+                    <X className="w-3 h-3" />
+                  </Button>
                   <Button variant="ghost" size="sm" className="h-6 px-2">
                     <ExternalLink className="w-3 h-3" />
                   </Button>

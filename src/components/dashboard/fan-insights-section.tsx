@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { FanInsightsSkeleton } from "@/components/dashboard/section-skeletons";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { EmptyState } from "@/components/dashboard/empty-state";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -237,6 +238,7 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
 
   if (selectedFanId && fanInsight) {
     const fi = fanInsight;
+    const breadcrumbItems = [{ label: "Fan Insights" }, { label: fi.displayName || fi.username || "Fan" }];
     const subscriptionDuration = fi.subscriptionStart
       ? Math.floor((Date.now() - new Date(fi.subscriptionStart).getTime()) / (1000 * 60 * 60 * 24))
       : 0;

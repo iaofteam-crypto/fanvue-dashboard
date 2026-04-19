@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatListSkeleton } from "@/components/dashboard/section-skeletons";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { toast } from "sonner";
 
@@ -622,8 +623,11 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
       || chats.find((c) => c.id === selectedChat)?.participant?.username
       || "Chat";
 
+    const breadcrumbItems = [{ label: "Messages" }, { label: chatName }];
+
     return (
       <div className="h-[calc(100vh-10rem)] flex flex-col">
+        <SectionBreadcrumbs items={breadcrumbItems} />
         {/* Chat Header */}
         <div className="flex items-center gap-3 mb-4">
           <Button

@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -591,6 +592,8 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
           Back to templates
         </button>
 
+        <SectionBreadcrumbs items={[{ label: "Chat Templates" }, { label: selectedTemplate.name }]} />
+
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold">{selectedTemplate.name}</h2>
@@ -706,6 +709,8 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
           <ArrowLeft className="w-4 h-4" />
           Back to templates
         </button>
+
+        <SectionBreadcrumbs items={[{ label: "Chat Templates" }, { label: isEditing ? formName || "Template" : "New Template" }]} />
 
         <div>
           <h2 className="text-xl font-bold">{isEditing ? "Edit Template" : "Create New Template"}</h2>

@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
 // --- Types ---
 
@@ -362,8 +363,10 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
   // --- Detail view (members of a selected list) ---
 
   if (selectedListUuid && selectedList) {
+    const breadcrumbItems = [{ label: "Custom Lists" }, { label: selectedList.name }];
     return (
       <div className="space-y-4">
+        <SectionBreadcrumbs items={breadcrumbItems} />
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

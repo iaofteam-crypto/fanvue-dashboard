@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
 // --- Types ---
 
@@ -969,6 +970,8 @@ export function ABTestingSection({ connected }: { connected: boolean }) {
           <ArrowLeft className="w-4 h-4" />
           Back to tests
         </button>
+
+        <SectionBreadcrumbs items={[{ label: "A/B Testing" }, { label: activeTest.name }]} />
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

@@ -165,6 +165,31 @@ type Section =
   | "templates"
   | "advanced-analytics";
 
+const SECTION_LABELS: Record<Section, string> = {
+  dashboard: "Dashboard",
+  analytics: "Analytics",
+  messages: "Messages",
+  content: "Content",
+  discoveries: "Discoveries",
+  tasks: "Tasks",
+  aeliana: "AELIANA AI",
+  repo: "Repo Browser",
+  connection: "Connection",
+  insights: "Fan Insights",
+  "mass-messaging": "Mass Message",
+  "smart-lists": "Smart Lists",
+  "custom-lists": "Custom Lists",
+  vault: "Vault",
+  tracking: "Tracking",
+  "bulk-insights": "Bulk Insights",
+  "ab-testing": "A/B Testing",
+  scheduled: "Scheduled",
+  templates: "Chat Templates",
+  "advanced-analytics": "Adv. Analytics",
+};
+
+const ALL_SECTIONS: Section[] = Object.keys(SECTION_LABELS) as Section[];
+
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -303,16 +328,25 @@ export default function Home() {
     getServerConnectionSnapshot
   );
 
-  // Check URL params on mount
+  // Read section from URL hash on mount (deep linking)
   useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash && ALL_SECTIONS.includes(hash as Section)) {
+      setActiveSection(hash as Section);
+    }
+    // Also check for connected/error params
     const params = new URLSearchParams(window.location.search);
     if (params.get("connected") === "true") {
       currentConnectionState = true;
       connectionListeners.forEach((l) => l());
-      window.history.replaceState({}, "", "/");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("connected");
+      window.history.replaceState({}, "", url.toString());
     }
     if (params.get("error")) {
-      window.history.replaceState({}, "", "/");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("error");
+      window.history.replaceState({}, "", url.toString());
     }
   }, []);
 
@@ -374,7 +408,27 @@ export default function Home() {
   const navigateTo = (section: Section) => {
     setActiveSection(section);
     setSidebarOpen(false);
+    // Update URL hash for deep linking
+    if (section === "dashboard") {
+      window.history.replaceState(null, "", window.location.pathname);
+    } else {
+      window.history.replaceState(null, "", `#${section}`);
+    }
   };
+
+  // Listen for hash changes (browser back/forward)
+  useEffect(() => {
+ const handler = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && ALL_SECTIONS.includes(hash as Section)) {
+        setActiveSection(hash as Section);
+      } else if (!hash) {
+        setActiveSection("dashboard");
+      }
+    };
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {

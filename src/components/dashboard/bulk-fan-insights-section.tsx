@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { BulkInsightsTableSkeleton } from "@/components/dashboard/section-skeletons";
+import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -351,8 +352,10 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
   if (selectedFan) {
     const fi = selectedFan;
     const subAmount = (fi.totalSpent ?? 0) - (fi.tipTotal ?? 0) - (fi.ppvTotal ?? 0);
+    const breadcrumbItems = [{ label: "Bulk Insights" }, { label: fi.displayName || fi.username || "Fan" }];
     return (
       <div className="space-y-6">
+        <SectionBreadcrumbs items={breadcrumbItems} />
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => setSelectedFanId(null)}>
             <ArrowLeft className="w-4 h-4" />

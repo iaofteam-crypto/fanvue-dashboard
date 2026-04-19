@@ -492,9 +492,21 @@
 
 ## FASE 11: Performance
 
-- [ ] PERF-1: Implementar ISR o SWR para datos del dashboard
-  - stale-while-revalidate para datos que cambian poco
-  - Reducir waterfalls de fetch
+- [x] PERF-1: Implementar ISR o SWR para datos del dashboard ✅ RALPH-39
+  - Activado `@tanstack/react-query` v5 (ya estaba instalado pero sin uso)
+  - Nuevo `src/lib/query-client.ts`: QueryClient con SWR defaults (staleTime 60s, gcTime 5min, retry 1)
+  - Nuevo `src/components/providers/query-provider.tsx`: QueryClientProvider wrapper en layout
+  - Nuevo `src/hooks/use-fanvue-data.ts`: 10 hooks compartidos con queryKeys centralizados
+  - useSyncData (2min stale, compartido por 4 componentes: dashboard, analytics, discoveries, advanced-analytics)
+  - useSubscribers (1min, compartido por dashboard + fallback path — elimino fetch duplicado)
+  - useEarnings/useEarningsSummary/useSpending (compartidos por 2-3 componentes)
+  - useChats/usePosts (30s stale, compartidos por 2-3 componentes)
+  - useSmartLists/useCustomLists (1min, compartidos por 3 componentes cada uno)
+  - dashboard-overview.tsx migrado: useSyncData + useSubscribers, elimina fetchSubscriberInsights duplicado
+  - discoveries-section.tsx migrado: useSyncData hook, refresh via React Query refetch()
+  - page.tsx: prefetchQuery para sync-data, subscribers, chats, posts (500ms delay)
+  - Reducción estimada de requests: ~8-12 fetches duplicados eliminados por sesión de navegación
+  - NOTA: Los componentes restantes (analytics, advanced-analytics, messages, content, etc.) todavía usan fetch directo. Migración progresiva en PERF-2 (React.memo + useMemo) se puede incluir la migración de más hooks.
 
 - [ ] PERF-2: React.memo y useMemo donde sea necesario
   - Memoizar componentes de lista pesados
@@ -611,12 +623,12 @@
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
 | FASE 10 (UX) | 8 | 8 | 100% |
-| FASE 11 (Perf) | 6 | 0 | 0% |
+| FASE 11 (Perf) | 6 | 1 | 17% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **36** | **61%** |
+| **TOTAL** | **59** | **37** | **63%** |
 
 ---
 

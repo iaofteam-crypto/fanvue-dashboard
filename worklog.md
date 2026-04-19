@@ -40,3 +40,21 @@ Work Log:
 Stage Summary:
 - P1-4 Smart Lists complete with overview + member detail view
 - Next task: P1-5 (Custom Lists CRUD) — last P1 task
+
+---
+Task ID: ralph-35
+Agent: main
+Task: RALPH-35 UX-5: Keyboard shortcuts — command palette, Cmd+N, arrow nav
+
+Work Log:
+- Created command-palette.tsx with Cmd+K search, fuzzy scoring, keyboard nav
+- Added Cmd+N shortcut in page.tsx (navigate to content + open dialog via custom event)
+- Added arrow key navigation in messages-section.tsx chat list (focusedChatIndex + chatListRef)
+- Added search button in header bar ("Search... Ctrl K")
+- Fixed build error: filteredChats used before declaration — moved effects after definition
+- Build clean, 17 routes, 0 TS errors
+- Committed 82d5b63, pushed to origin/main
+
+Stage Summary:
+- UX-5 COMPLETE, 33/59 tasks (56%), UX phase 63% (5/8)
+- Next: UX-6 (Breadcrumbs y navegacion)

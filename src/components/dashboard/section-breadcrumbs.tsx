@@ -21,12 +21,12 @@ export const SectionBreadcrumbs = React.memo(function SectionBreadcrumbs({ items
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={index} className="flex items-center gap-1">
+            <li key={item.label + index} className="flex items-center gap-1">
               {index > 0 && (
                 <ChevronRight className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
               )}
               {isLast ? (
-                <span className="font-medium text-foreground">{item.label}</span>
+                <span aria-current="page" className="font-medium text-foreground">{item.label}</span>
               ) : item.onClick ? (
                 <button
                   onClick={item.onClick}

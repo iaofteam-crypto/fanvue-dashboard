@@ -36,7 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
@@ -199,6 +199,98 @@ function generateDemoMetrics(recipientCount: number, seed: number): ABTestMetric
     ppvPurchases: jitter(Math.floor(half * 0.12), half * 0.08),
   };
 }
+
+// --- Sub-components (outside main component to avoid re-creation on every render) ---
+
+const StatusBadge = ({ status }: { status: string }) => {
+  switch (status) {
+    case "draft":
+      return <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Draft</Badge>;
+    case "running":
+      return (
+        <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/20">
+          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          Running
+        </Badge>
+      );
+    case "paused":
+      return (
+        <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20">
+          <Pause className="w-3 h-3 mr-1" />
+          Paused
+        </Badge>
+      );
+    case "completed":
+      return (
+        <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Completed
+        </Badge>
+      );
+    default:
+      return <Badge variant="secondary" className="text-xs">{status}</Badge>;
+  }
+};
+
+const MetricBar = ({ label, valueA, valueB, unit, higherIsBetter }: { label: string; valueA: number; valueB: number; unit: string; higherIsBetter?: boolean }) => {
+  const aWins = higherIsBetter !== false ? valueA >= valueB : valueA <= valueB;
+  const bWins = higherIsBetter !== false ? valueB >= valueA : valueB <= valueA;
+  const maxVal = Math.max(valueA, valueB, 1);
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+      </div>
+      <div className="space-y-1">
+        {/* Variant A bar */}
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] w-4 font-bold ${aWins && valueA !== valueB ? "text-sky-400" : "text-muted-foreground"}`}>A</span>
+          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${aWins && valueA !== valueB ? "bg-sky-500" : "bg-sky-500/50"}`}
+              style={{ width: `${(valueA / maxVal) * 100}%` }}
+            />
+          </div>
+          <span className={`text-[10px] w-12 text-right ${aWins && valueA !== valueB ? "text-sky-400 font-medium" : "text-muted-foreground"}`}>
+            {valueA}{unit}
+          </span>
+        </div>
+        {/* Variant B bar */}
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] w-4 font-bold ${bWins && valueB !== valueA ? "text-violet-400" : "text-muted-foreground"}`}>B</span>
+          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${bWins && valueB !== valueA ? "bg-violet-500" : "bg-violet-500/50"}`}
+              style={{ width: `${(valueB / maxVal) * 100}%` }}
+            />
+          </div>
+          <span className={`text-[10px] w-12 text-right ${bWins && valueB !== valueA ? "text-violet-400 font-medium" : "text-muted-foreground"}`}>
+            {valueB}{unit}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MetricCard = ({ icon: Icon, label, valueA, valueB, unit, color }: { icon: typeof BarChart3; label: string; valueA: number; valueB: number; unit: string; color: string }) => (
+  <div className="bg-card/50 border border-border/50 rounded-lg p-3">
+    <div className="flex items-center gap-1.5 mb-2">
+      <Icon className={`w-3.5 h-3.5 ${color}`} />
+      <span className="text-xs text-muted-foreground">{label}</span>
+    </div>
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <span className="text-[10px] text-sky-400 font-medium">Variant A</span>
+        <p className="text-sm font-semibold">{valueA}{unit}</p>
+      </div>
+      <div>
+        <span className="text-[10px] text-violet-400 font-medium">Variant B</span>
+        <p className="text-sm font-semibold">{valueB}{unit}</p>
+      </div>
+    </div>
+  </div>
+);
 
 // --- Component ---
 
@@ -596,102 +688,6 @@ export function ABTestingSection({ connected }: { connected: boolean }) {
       </div>
     );
   }
-
-  // --- Status badge ---
-
-  const StatusBadge = ({ status }: { status: string }) => {
-    switch (status) {
-      case "draft":
-        return <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Draft</Badge>;
-      case "running":
-        return (
-          <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/20">
-            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-            Running
-          </Badge>
-        );
-      case "paused":
-        return (
-          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20">
-            <Pause className="w-3 h-3 mr-1" />
-            Paused
-          </Badge>
-        );
-      case "completed":
-        return (
-          <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-            <CheckCircle2 className="w-3 h-3 mr-1" />
-            Completed
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary" className="text-xs">{status}</Badge>;
-    }
-  };
-
-  // --- Metrics bar ---
-
-  const MetricBar = ({ label, valueA, valueB, unit, higherIsBetter }: { label: string; valueA: number; valueB: number; unit: string; higherIsBetter?: boolean }) => {
-    const aWins = higherIsBetter !== false ? valueA >= valueB : valueA <= valueB;
-    const bWins = higherIsBetter !== false ? valueB >= valueA : valueB <= valueA;
-    const maxVal = Math.max(valueA, valueB, 1);
-    return (
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{label}</span>
-        </div>
-        <div className="space-y-1">
-          {/* Variant A bar */}
-          <div className="flex items-center gap-2">
-            <span className={`text-[10px] w-4 font-bold ${aWins && valueA !== valueB ? "text-sky-400" : "text-muted-foreground"}`}>A</span>
-            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${aWins && valueA !== valueB ? "bg-sky-500" : "bg-sky-500/50"}`}
-                style={{ width: `${(valueA / maxVal) * 100}%` }}
-              />
-            </div>
-            <span className={`text-[10px] w-12 text-right ${aWins && valueA !== valueB ? "text-sky-400 font-medium" : "text-muted-foreground"}`}>
-              {valueA}{unit}
-            </span>
-          </div>
-          {/* Variant B bar */}
-          <div className="flex items-center gap-2">
-            <span className={`text-[10px] w-4 font-bold ${bWins && valueB !== valueA ? "text-violet-400" : "text-muted-foreground"}`}>B</span>
-            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${bWins && valueB !== valueA ? "bg-violet-500" : "bg-violet-500/50"}`}
-                style={{ width: `${(valueB / maxVal) * 100}%` }}
-              />
-            </div>
-            <span className={`text-[10px] w-12 text-right ${bWins && valueB !== valueA ? "text-violet-400 font-medium" : "text-muted-foreground"}`}>
-              {valueB}{unit}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // --- Metric card ---
-
-  const MetricCard = ({ icon: Icon, label, valueA, valueB, unit, color }: { icon: typeof BarChart3; label: string; valueA: number; valueB: number; unit: string; color: string }) => (
-    <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Icon className={`w-3.5 h-3.5 ${color}`} />
-        <span className="text-xs text-muted-foreground">{label}</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <span className="text-[10px] text-sky-400 font-medium">Variant A</span>
-          <p className="text-sm font-semibold">{valueA}{unit}</p>
-        </div>
-        <div>
-          <span className="text-[10px] text-violet-400 font-medium">Variant B</span>
-          <p className="text-sm font-semibold">{valueB}{unit}</p>
-        </div>
-      </div>
-    </div>
-  );
 
   // --- Create form ---
 

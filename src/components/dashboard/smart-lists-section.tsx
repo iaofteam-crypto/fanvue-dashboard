@@ -184,6 +184,7 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
             }))
           );
         }
+        setLoadingLists(false);
         return;
       }
     } catch {

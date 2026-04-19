@@ -102,7 +102,11 @@ export const db = {
       // Try KV first
       const kvVal = await kvGet(`token:${id}`);
       if (kvVal) {
-        return JSON.parse(kvVal);
+        try {
+          return JSON.parse(kvVal) as OAuthTokenRecord;
+        } catch {
+          // KV data corrupted — fall through to in-memory
+        }
       }
       return store.tokens.get(id) || null;
     },
@@ -267,7 +271,11 @@ export const db = {
       // Try KV first
       const kvVal = await kvGet(`synced:${key}`);
       if (kvVal) {
-        return JSON.parse(kvVal);
+        try {
+          return JSON.parse(kvVal) as SyncedDataRecord;
+        } catch {
+          // KV data corrupted — fall through to in-memory
+        }
       }
       return store.syncedData.get(key) || null;
     },

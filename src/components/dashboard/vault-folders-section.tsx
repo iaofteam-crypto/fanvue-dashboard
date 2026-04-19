@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
@@ -612,7 +612,7 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
             <CardContent className="p-3">
               <div className="text-xs text-muted-foreground">Images</div>
               <div className="text-lg font-bold mt-0.5">
-                {DEMO_MEDIA.filter((m) => m.type === "image").length}
+                {mediaItems.filter((m) => m.type === "image").length}
               </div>
             </CardContent>
           </Card>
@@ -620,7 +620,7 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
             <CardContent className="p-3">
               <div className="text-xs text-muted-foreground">Videos</div>
               <div className="text-lg font-bold mt-0.5">
-                {DEMO_MEDIA.filter((m) => m.type === "video").length}
+                {mediaItems.filter((m) => m.type === "video").length}
               </div>
             </CardContent>
           </Card>

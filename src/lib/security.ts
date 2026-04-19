@@ -6,6 +6,16 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * In Vercel Hobby (no custom domain), the host is always the Vercel URL.
  * For local dev, we allow localhost.
+ *
+ * @param request - The incoming Next.js request object.
+ * @returns `true` if the origin is allowed, `false` if it should be rejected.
+ *
+ * @example
+ * ```ts
+ * if (!verifyOrigin(request)) {
+ *   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+ * }
+ * ```
  */
 export function verifyOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
@@ -30,6 +40,9 @@ export function verifyOrigin(request: NextRequest): boolean {
 /**
  * Sanitize error messages before sending to client.
  * Prevents leaking internal paths, stack traces, or sensitive info.
+ *
+ * @param error - The caught error value (any type).
+ * @returns A safe, user-facing error string (truncated to 200 chars max).
  */
 export function sanitizeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -68,7 +81,10 @@ export function sanitizeErrorMessage(error: unknown): string {
 }
 
 /**
- * Create a rate-limit response with appropriate headers.
+ * Create a 429 rate-limit response with Retry-After and X-RateLimit-Reset headers.
+ *
+ * @param resetAt - Unix timestamp (ms) when the rate-limit window resets.
+ * @returns A `NextResponse` with status 429 and rate-limit headers.
  */
 export function rateLimitResponse(resetAt: number): NextResponse {
   const retryAfter = Math.ceil((resetAt - Date.now()) / 1000);

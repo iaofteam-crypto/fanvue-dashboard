@@ -32,7 +32,14 @@ export async function GET(
       },
     });
 
-    const data = await response.json();
+    // Handle empty bodies (e.g. 204 No Content) and non-JSON responses
+    const responseText = await response.text();
+    let data: unknown;
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = responseText || null;
+    }
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
     // Keep "Not connected" for auth errors but sanitize everything else
@@ -133,7 +140,14 @@ export async function DELETE(
       },
     });
 
-    const data = await response.json();
+    // Handle empty bodies (e.g. 204 No Content) and non-JSON responses
+    const responseText = await response.text();
+    let data: unknown;
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = responseText || null;
+    }
     return NextResponse.json(data, { status: response.status });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "";

@@ -29,7 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
@@ -478,10 +478,11 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                 const isSelected = selectedSmartLists.has(list.id);
                 const isExcluded = excludeSmartLists.has(list.id);
                 return (
-                  <button
+                  <div
                     key={list.id}
+                    role="group"
                     onClick={() => toggleSmartList(list.id)}
-                    className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-left ${
+                    className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-left cursor-pointer ${
                       isSelected
                         ? "border-primary bg-primary/5"
                         : "border-border/50 hover:border-border"
@@ -538,7 +539,7 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                         <Eye className="w-3.5 h-3.5" />
                       </button>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -553,10 +554,11 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                   const isSelected = selectedCustomLists.has(list.uuid);
                   const isExcluded = excludeCustomLists.has(list.uuid);
                   return (
-                    <button
+                    <div
                       key={list.uuid}
+                      role="group"
                       onClick={() => toggleCustomList(list.uuid)}
-                      className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-left ${
+                      className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-left cursor-pointer ${
                         isSelected
                           ? "border-primary bg-primary/5"
                           : "border-border/50 hover:border-border"
@@ -589,7 +591,7 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                           <Eye className="w-3.5 h-3.5" />
                         </button>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

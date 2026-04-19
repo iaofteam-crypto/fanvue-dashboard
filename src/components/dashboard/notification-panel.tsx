@@ -479,6 +479,18 @@ export const NotificationPanel = React.memo(function NotificationPanel({ connect
   // Toggle panel
   const togglePanel = () => setPanelOpen((prev) => !prev);
 
+  // Close panel on Escape key and click outside
+  useEffect(() => {
+    if (!panelOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPanelOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [panelOpen]);
+
   return (
     <div className="relative" ref={panelRef}>
       {/* Trigger Button */}

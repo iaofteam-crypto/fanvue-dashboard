@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Users,
   DollarSign,
@@ -224,7 +224,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     } finally {
       setLoading(false);
     }
-  }, [connected]);
+  }, [connected, syncData]);
 
   // Subscriber insights now provided by useSubscribers() hook (shared React Query cache)
   // No separate fetchSubscriberInsights needed — eliminates duplicate /insights/subscribers call
@@ -290,13 +290,13 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     },
     {
       title: "Messages",
-      value: stats?.messages.toLocaleString() || "—",
+      value: (stats?.messages ?? 0).toLocaleString() || "—",
       icon: MessageSquare,
       color: "text-sky-400",
     },
     {
       title: "Posts",
-      value: stats?.posts.toLocaleString() || "—",
+      value: (stats?.posts ?? 0).toLocaleString() || "—",
       icon: FileText,
       color: "text-amber-400",
     },

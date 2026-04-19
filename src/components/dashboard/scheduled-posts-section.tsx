@@ -33,7 +33,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sanitizeErrorMessage } from "@/lib/security";
 
 // GET /api/sync-data — returns all synced Fanvue data
 // GET /api/sync-data?key=me — returns specific endpoint data
@@ -33,9 +34,8 @@ export async function GET(request: NextRequest) {
       syncedAt: new Date().toISOString(),
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: msg },
+      { error: sanitizeErrorMessage(error) },
       { status: 500 }
     );
   }

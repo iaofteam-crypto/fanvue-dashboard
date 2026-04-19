@@ -287,19 +287,21 @@ export function RepoBrowserSection() {
               <FileText className="w-4 h-4" />
               {selectedFile || "Select a file to view"}
               {selectedFile && (
-                <a
-                  href={`https://github.com/iaofteam-crypto/fanvue_ops/blob/main/${selectedFile}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-auto flex items-center gap-1"
-                >
-                  <Button variant="ghost" size="sm" className="h-6 px-2" onClick={() => { setSelectedFile(null); setFileContent(""); }}>
+                <div className="ml-auto flex items-center gap-1">
+                  <a
+                    href={`https://github.com/iaofteam-crypto/fanvue_ops/blob/main/${encodeURIComponent(selectedFile)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="View on GitHub"
+                  >
+                    <Button variant="ghost" size="sm" className="h-6 px-2">
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </a>
+                  <Button variant="ghost" size="sm" className="h-6 px-2" onClick={() => { setSelectedFile(null); setFileContent(""); }} aria-label="Close file">
                     <X className="w-3 h-3" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-6 px-2">
-                    <ExternalLink className="w-3 h-3" />
-                  </Button>
-                </a>
+                </div>
               )}
             </CardTitle>
           </CardHeader>

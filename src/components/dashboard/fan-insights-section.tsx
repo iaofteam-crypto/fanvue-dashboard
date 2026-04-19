@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { FanInsightsSkeleton } from "@/components/dashboard/section-skeletons";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { EmptyState } from "@/components/dashboard/empty-state";
@@ -181,6 +181,7 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
         if (list.length > 0) {
           setHasRealData(true);
           setSpenders(list as TopSpender[]);
+          setLoading(false);
           return;
         }
       }

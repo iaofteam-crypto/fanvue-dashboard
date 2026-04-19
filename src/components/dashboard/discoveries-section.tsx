@@ -48,7 +48,7 @@ const DEMO_DISCOVERIES: Discovery[] = [
   { id: "d5", refId: "D5", title: "Content Calendar Optimization", category: "Operations", tags: "Scheduling, Content", status: "implemented", createdAt: "2024-01-19" },
 ];
 
-export function DiscoveriesSection({ connected = true }: { connected?: boolean }) {
+export function DiscoveriesSection({ connected = false }: { connected?: boolean }) {
   const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -176,6 +176,16 @@ export function DiscoveriesSection({ connected = true }: { connected?: boolean }
         return "bg-sky-500/10 text-sky-400 border-sky-500/20";
     }
   };
+
+  if (!connected) {
+    return (
+      <div className="text-center py-16 text-muted-foreground">
+        <Search className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
+        <p className="font-medium text-sm">Discoveries unavailable</p>
+        <p className="text-xs mt-1">Connect your Fanvue account to view discoveries</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

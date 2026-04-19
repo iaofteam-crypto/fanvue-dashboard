@@ -10,9 +10,17 @@ const FANVUE_API_BASE = "https://api.fanvue.com";
 /** Fanvue API version — required header X-Fanvue-API-Version */
 const FANVUE_API_VERSION = "2025-06-26";
 
-const CLIENT_ID = process.env.FANVUE_CLIENT_ID!;
-const CLIENT_SECRET = process.env.FANVUE_CLIENT_SECRET!;
-const REDIRECT_URI = process.env.FANVUE_REDIRECT_URI!;
+const CLIENT_ID = process.env.FANVUE_CLIENT_ID;
+const CLIENT_SECRET = process.env.FANVUE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.FANVUE_REDIRECT_URI;
+
+/** Validate required env vars at module load time */
+function validateEnv(): void {
+  if (!CLIENT_ID) console.warn("[fanvue] FANVUE_CLIENT_ID is not set");
+  if (!CLIENT_SECRET) console.warn("[fanvue] FANVUE_CLIENT_SECRET is not set");
+  if (!REDIRECT_URI) console.warn("[fanvue] FANVUE_REDIRECT_URI is not set");
+}
+validateEnv();
 
 const SCOPES = [
   "openid",
@@ -154,6 +162,10 @@ export async function buildAuthorizationUrl(): Promise<{
   const state = generateRandomString(32);
   const scope = SCOPES.join(" ");
 
+  if (!CLIENT_ID || !REDIRECT_URI) {
+    throw new Error("Fanvue OAuth not configured: missing CLIENT_ID or REDIRECT_URI");
+  }
+
   const url = `${FANVUE_AUTH_URL}?${new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
@@ -181,6 +193,10 @@ export async function exchangeCodeForTokens(
   code: string,
   codeVerifier: string
 ): Promise<TokenResponse> {
+  if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
+    throw new Error("Fanvue OAuth not configured: missing credentials");
+  }
+
   const response = await fetch(FANVUE_TOKEN_URL, {
     method: "POST",
     headers: {
@@ -207,6 +223,10 @@ export async function exchangeCodeForTokens(
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<TokenResponse> {
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    throw new Error("Fanvue OAuth not configured: missing credentials");
+  }
+
   const response = await fetch(FANVUE_TOKEN_URL, {
     method: "POST",
     headers: {

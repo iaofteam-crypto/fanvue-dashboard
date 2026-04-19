@@ -200,8 +200,9 @@ export async function POST(request: NextRequest) {
     const sigResult = verifySignature(rawBody, signatureHeader);
     if (!sigResult.valid) {
       console.warn(`[webhook] Signature verification failed: ${sigResult.reason}`);
+      // Don't leak signature verification details to prevent probing attacks
       return NextResponse.json(
-        { error: "Invalid signature", detail: sigResult.reason },
+        { error: "Invalid signature" },
         { status: 401 }
       );
     }

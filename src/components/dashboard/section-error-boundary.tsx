@@ -8,11 +8,21 @@ import { Card, CardContent } from "@/components/ui/card";
 interface SectionErrorBoundaryProps {
   children: React.ReactNode;
   sectionName: string;
+  /**
+   * External error key — when this changes, the children will remount.
+   * Use this to force a remount when the underlying data/props change,
+   * ensuring a retry with new data doesn't get stuck on stale state.
+   *
+   * If omitted, an internal counter is used that increments on every retry click.
+   */
+  errorKey?: string;
 }
 
 interface SectionErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  /** Internal retry counter, used as the React key when no external errorKey is provided */
+  retryCount: number;
 }
 
 export class SectionErrorBoundary extends React.Component<
@@ -21,10 +31,10 @@ export class SectionErrorBoundary extends React.Component<
 > {
   constructor(props: SectionErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, retryCount: 0 };
   }
 
-  static getDerivedStateFromError(error: Error): SectionErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): Partial<SectionErrorBoundaryState> {
     return { hasError: true, error };
   }
 
@@ -33,13 +43,20 @@ export class SectionErrorBoundary extends React.Component<
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState((prev) => ({
+      hasError: false,
+      error: null,
+      // Increment counter so the React key changes, forcing children to remount.
+      // This prevents infinite error loops when the error is caused by bad data
+      // that would re-trigger the same crash on a simple setState reset.
+      retryCount: prev.retryCount + 1,
+    }));
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="bg-card/50 border-destructive/30">
+        <Card className="bg-card/50 border-destructive/30" role="alert">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6 text-destructive" />
@@ -70,6 +87,12 @@ export class SectionErrorBoundary extends React.Component<
       );
     }
 
-    return this.props.children;
+    // Use external errorKey if provided, otherwise fall back to internal retry counter.
+    // Wrapping children in a keyed div ensures React fully unmounts and remounts
+    // them when the key changes, resetting all component state and preventing
+    // infinite error loops from stale/corrupt state.
+    const remountKey = this.props.errorKey ?? String(this.state.retryCount);
+
+    return <div key={remountKey}>{this.props.children}</div>;
   }
 }

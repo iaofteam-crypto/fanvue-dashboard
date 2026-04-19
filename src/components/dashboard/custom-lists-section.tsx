@@ -16,7 +16,6 @@ import {
   RefreshCw,
   FolderOpen,
   AlertCircle,
-  GripVertical,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
@@ -147,6 +146,7 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
         } else {
           setCustomLists([]);
         }
+        setLoadingLists(false);
         return;
       }
     } catch {

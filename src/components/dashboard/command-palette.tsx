@@ -21,6 +21,7 @@ import {
   BookTemplate,
   GitCompareArrows,
   CornerDownLeft,
+  Shield,
 } from "lucide-react";
 import {
   Dialog,
@@ -51,7 +52,8 @@ type Section =
   | "ab-testing"
   | "scheduled"
   | "templates"
-  | "advanced-analytics";
+  | "advanced-analytics"
+  | "integrations";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard; keywords?: string[] }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, keywords: ["home", "overview", "stats"] },
@@ -74,6 +76,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard; key
   { id: "aeliana", label: "AELIANA AI", icon: Bot, keywords: ["ai", "assistant", "chatbot", "help"] },
   { id: "repo", label: "Repo Browser", icon: FolderOpen, keywords: ["github", "code", "files"] },
   { id: "connection", label: "Connection", icon: Link2, keywords: ["settings", "connect", "disconnect", "auth"] },
+  { id: "integrations", label: "Security", icon: Shield, keywords: ["security", "integrations", "api key", "webhook", "csp", "audit", "rate limit"] },
 ];
 
 function scoreItem(query: string, item: typeof NAV_ITEMS[number]): number {
@@ -160,11 +163,15 @@ export const CommandPalette = React.memo(function CommandPalette({ activeSection
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % filteredItems.length);
+          if (filteredItems.length > 0) {
+            setSelectedIndex((prev) => (prev + 1) % filteredItems.length);
+          }
           break;
         case "ArrowUp":
           e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
+          if (filteredItems.length > 0) {
+            setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
+          }
           break;
         case "Enter":
           e.preventDefault();

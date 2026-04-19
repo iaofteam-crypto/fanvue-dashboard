@@ -183,7 +183,7 @@ export function ChatMessagesSkeleton({ count = 8 }: { count?: number }) {
         return (
           <div key={i} className={`flex ${isRight ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[75%] ${isRight ? "order-1" : ""}`}>
-              <Skeleton className={`h-4 w-${20 + (i * 7) % 20} mb-1 rounded-lg`} />
+              <Skeleton className={`h-4 mb-1 rounded-lg`} style={{ width: `${20 + (i * 7) % 20}%` }} />
               <Skeleton className="h-10 w-full rounded-lg" />
             </div>
           </div>

@@ -225,7 +225,14 @@ export function ContentSection({ connected }: { connected: boolean }) {
 
   const resetDialog = useCallback(() => {
     setNewPost({ title: "", content: "", type: "text", accessLevel: "all", price: "" });
-    setMediaFiles([]);
+    setMediaFiles((prev) => {
+      prev.forEach((item) => {
+        if (item.preview.startsWith("blob:")) {
+          URL.revokeObjectURL(item.preview);
+        }
+      });
+      return [];
+    });
     setUploading(false);
     setUploadProgress(0);
   }, []);

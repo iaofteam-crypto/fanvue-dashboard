@@ -27,6 +27,7 @@ import {
   BookTemplate,
   GitCompareArrows,
   MoreHorizontal,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -140,6 +141,11 @@ const AdvancedAnalyticsSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const IntegrationsSection = dynamic(
+  () => import("@/components/dashboard/integrations-section").then((m) => ({ default: m.IntegrationsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 const ChatTemplatesSection = dynamic(
   () => import("@/components/dashboard/chat-templates-section").then((m) => ({ default: m.ChatTemplatesSection })),
   { loading: () => <SectionSkeleton />, ssr: false }
@@ -167,7 +173,8 @@ type Section =
   | "ab-testing"
   | "scheduled"
   | "templates"
-  | "advanced-analytics";
+  | "advanced-analytics"
+  | "integrations";
 
 const SECTION_LABELS: Record<Section, string> = {
   dashboard: "Dashboard",
@@ -190,6 +197,7 @@ const SECTION_LABELS: Record<Section, string> = {
   scheduled: "Scheduled",
   templates: "Chat Templates",
   "advanced-analytics": "Adv. Analytics",
+  integrations: "Security",
 };
 
 const ALL_SECTIONS: Section[] = Object.keys(SECTION_LABELS) as Section[];
@@ -215,6 +223,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
   { id: "repo", label: "Repo Browser", icon: FolderOpen },
   { id: "connection", label: "Connection", icon: Link2 },
+  { id: "integrations", label: "Security", icon: Shield },
 ];
 
 // Mobile bottom nav — primary 5 items
@@ -521,6 +530,8 @@ export default function Home() {
             />
           </SectionErrorBoundary>
         );
+      case "integrations":
+        return <SectionErrorBoundary sectionName="Security"><IntegrationsSection connected={connected} /></SectionErrorBoundary>;
       default:
         return <SectionErrorBoundary sectionName="Dashboard"><DashboardOverview connected={connected} /></SectionErrorBoundary>;
     }

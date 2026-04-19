@@ -30,6 +30,7 @@ async function performFanvueSync(request?: NextRequest): Promise<{ synced: strin
           "Content-Type": "application/json",
           "X-Fanvue-API-Version": FANVUE_API_VERSION,
         },
+        signal: AbortSignal.timeout(15_000), // 15s timeout per endpoint
       });
       if (!response.ok) throw new Error(`${response.status}`);
       const data = await response.json();

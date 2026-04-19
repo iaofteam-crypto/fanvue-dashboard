@@ -147,7 +147,7 @@ export function AelianaChatSection() {
         </CardHeader>
 
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-          <div className="space-y-4">
+          <div className="space-y-4" role="log" aria-live="polite" aria-label="Chat messages">
             {messages.map((msg) => (
               <div
                 key={msg.id}

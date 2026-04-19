@@ -622,18 +622,21 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
       };
     }
 
+    let prevAdjustedDow = -1;
     sorted.forEach((e) => {
       const d = parseDate(e.date);
       const dow = d.getDay();
       const adjustedDow = dow === 0 ? 6 : dow - 1;
+      // If we wrapped to a new week (day-of-week went backwards), push and start fresh
+      if (adjustedDow <= prevAdjustedDow && prevAdjustedDow !== -1) {
+        weeks.push(currentWeek);
+        currentWeek = new Array(7).fill(null) as unknown as DailyEarnings[];
+      }
       currentWeek[adjustedDow] = e;
+      prevAdjustedDow = adjustedDow;
     });
 
-    // Check if we need to finalize the first partial week
-    const lastDate = parseDate(sorted[sorted.length - 1].date);
-    const lastDow = lastDate.getDay();
-    const adjustedLastDow = lastDow === 0 ? 6 : lastDow - 1;
-    // If the last day fills a complete row or we need to start new weeks
+    // Push the final week
     weeks.push(currentWeek);
 
     const maxVal = Math.max(...filteredEarnings.map((e) => e.total), 1);

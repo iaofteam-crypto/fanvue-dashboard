@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter, Bot, Sparkles, Brain, Heart, TrendingUp, AlertTriangle, MessageCircle, RefreshCw, BookTemplate } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -219,6 +219,9 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   const [chatTemplates, setChatTemplates] = useState<Array<{ id: string; name: string; content: string; category: string }>>([]);
   const [templatePopoverOpen, setTemplatePopoverOpen] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  // Keyboard navigation state for chat list
+  const [focusedChatIndex, setFocusedChatIndex] = useState(-1);
+  const chatListRef = useRef<HTMLDivElement>(null);
 
   const fetchChats = useCallback(async () => {
     if (!connected) return;
@@ -575,6 +578,42 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
     const matchesUnread = !filterUnreadOnly || (chat.unreadCount && chat.unreadCount > 0);
     return matchesSearch && matchesUnread;
   });
+
+  // Arrow key navigation for chat list (only when no chat selected and not typing in search)
+  useEffect(() => {
+    if (selectedChat) return;
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setFocusedChatIndex((prev) => Math.min(prev + 1, filteredChats.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setFocusedChatIndex((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === "Enter" && focusedChatIndex >= 0 && filteredChats[focusedChatIndex]) {
+        e.preventDefault();
+        handleSelectChat(filteredChats[focusedChatIndex].id);
+        setFocusedChatIndex(-1);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedChat, filteredChats, focusedChatIndex, handleSelectChat]);
+
+  // Reset focus when filter changes
+  useEffect(() => {
+    setFocusedChatIndex(-1);
+  }, [searchQuery, filterUnreadOnly]);
+
+  // Scroll focused chat into view
+  useEffect(() => {
+    if (focusedChatIndex < 0 || !chatListRef.current) return;
+    const items = chatListRef.current.querySelectorAll("button");
+    const el = items[focusedChatIndex] as HTMLElement | undefined;
+    if (el) el.scrollIntoView({ block: "nearest" });
+  }, [focusedChatIndex]);
 
   // ─── Chat Detail View (Messages + Media) ──────────────────────────────────
 
@@ -1216,14 +1255,17 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                 description={searchQuery ? "Try adjusting your search or filter" : "Start a conversation with your fans"}
               />
             ) : (
-              <div>
-                {filteredChats.map((chat) => {
+              <div ref={chatListRef}>
+                {filteredChats.map((chat, index) => {
                   const mediaCount = DEMO_CHAT_MEDIA[chat.id]?.length || 0;
                   return (
                     <button
                       key={chat.id}
                       onClick={() => handleSelectChat(chat.id)}
-                      className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border/30 text-left"
+                      onMouseEnter={() => setFocusedChatIndex(index)}
+                      className={`w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border/30 text-left ${
+                        focusedChatIndex === index ? "bg-primary/10 ring-1 ring-primary/30" : ""
+                      }`}
                     >
                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                         <User className="w-5 h-5 text-primary" />

@@ -426,11 +426,16 @@
   - Preservados: ab-testing (ya tenia CTA), scheduled-posts, notification-panel, templates popover, AI profile
   - Build clean. Zero TypeScript errors
 
-- [ ] UX-5: Keyboard shortcuts
-  - Cmd+K para search global
-  - Cmd+N para nuevo post
-  - Escape para cerrar dialogs
-  - Navegacion con flechas en listas
+- [x] UX-5: Keyboard shortcuts ✅ RALPH-35
+  - Cmd+K / Ctrl+K para command palette global (search + navigate a cualquier seccion)
+  - Cmd+N / Ctrl+N para nuevo post (navega a Content + abre dialog)
+  - Escape cierra command palette (Radix dialogs ya lo manejan nativamente)
+  - Navegacion con flechas en lista de chats (up/down para focus, Enter para abrir)
+  - Nuevo componente: `src/components/dashboard/command-palette.tsx` — Dialog con search input, lista filtrable de 20 secciones con iconos, scoring fuzzy (label start > keyword > contains), navegacion por teclado (arrows + Enter + Escape), footer con hints, badge "Active" para seccion actual
+  - Boton search en header bar ("Search... Ctrl K") que abre el palette
+  - Custom event `open-new-post` para comunicar page.tsx → content-section.tsx
+  - `messages-section.tsx`: focusedChatIndex state + chatListRef, ArrowDown/Up para navegar chat list, Enter para abrir chat, scroll into view, highlight con bg-primary/10 ring-1
+  - Build clean. Zero TypeScript errors
 
 - [ ] UX-6: Breadcrumbs y navegacion
   - Breadcrumbs en secciones anidadas
@@ -569,13 +574,13 @@
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
-| FASE 10 (UX) | 8 | 4 | 50% |
+| FASE 10 (UX) | 8 | 5 | 63% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **32** | **54%** |
+| **TOTAL** | **59** | **33** | **56%** |
 
 ---
 

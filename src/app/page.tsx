@@ -41,6 +41,7 @@ import {
 import { SectionErrorBoundary } from "@/components/dashboard/section-error-boundary";
 import { NotificationPanel } from "@/components/dashboard/notification-panel";
 import { SectionSkeleton } from "@/components/dashboard/section-skeletons";
+import { CommandPalette } from "@/components/dashboard/command-palette";
 
 // ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
@@ -340,6 +341,22 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // Cmd+N → navigate to content section + open new post dialog
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "n") {
+        e.preventDefault();
+        setActiveSection("content");
+        // Small delay so ContentSection mounts before dispatching
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("open-new-post"));
+        }, 100);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   const handleConnect = () => {
     window.location.href = "/api/fanvue/authorize";
   };
@@ -465,6 +482,21 @@ export default function Home() {
             </h2>
           </div>
           <div className="flex items-center gap-2">
+            {/* Search shortcut button — triggers command palette */}
+            <button
+              onClick={() => {
+                // Trigger Cmd+K palette by dispatching keyboard event
+                window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+              }}
+              className="hidden sm:flex items-center gap-2 h-8 px-2.5 rounded-md border border-border/50 bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors text-xs"
+              title="Search sections (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="text-muted-foreground/70">Search...</span>
+              <kbd className="ml-3 rounded border border-border bg-background px-1 font-mono text-[10px] text-muted-foreground/60">
+                Ctrl K
+              </kbd>
+            </button>
             <NotificationPanel connected={connected} />
             {connected ? (
               <Badge
@@ -562,6 +594,9 @@ export default function Home() {
           </nav>
         )}
       </main>
+
+      {/* Command Palette (Cmd+K / Ctrl+K) */}
+      <CommandPalette activeSection={activeSection} onNavigate={navigateTo} />
     </div>
   );
 }

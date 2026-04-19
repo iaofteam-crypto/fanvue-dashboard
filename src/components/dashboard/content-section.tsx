@@ -155,6 +155,15 @@ export function ContentSection({ connected }: { connected: boolean }) {
     fetchPosts();
   }, [fetchPosts]);
 
+  // Listen for Cmd+N "open-new-post" custom event from global keyboard shortcut
+  useEffect(() => {
+    const handler = () => {
+      setDialogOpen(true);
+    };
+    window.addEventListener("open-new-post", handler);
+    return () => window.removeEventListener("open-new-post", handler);
+  }, []);
+
   // --- Media helpers ---
   const addFiles = useCallback((files: FileList | File[]) => {
     const arr = Array.from(files);

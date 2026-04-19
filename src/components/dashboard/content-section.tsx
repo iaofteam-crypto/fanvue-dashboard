@@ -26,8 +26,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { PostsGridSkeleton } from "@/components/dashboard/section-skeletons";
 import {
   Select,
   SelectContent,
@@ -969,9 +971,22 @@ export function ContentSection({ connected }: { connected: boolean }) {
       {/* Posts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
-          <div className="col-span-full flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-border/50 bg-card/50 overflow-hidden animate-pulse">
+              <Skeleton className="h-40 w-full" />
+              <div className="p-4 space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+                <div className="flex items-center gap-4 pt-2">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-8 ml-auto" />
+                </div>
+              </div>
+            </div>
+          ))
         ) : posts.length === 0 ? (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
@@ -1121,9 +1136,16 @@ export function ContentSection({ connected }: { connected: boolean }) {
           {expandedPostId === post.id && (
             <div className="px-4 pb-4 border-t border-border/50">
               {commentsLoading === post.id ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground ml-2">Loading comments...</span>
+                <div className="px-4 pb-4 border-t border-border/50 space-y-3 animate-pulse p-4">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="flex items-start gap-2">
+                      <Skeleton className="h-6 w-6 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-1">
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-3 w-full" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <>
@@ -1204,9 +1226,13 @@ export function ContentSection({ connected }: { connected: boolean }) {
           </DialogHeader>
           <div className="mt-3 max-h-64 overflow-y-auto">
             {likersLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                <span className="text-xs text-muted-foreground ml-2">Loading likes...</span>
+              <div className="space-y-3 animate-pulse p-2">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <div key={j} className="flex items-center gap-2">
+                    <Skeleton className="h-7 w-7 rounded-full flex-shrink-0" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ))}
               </div>
             ) : likersList.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-8">No likes yet</p>
@@ -1235,9 +1261,16 @@ export function ContentSection({ connected }: { connected: boolean }) {
           </DialogHeader>
           <div className="mt-3 max-h-64 overflow-y-auto">
             {tipsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                <span className="text-xs text-muted-foreground ml-2">Loading tips...</span>
+              <div className="space-y-3 animate-pulse p-2">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div key={j} className="flex items-center gap-2">
+                    <Skeleton className="h-7 w-7 rounded-full flex-shrink-0" />
+                    <div className="flex-1 space-y-1">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : tipsList.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-8">No tips yet</p>

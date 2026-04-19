@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -459,8 +460,15 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
 
         {/* Media grid */}
         {loadingMedia ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg overflow-hidden">
+                <Skeleton className="aspect-square w-full" />
+                <div className="p-2 space-y-1.5">
+                  <Skeleton className="h-3 w-3/4" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : mediaItems.length === 0 ? (
           <Card className="bg-card/50 border-border/50">
@@ -665,8 +673,23 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
 
       {/* Folders grid */}
       {loadingFolders ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-5 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-3 w-full" />
+                </div>
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-14 rounded-full" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredFolders.length === 0 ? (
         <Card className="bg-card/50 border-border/50">

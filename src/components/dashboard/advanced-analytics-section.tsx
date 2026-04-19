@@ -51,6 +51,7 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -799,9 +800,77 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mr-2" />
-        <span className="text-muted-foreground">Loading advanced analytics...</span>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="animate-pulse">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-80 mt-2" />
+        </div>
+
+        {/* Date range picker skeleton */}
+        <div className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-6">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 flex-1">
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-8 w-[140px] rounded" />
+              </div>
+              <Skeleton className="h-4 w-4 pb-1" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-14" />
+                <Skeleton className="h-8 w-[140px] rounded" />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <Skeleton key={i} className="h-7 w-14 rounded" />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-end gap-3">
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-8 w-[130px] rounded" />
+              </div>
+              <Skeleton className="h-8 w-20 rounded" />
+            </div>
+          </div>
+          <Skeleton className="h-3 w-48 mt-3" />
+        </div>
+
+        {/* Heat map skeleton */}
+        <div className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-6 space-y-4">
+          <Skeleton className="h-5 w-40" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-muted/30 rounded-lg p-2 space-y-1.5">
+                <Skeleton className="h-3 w-12 mx-auto" />
+                <Skeleton className="h-4 w-16 mx-auto" />
+                <Skeleton className="h-3 w-20 mx-auto" />
+              </div>
+            ))}
+          </div>
+          <Skeleton className="h-40 w-full rounded" />
+        </div>
+
+        {/* Comparison cards skeleton */}
+        <div className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-6 space-y-4">
+          <Skeleton className="h-5 w-48" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-muted/30 rounded-lg p-3 space-y-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Chart skeleton */}
+        <div className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-6">
+          <Skeleton className="h-5 w-40 mb-4" />
+          <Skeleton className="h-64 w-full rounded" />
+        </div>
       </div>
     );
   }

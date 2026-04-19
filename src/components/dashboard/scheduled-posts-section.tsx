@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -970,8 +971,30 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-7 h-7 rounded flex-shrink-0" />
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-5 w-12 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-full" />
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-3 w-14" />
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Skeleton className="h-8 w-8 rounded" />
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : posts.length === 0 ? (
           <Card className="bg-card/50 border-border/50">

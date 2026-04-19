@@ -387,9 +387,28 @@
   - globals.css: scrollbar thumb ahora usa oklch(0.7/0.6) en light mode y oklch(0.3/0.4) en .dark mode
   - Verificado: todos los demas componentes usan semantic Tailwind colors (bg-primary, text-muted-foreground, bg-card, etc.) que ya son theme-aware via CSS variables
 
-- [ ] UX-3: Loading skeletons en todas las secciones
-  - Skeleton para posts, chats, analytics, insights
-  - Transicion suave loading → data
+- [x] UX-3: Loading skeletons en todas las secciones ✅ RALPH-33
+  - Nuevo componente: `src/components/dashboard/section-skeletons.tsx` con 12 exportable skeletons
+  - SectionSkeleton (generic), DashboardSkeleton, AnalyticsSkeleton, ChatListSkeleton, ChatMessagesSkeleton, PostsGridSkeleton, FanInsightsSkeleton, BulkInsightsTableSkeleton, CardsGridSkeleton, TableSkeleton, SimpleContentSkeleton, DetailViewSkeleton
+  - page.tsx: SectionSkeleton reemplazada con import desde section-skeletons.tsx
+  - dashboard-overview.tsx: DashboardSkeleton cuando loading && !stats
+  - analytics-section.tsx: AnalyticsSkeleton cuando loading && !hasRealData
+  - messages-section.tsx: ChatListSkeleton para chat list, media grid skeleton, AI profile skeleton
+  - content-section.tsx: Post cards skeleton grid, comments skeleton, likes/tips skeleton
+  - fan-insights-section.tsx: FanInsightsSkeleton top-level + inline spender list skeleton + detail skeleton
+  - bulk-fan-insights-section.tsx: BulkInsightsTableSkeleton cuando loading && !fans
+  - smart-lists-section.tsx: List grid skeleton + members list skeleton
+  - discoveries-section.tsx: Table row skeleton
+  - mass-messaging-section.tsx: History cards skeleton + members skeleton
+  - vault-folders-section.tsx: Folder cards grid skeleton + media grid skeleton
+  - tracking-links-section.tsx: Links table skeleton + users detail skeleton
+  - custom-lists-section.tsx: Lists grid skeleton + members skeleton
+  - chat-templates-section.tsx: Template cards grid skeleton
+  - ab-testing-section.tsx: Test cards skeleton
+  - scheduled-posts-section.tsx: Posts list skeleton
+  - advanced-analytics-section.tsx: Full analytics layout skeleton
+  - Todos los Loader2 spinners full-section reemplazados con animate-pulse Skeleton
+  - Build clean. Zero TypeScript errors
 
 - [ ] UX-4: Empty states mejorados
   - Ilustraciones SVG para cada empty state
@@ -538,13 +557,13 @@
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
-| FASE 10 (UX) | 8 | 2 | 25% |
+| FASE 10 (UX) | 8 | 3 | 38% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **30** | **51%** |
+| **TOTAL** | **59** | **31** | **53%** |
 
 ---
 

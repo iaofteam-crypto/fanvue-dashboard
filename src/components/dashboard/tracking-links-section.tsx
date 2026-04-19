@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -406,8 +407,22 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
           </CardHeader>
           <CardContent className="p-0">
             {loadingUsers ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <div className="py-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="animate-pulse grid grid-cols-12 gap-2 px-4 py-3 border-b border-border/30 items-center">
+                    <div className="col-span-3 flex items-center gap-2">
+                      <Skeleton className="w-7 h-7 rounded-full flex-shrink-0" />
+                      <div className="space-y-1">
+                        <Skeleton className="h-3.5 w-24" />
+                        <Skeleton className="h-2.5 w-14" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-8 mx-auto col-span-2" />
+                    <Skeleton className="h-4 w-8 mx-auto col-span-2" />
+                    <Skeleton className="h-4 w-12 mx-auto col-span-2" />
+                    <Skeleton className="h-3 w-16 ml-auto col-span-3" />
+                  </div>
+                ))}
               </div>
             ) : linkUsers.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
@@ -619,8 +634,33 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
 
       {/* Links table */}
       {loadingLinks ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="bg-card/50 border border-border/50 rounded-lg overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-border/50 bg-muted/30">
+            <div className="grid grid-cols-12 gap-2">
+              <Skeleton className="h-3 w-12 col-span-3" />
+              <Skeleton className="h-3 w-12 mx-auto col-span-2" />
+              <Skeleton className="h-3 w-16 mx-auto col-span-2" />
+              <Skeleton className="h-3 w-12 mx-auto col-span-2" />
+              <Skeleton className="h-3 w-8 mx-auto col-span-1" />
+              <Skeleton className="h-3 w-12 ml-auto col-span-2" />
+            </div>
+          </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="animate-pulse grid grid-cols-12 gap-2 px-4 py-3 border-b border-border/30 items-center">
+              <div className="col-span-3 flex items-center gap-2 min-w-0">
+                <Skeleton className="w-5 h-5 rounded flex-shrink-0" />
+                <div className="min-w-0 space-y-1">
+                  <Skeleton className="h-3.5 w-full" />
+                  <Skeleton className="h-2.5 w-2/3" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-8 mx-auto col-span-2" />
+              <Skeleton className="h-4 w-10 mx-auto col-span-2" />
+              <Skeleton className="h-4 w-14 mx-auto col-span-2" />
+              <Skeleton className="h-4 w-6 mx-auto col-span-1" />
+              <Skeleton className="h-8 w-16 rounded ml-auto col-span-2" />
+            </div>
+          ))}
         </div>
       ) : filteredLinks.length === 0 ? (
         <Card className="bg-card/50 border-border/50">

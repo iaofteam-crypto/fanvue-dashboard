@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DashboardSkeleton } from "@/components/dashboard/section-skeletons";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -238,6 +239,10 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     fetchStats();
     fetchSubscriberInsights();
   }, [fetchStats, fetchSubscriberInsights]);
+
+  if (loading && !stats) {
+    return <DashboardSkeleton />;
+  }
 
   if (!connected) {
     return (

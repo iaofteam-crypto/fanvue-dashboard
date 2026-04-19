@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -434,8 +435,17 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
           <CardContent className="p-0">
             <ScrollArea className="max-h-[calc(100vh-18rem)]">
               {loadingMembers ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                <div className="py-4">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="animate-pulse flex items-center gap-3 p-4 border-b border-border/30">
+                      <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+                      <Skeleton className="h-7 w-16 rounded" />
+                    </div>
+                  ))}
                 </div>
               ) : members.length === 0 ? (
                 <div className="text-center py-16 text-muted-foreground">
@@ -611,8 +621,23 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
 
       {/* Lists grid */}
       {loadingLists ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-5 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-4/5" />
+                </div>
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredLists.length === 0 ? (
         <Card className="bg-card/50 border-border/50">

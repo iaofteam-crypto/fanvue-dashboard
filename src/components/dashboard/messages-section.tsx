@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { ChatListSkeleton } from "@/components/dashboard/section-skeletons";
 import { toast } from "sonner";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -664,12 +666,18 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                 </div>
               )}
               {loadingProfile && (
-                <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <div className="space-y-4 animate-pulse p-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-5 w-5 rounded" />
                   </div>
-                  <p className="text-sm text-muted-foreground">Analyzing fan data with AI...</p>
-                  <p className="text-xs text-muted-foreground/70">This may take a few seconds</p>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-16 w-full rounded-lg" />
+                    </div>
+                  ))}
+                  <Skeleton className="h-12 w-24 rounded-lg" />
                 </div>
               )}
               {aiProfile && !loadingProfile && (
@@ -928,9 +936,10 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                 {/* Media Grid Content */}
                 <ScrollArea className="flex-1 p-3">
                   {loadingMedia ? (
-                    <div className="flex items-center justify-center py-16">
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mr-2" />
-                      <span className="text-sm text-muted-foreground">Loading media...</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 animate-pulse">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="aspect-square rounded-lg bg-accent" />
+                      ))}
                     </div>
                   ) : filteredMedia.length === 0 ? (
                     <div className="text-center py-16 text-muted-foreground">
@@ -1201,9 +1210,7 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
         <CardContent className="p-0">
           <ScrollArea className="max-h-[calc(100vh-16rem)]">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-              </div>
+              <ChatListSkeleton count={6} />
             ) : filteredChats.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Search className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />

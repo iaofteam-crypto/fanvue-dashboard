@@ -5,6 +5,7 @@ import { Search, Filter, Tag, Hash, Loader2, RefreshCw, ChevronLeft, ChevronRigh
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/dashboard/section-skeletons";
 
 interface Discovery {
   id: string;
@@ -245,8 +247,16 @@ export function DiscoveriesSection() {
         <CardContent className="p-0">
           <ScrollArea className="max-h-[calc(100vh-22rem)]">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <div className="animate-pulse p-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex gap-4 py-3 border-b border-border/30">
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-4 flex-1" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="overflow-x-auto -mx-4 px-4">

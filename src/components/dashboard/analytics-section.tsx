@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, BarChart3, TrendingUp, TrendingDown, DollarSign, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { AnalyticsSkeleton } from "@/components/dashboard/section-skeletons";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -475,13 +476,8 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mr-2" />
-        <span className="text-muted-foreground">Loading analytics...</span>
-      </div>
-    );
+  if (loading && !hasRealData) {
+    return <AnalyticsSkeleton />;
   }
 
   // ─── Main Render ────────────────────────────────────────────────────────

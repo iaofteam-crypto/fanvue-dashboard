@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -435,8 +436,18 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
           <CardContent className="p-0">
             <ScrollArea className="max-h-[calc(100vh-18rem)]">
               {loadingMembers ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                <div className="space-y-1 p-4 animate-pulse">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 py-3 border-b border-border/30">
+                      <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-24 mb-1" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                  ))}
                 </div>
               ) : filteredMembers.length === 0 ? (
                 <div className="text-center py-16 text-muted-foreground">
@@ -650,8 +661,19 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
 
       {/* List grid */}
       {loadingLists ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-border/50 bg-card/50 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <div className="flex-1">
+                  <Skeleton className="h-5 w-28 mb-1" />
+                  <Skeleton className="h-3 w-36" />
+                </div>
+              </div>
+              <Skeleton className="h-2 w-full rounded-full" />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

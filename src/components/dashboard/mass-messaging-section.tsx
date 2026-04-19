@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
 
@@ -615,8 +616,13 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                 </Button>
               </div>
               {loadingMembers ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <div className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <Skeleton className="w-6 h-6 rounded-full flex-shrink-0" />
+                      <Skeleton className="h-4 flex-1 max-w-[120px]" />
+                    </div>
+                  ))}
                 </div>
               ) : listMembers.length > 0 ? (
                 <div className="space-y-1 max-h-40 overflow-y-auto">
@@ -881,8 +887,26 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
       </div>
 
       {loadingHistory ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : massMessages.length === 0 ? (
         <Card className="bg-card/50 border-border/50">

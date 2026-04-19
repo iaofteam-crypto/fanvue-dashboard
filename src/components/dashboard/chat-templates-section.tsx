@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -1027,8 +1028,29 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
 
       {/* Template Grid */}
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="animate-pulse bg-card/50 border border-border/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+                <div className="flex gap-1">
+                  <Skeleton className="h-7 w-7 rounded-md" />
+                  <Skeleton className="h-7 w-7 rounded-md" />
+                  <Skeleton className="h-7 w-7 rounded-md" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredTemplates.length === 0 ? (
         <Card className="bg-card/50 border-border/50">

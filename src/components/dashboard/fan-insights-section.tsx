@@ -17,8 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { FanInsightsSkeleton } from "@/components/dashboard/section-skeletons";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -216,6 +218,10 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
 
   // ─── Disconnected State ─────────────────────────────────────────────────
 
+  if (loading && spenders.length === 0) {
+    return <FanInsightsSkeleton />;
+  }
+
   if (!connected) {
     return (
       <div className="text-center py-16 text-muted-foreground">
@@ -271,9 +277,31 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
         </div>
 
         {loadingDetail ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mr-2" />
-            <span className="text-muted-foreground">Loading fan profile...</span>
+          <div className="animate-pulse space-y-6">
+            {/* Summary stat cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-card/50 border border-border/50 rounded-lg p-6 space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-7 w-20" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+              ))}
+            </div>
+            {/* Detail rows */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="bg-card/50 border border-border/50 rounded-lg p-6 space-y-3">
+                  <Skeleton className="h-5 w-40" />
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <div key={j} className="flex justify-between">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <>
@@ -650,8 +678,19 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
         <CardContent className="p-0">
           <ScrollArea className="max-h-[calc(100vh-20rem)]">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <div className="space-y-1 p-4 animate-pulse">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 py-3 border-b border-border/30">
+                    <Skeleton className="h-6 w-6 rounded-full flex-shrink-0" />
+                    <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-28 mb-1" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-3 w-14" />
+                  </div>
+                ))}
               </div>
             ) : sortedSpenders.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">

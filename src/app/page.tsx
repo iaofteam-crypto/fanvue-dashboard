@@ -21,6 +21,7 @@ import {
   ListFilter,
   Vault,
   UsersRound,
+  FlaskConical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -113,6 +114,11 @@ const BulkFanInsightsSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const ABTestingSection = dynamic(
+  () => import("@/components/dashboard/ab-testing-section").then((m) => ({ default: m.ABTestingSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -144,7 +150,8 @@ type Section =
   | "custom-lists"
   | "vault"
   | "tracking"
-  | "bulk-insights";
+  | "bulk-insights"
+  | "ab-testing";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -158,6 +165,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "vault", label: "Vault", icon: Vault },
   { id: "tracking", label: "Tracking", icon: Link2 },
   { id: "bulk-insights", label: "Bulk Insights", icon: UsersRound },
+  { id: "ab-testing", label: "A/B Testing", icon: FlaskConical },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -360,6 +368,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Tracking"><TrackingLinksSection connected={connected} /></SectionErrorBoundary>;
       case "bulk-insights":
         return <SectionErrorBoundary sectionName="Bulk Insights"><BulkFanInsightsSection connected={connected} /></SectionErrorBoundary>;
+      case "ab-testing":
+        return <SectionErrorBoundary sectionName="A/B Testing"><ABTestingSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

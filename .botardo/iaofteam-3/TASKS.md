@@ -288,10 +288,21 @@
   - Demo AI responses cuando /api/chat no disponible
   - Sonner toasts. Zero any, error:unknown
 
-- [ ] P3-2: A/B Testing para Mass Messages
-  - Enviar variante A a 50% y variante B a 50%
-  - Rastrear open rates y conversiones por variante
-  - Mostrar ganador con estadisticas
+- [x] P3-2: A/B Testing para Mass Messages ✅ RALPH-23
+  - Nuevo componente: `src/components/dashboard/ab-testing-section.tsx`
+  - 3 views: test list, create form, test detail with results
+  - Create: nombre, split ratio (50/50, 60/40, 70/30, etc.), target lists (smart + custom), variant A (text + media + PPV), variant B (text + media + PPV)
+  - Launch: envia variantes A y B como mass messages separados via POST /api/fanvue/chats/mass-messages con tag [A/B Test]
+  - Metrics tracking: sent, opened, clicked, replied, converted, revenue, tips, ppvPurchases por variante
+  - Comparison: 12 metric bars lado a lado (sent, opened, open rate, clicked, click rate, replied, reply rate, converted, conversion rate, revenue, tips, ppv purchases) con colores sky (A) y violet (B)
+  - 4 metric cards: open rate, conversion rate, revenue, replies
+  - Winner declaration con confidence score (% basado en sample size + conversion difference)
+  - Winner banner con Trophy icon, variant-highlighted cards con border color del ganador
+  - Actions: pause/resume, complete, duplicate, delete, copy variant text
+  - Status badges: draft, running (spinner), paused, completed
+  - Demo: 3 tests (2 completed con winners, 1 running) con datos generados deterministicamente
+  - Nuevo nav item "A/B Testing" con icono FlaskConical en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P3-3: Scheduled Posts
   - UI para programar publicacion futura
@@ -478,14 +489,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 1 | 17% |
+| FASE 9 (P3) | 6 | 2 | 33% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **23** | **39%** |
+| **TOTAL** | **59** | **24** | **41%** |
 
 ---
 

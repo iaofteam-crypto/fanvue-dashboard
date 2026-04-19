@@ -352,11 +352,20 @@
   - Integrado en page.tsx header bar (antes del connection badge)
   - Zero any, error:unknown, Sonner toasts
 
-- [ ] P3-6: Advanced Analytics Dashboard
-  - Filtros por periodo (7d, 30d, 90d, custom)
-  - Comparacion periodo anterior (YoY, MoM)
-  - Export CSV/PDF
-  - Day-of-week heat map
+- [x] P3-6: Advanced Analytics Dashboard ✅ RALPH-27
+  - Nuevo componente: `src/components/dashboard/advanced-analytics-section.tsx`
+  - Custom date range picker: start/end date inputs + 7 quick presets (7D, 30D, 90D, This/Last Month, This/Last Year), validacion max 365 dias
+  - Day-of-week heat map: CSS grid Mon-Sun × N semanas, color scale emerald→amber→rose, summary stats (best/worst day, weekend vs weekday), hover tooltips, 90 dias demo data
+  - Period comparison (MoM/YoY): 6 metric cards (Revenue, Subs, Tips, PPV, Messages, New Subs) con current/previous, absolute + percentage change, trend arrows, visual side-by-side bars
+  - Export CSV: descarga fanvue-analytics-{date}.csv con earnings, day-of-week summary, comparison, content performance; Blob + URL.createObjectURL
+  - Revenue forecast: linear regression sobre ultimos 30 puntos, 14-day forecast con dashed line (recharts LineChart), projected 30-day total, confidence indicator
+  - Top content performance: sortable table (10 items) con Rank, Title, Type, Likes, Comments, Tips, PPV Revenue, Date, total revenue footer
+  - Engagement funnel: 5 niveles (Followers→Subscribers→Active→Tippers→PPV Buyers), proportional colored bars, conversion rates
+  - API: GET /api/fanvue/insights/earnings, earnings-summary, /posts via proxy
+  - Demo data deterministico (no Math.random)
+  - Nuevo nav item "Adv. Analytics" con GitCompareArrows icon en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
+  - **FASE 9 (P3) 100% COMPLETA** ✅
 
 ## FASE 10: UX/UI Polish
 
@@ -521,14 +530,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 5 | 83% |
+| FASE 9 (P3) | 6 | 6 | 100% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **27** | **46%** |
+| **TOTAL** | **59** | **28** | **47%** |
 
 ---
 

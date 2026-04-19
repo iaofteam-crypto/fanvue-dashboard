@@ -24,6 +24,7 @@ import {
   FlaskConical,
   CalendarClock,
   BookTemplate,
+  GitCompareArrows,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -127,6 +128,11 @@ const ScheduledPostsSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const AdvancedAnalyticsSection = dynamic(
+  () => import("@/components/dashboard/advanced-analytics-section").then((m) => ({ default: m.AdvancedAnalyticsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 const ChatTemplatesSection = dynamic(
   () => import("@/components/dashboard/chat-templates-section").then((m) => ({ default: m.ChatTemplatesSection })),
   { loading: () => <SectionSkeleton />, ssr: false }
@@ -166,7 +172,8 @@ type Section =
   | "bulk-insights"
   | "ab-testing"
   | "scheduled"
-  | "templates";
+  | "templates"
+  | "advanced-analytics";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -181,6 +188,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "tracking", label: "Tracking", icon: Link2 },
   { id: "bulk-insights", label: "Bulk Insights", icon: UsersRound },
   { id: "ab-testing", label: "A/B Testing", icon: FlaskConical },
+  { id: "advanced-analytics", label: "Adv. Analytics", icon: GitCompareArrows },
   { id: "scheduled", label: "Scheduled", icon: CalendarClock },
   { id: "templates", label: "Chat Templates", icon: BookTemplate },
   { id: "discoveries", label: "Discoveries", icon: Search },
@@ -387,6 +395,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Bulk Insights"><BulkFanInsightsSection connected={connected} /></SectionErrorBoundary>;
       case "ab-testing":
         return <SectionErrorBoundary sectionName="A/B Testing"><ABTestingSection connected={connected} /></SectionErrorBoundary>;
+      case "advanced-analytics":
+        return <SectionErrorBoundary sectionName="Advanced Analytics"><AdvancedAnalyticsSection connected={connected} /></SectionErrorBoundary>;
       case "scheduled":
         return <SectionErrorBoundary sectionName="Scheduled Posts"><ScheduledPostsSection connected={connected} /></SectionErrorBoundary>;
       case "templates":

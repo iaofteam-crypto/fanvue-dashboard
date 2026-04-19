@@ -303,9 +303,9 @@ function HeatMapTooltip({
       style={{
         top: y,
         left: x,
-        backgroundColor: "#1a1a2e",
-        border: "1px solid #444",
-        color: "#fff",
+        backgroundColor: "var(--popover)",
+        border: "1px solid var(--border)",
+        color: "var(--popover-foreground)",
       }}
     >
       <p className="font-semibold mb-1">{data.day}</p>

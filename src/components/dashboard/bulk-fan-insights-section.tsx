@@ -439,7 +439,7 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
               {[
                 { label: "Subscriptions", value: subAmount, color: "bg-emerald-500" },
                 { label: `Tips (${fi.tipCount ?? 0})`, value: fi.tipTotal ?? 0, color: "bg-sky-500" },
-                { label: `PPV (${fi.ppvPurchases ?? 0})`, value: fi.ppvTotal ?? 0, color: "bg-purple-500" },
+                { label: `PPV (${fi.ppvPurchases ?? 0})`, value: fi.ppvTotal ?? 0, color: "bg-purple-500 dark:bg-purple-400" },
               ].map((item) => (
                 <div key={item.label} className="space-y-1.5">
                   <div className="flex justify-between text-sm">

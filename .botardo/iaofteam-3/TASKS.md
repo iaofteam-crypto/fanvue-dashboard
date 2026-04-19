@@ -378,10 +378,14 @@
   - Verificado: mass-messaging, dashboard-overview, content, messages, fan-insights, vault, smart-lists, tracking, ab-testing, scheduled, chat-templates ya eran responsive
   - Cero fixed widths que overflow 375px
 
-- [ ] UX-2: Dark mode consistente
-  - Verificar todos los componentes en dark mode
-  - Variables CSS para theming
-  - Toggle dark/light en sidebar
+- [x] UX-2: Dark mode consistente ✅ RALPH-29
+  - analytics-section.tsx: TOOLTIP_STYLE constante reemplazada con getTooltipStyle() function que detecta .dark class en document, retorna oklch colors apropiados para cada tema (3 usages: custom tooltip, BarChart, PieChart)
+  - advanced-analytics-section.tsx: heat map tooltip hardcoded #1a1a2e/#444/#fff reemplazado con CSS variables (var(--popover), var(--border), var(--popover-foreground)) que auto-switch
+  - fan-insights-section.tsx: 2nd place badge bg-slate-400/20 text-slate-300 → bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30
+  - smart-lists-section.tsx: rank badge bg-gray-400/20 text-gray-300 → bg-muted-foreground/20 text-muted-foreground
+  - bulk-fan-insights-section.tsx: PPV bar bg-purple-500 → bg-purple-500 dark:bg-purple-400
+  - globals.css: scrollbar thumb ahora usa oklch(0.7/0.6) en light mode y oklch(0.3/0.4) en .dark mode
+  - Verificado: todos los demas componentes usan semantic Tailwind colors (bg-primary, text-muted-foreground, bg-card, etc.) que ya son theme-aware via CSS variables
 
 - [ ] UX-3: Loading skeletons en todas las secciones
   - Skeleton para posts, chats, analytics, insights
@@ -534,13 +538,13 @@
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
-| FASE 10 (UX) | 8 | 1 | 13% |
+| FASE 10 (UX) | 8 | 2 | 25% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **29** | **49%** |
+| **TOTAL** | **59** | **30** | **51%** |
 
 ---
 

@@ -460,7 +460,7 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
                             idx === 0
                               ? "bg-amber-500/20 text-amber-400"
                               : idx === 1
-                              ? "bg-gray-400/20 text-gray-300"
+                              ? "bg-muted-foreground/20 text-muted-foreground"
                               : "bg-orange-700/20 text-orange-600"
                           }`}
                         >

@@ -143,7 +143,7 @@ function getScoreBgColor(score: number): string {
 
 function getRankBadge(index: number): { label: string; color: string } {
   if (index === 0) return { label: "1st", color: "bg-amber-500/20 text-amber-400 border-amber-500/30" };
-  if (index === 1) return { label: "2nd", color: "bg-slate-400/20 text-slate-300 border-slate-400/30" };
+  if (index === 1) return { label: "2nd", color: "bg-muted-foreground/20 text-muted-foreground border-muted-foreground/30" };
   if (index === 2) return { label: "3rd", color: "bg-orange-700/20 text-orange-400 border-orange-700/30" };
   return { label: `${index + 1}`, color: "bg-muted text-muted-foreground border-border/50" };
 }

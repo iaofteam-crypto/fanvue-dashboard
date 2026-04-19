@@ -272,18 +272,21 @@ function transformSubscribers(raw: unknown): typeof DEMO_SUBSCRIBERS {
 
 // ─── Custom Tooltip ─────────────────────────────────────────────────────────
 
-const TOOLTIP_STYLE = {
-  backgroundColor: "#1a1a2e",
-  border: "1px solid #333",
-  borderRadius: "8px",
-  color: "#fff",
-  fontSize: 12,
-};
+function getTooltipStyle(): React.CSSProperties {
+  const isDark = document.documentElement.classList.contains("dark");
+  return {
+    backgroundColor: isDark ? "oklch(0.14 0.005 270)" : "oklch(1 0 0)",
+    border: isDark ? "1px solid oklch(0.22 0 0)" : "1px solid oklch(0.922 0 0)",
+    borderRadius: "8px",
+    color: isDark ? "oklch(0.985 0 0)" : "oklch(0.145 0 0)",
+    fontSize: 12,
+  };
+}
 
 function EarningsTooltipContent({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div style={TOOLTIP_STYLE} className="p-3 space-y-1">
+    <div style={getTooltipStyle()} className="p-3 space-y-1">
       <p className="font-medium text-sm mb-1">{label}</p>
       {payload.map((entry) => (
         <div key={entry.name} className="flex items-center justify-between gap-4 text-xs">
@@ -749,7 +752,7 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
                       <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                       <XAxis dataKey="label" stroke="#666" fontSize={12} />
                       <YAxis stroke="#666" fontSize={12} />
-                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Tooltip contentStyle={getTooltipStyle()} />
                       <Bar dataKey="subscribers" fill="#34d399" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -895,7 +898,7 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      <Tooltip contentStyle={getTooltipStyle()} />
                       <Legend
                         verticalAlign="bottom"
                         height={36}

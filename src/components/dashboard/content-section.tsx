@@ -42,6 +42,7 @@ import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { PostsGridSkeleton } from "@/components/dashboard/section-skeletons";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import {
   Select,
   SelectContent,
@@ -857,10 +858,13 @@ export function ContentSection({ connected }: { connected: boolean }) {
                             className="relative group rounded-lg overflow-hidden border border-border/50 bg-muted/30"
                           >
                             {mf.type === "image" ? (
-                              <img
+                              <OptimizedImage
                                 src={mf.preview}
                                 alt={mf.file.name}
-                                className="w-20 h-20 object-cover"
+                                width={80}
+                                height={80}
+                                className="rounded-lg object-cover"
+                                unoptimizedBlob
                               />
                             ) : (
                               <div className="w-20 h-20 flex items-center justify-center bg-muted">

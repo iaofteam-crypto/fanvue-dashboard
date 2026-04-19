@@ -32,6 +32,7 @@ import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
+import { AvatarImage } from "@/components/ui/optimized-image";
 
 // --- Types ---
 
@@ -463,18 +464,11 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
                       className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border/30 last:border-b-0"
                     >
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {member.avatarUrl ? (
-                          <img
-                            src={member.avatarUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <Users className="w-4 h-4 text-primary/60" />
-                        )}
-                      </div>
+                      <AvatarImage
+                        src={member.avatarUrl}
+                        name={member.displayName || member.username}
+                        size={40}
+                      />
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">

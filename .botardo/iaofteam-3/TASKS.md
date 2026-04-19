@@ -526,10 +526,19 @@
   - Threshold pattern: below threshold = normal render (con animaciones), above = virtualized (sin animaciones)
   - Build clean. Zero TypeScript errors
 
-- [ ] PERF-4: Image optimization
-  - next/image para todas las imagenes
-  - Lazy loading
-  - Blur placeholder
+- [x] PERF-4: Image optimization ✅ RALPH-42
+  - next.config.ts: remotePatterns para 8 dominios CDN (fanvue.com, cloudfront.net, cloudinary.com, imgix.net, twimg.com, cdninstagram.com, fbcdn.net, fanvue-cdn.com)
+  - Nuevo componente `src/components/ui/optimized-image.tsx` con 3 exports:
+    - OptimizedImage: next/image wrapper con blur placeholder (SVG data URI), fade-in on load, error fallback, soporte blob URLs (unoptimizedBlob)
+    - AvatarImage: circular avatar con next/image fill + blur placeholder, fallback a iniciales cuando no hay src
+    - MediaThumbnail: thumbnail para vault/media grids con next/image fill + error fallback a skeleton pulse
+  - content-section.tsx: upload preview <img> → OptimizedImage (unoptimizedBlob para blob URLs)
+  - vault-folders-section.tsx: thumbnail <img> → MediaThumbnail (badge + duration overlay como children)
+  - smart-lists-section.tsx: avatar <img> → AvatarImage (40px, displayName||username para initials)
+  - custom-lists-section.tsx: avatar <img> → AvatarImage (40px, displayName||username para initials)
+  - Zero <img> tags restantes en src/
+  - next/image automaticamente: lazy loading, format selection (WebP/AVIF), size optimization
+  - Build clean. Zero TypeScript errors
 
 - [ ] PERF-5: Bundle analysis
   - @next/bundle-analyzer
@@ -633,12 +642,12 @@
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
 | FASE 10 (UX) | 8 | 8 | 100% |
-| FASE 11 (Perf) | 6 | 1 | 17% |
+| FASE 11 (Perf) | 6 | 4 | 67% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **37** | **63%** |
+| **TOTAL** | **59** | **40** | **68%** |
 
 ---
 

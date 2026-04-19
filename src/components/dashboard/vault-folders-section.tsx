@@ -30,6 +30,7 @@ import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
+import { MediaThumbnail } from "@/components/ui/optimized-image";
 
 // --- Types ---
 
@@ -492,21 +493,16 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
                   className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors group overflow-hidden"
                 >
                   {/* Thumbnail area */}
-                  <div className="relative aspect-square bg-muted/30 flex items-center justify-center">
-                    {item.type === "image" && item.thumbnailUrl ? (
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.filename || ""}
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <Icon className="w-8 h-8 text-muted-foreground/40" />
-                    )}
+                  <MediaThumbnail
+                    src={item.type === "image" ? item.thumbnailUrl : undefined}
+                    alt={item.filename || ""}
+                    type={item.type}
+                    className="aspect-square w-full"
+                  >
                     {/* Type badge */}
                     <Badge
                       variant="secondary"
-                      className="absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0 bg-background/80 backdrop-blur-sm"
+                      className="absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0 bg-background/80 backdrop-blur-sm z-10"
                     >
                       {item.type || "file"}
                     </Badge>
@@ -514,7 +510,7 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
                     {item.type === "video" && item.duration && (
                       <Badge
                         variant="secondary"
-                        className="absolute bottom-1.5 left-1.5 text-[9px] px-1.5 py-0 bg-background/80 backdrop-blur-sm"
+                        className="absolute bottom-1.5 left-1.5 text-[9px] px-1.5 py-0 bg-background/80 backdrop-blur-sm z-10"
                       >
                         {Math.floor(item.duration / 60)}:{String(item.duration % 60).padStart(2, "0")}
                       </Badge>
@@ -553,7 +549,7 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
                         </Button>
                       )}
                     </div>
-                  </div>
+                  </MediaThumbnail>
                   {/* Info */}
                   <div className="p-2">
                     <p className="text-xs font-medium truncate" title={item.filename || item.uuid}>

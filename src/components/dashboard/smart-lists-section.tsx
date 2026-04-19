@@ -33,6 +33,7 @@ import { List } from "react-window";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
+import { AvatarImage } from "@/components/ui/optimized-image";
 
 // --- Types ---
 
@@ -486,18 +487,11 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
                       )}
 
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {member.avatarUrl ? (
-                          <img
-                            src={member.avatarUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <UserCheck className="w-4 h-4 text-primary/60" />
-                        )}
-                      </div>
+                      <AvatarImage
+                        src={member.avatarUrl}
+                        name={member.displayName || member.username}
+                        size={40}
+                      />
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">

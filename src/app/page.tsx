@@ -37,6 +37,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { SectionErrorBoundary } from "@/components/dashboard/section-error-boundary";
+import { NotificationPanel } from "@/components/dashboard/notification-panel";
 
 // ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
@@ -464,6 +465,7 @@ export default function Home() {
             </h2>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationPanel connected={connected} />
             {connected ? (
               <Badge
                 variant="outline"

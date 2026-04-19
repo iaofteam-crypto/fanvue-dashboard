@@ -337,11 +337,20 @@
   - Nuevo nav item "Chat Templates" con BookTemplate icon en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P3-5: Real-time Notifications (webhook-driven)
-  - WebSocket o SSE para notificaciones push
-  - Badge de unread en sidebar
-  - Sonido/visual alert en nuevo mensaje
-  - Toast de nuevo subscriber/tip
+- [x] P3-5: Real-time Notifications (webhook-driven) ✅ RALPH-26
+  - Nuevo componente: `src/components/dashboard/notification-panel.tsx`
+  - Polling cada 10s a GET /api/webhooks/fanvue?since={lastEventTime}
+  - 5 tipos de evento con iconos y colores: message-received (MessageSquare/sky), message-read (Eye/emerald), new-follower (UserPlus/violet), new-subscriber (Crown/amber), tip-received (DollarSign/emerald)
+  - Bell icon en header con red unread count badge
+  - Dropdown panel (w-96, max-h-480): header con Mark All Read, ScrollArea con items, footer
+  - Unread tracking via localStorage (fanvue_read_notifications)
+  - Sonner toasts para eventos importantes (message, subscriber, tip) — skip message-read
+  - Sound notification: Web Audio API oscillator (440Hz, 100ms) para subscriber/tip, preferencia en localStorage
+  - formatTimeAgo helper: just now, 5s, 3m, 2h, 1d
+  - Click outside para cerrar panel
+  - 5 demo notifications deterministas cuando connected
+  - Integrado en page.tsx header bar (antes del connection badge)
+  - Zero any, error:unknown, Sonner toasts
 
 - [ ] P3-6: Advanced Analytics Dashboard
   - Filtros por periodo (7d, 30d, 90d, custom)
@@ -512,14 +521,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 4 | 67% |
+| FASE 9 (P3) | 6 | 5 | 83% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **26** | **44%** |
+| **TOTAL** | **59** | **27** | **46%** |
 
 ---
 

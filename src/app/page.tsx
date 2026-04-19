@@ -25,6 +25,7 @@ import {
   CalendarClock,
   BookTemplate,
   GitCompareArrows,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -302,6 +303,7 @@ function getServerConnectionSnapshot() {
 export default function Home() {
   const [activeSection, setActiveSection] = useState<Section>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
 
@@ -527,6 +529,47 @@ export default function Home() {
                 </button>
                 );
               })}
+              {/* More button */}
+              <div className="relative">
+                <button
+                  onClick={() => setMoreMenuOpen((prev) => !prev)}
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors ${
+                    moreMenuOpen ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  <MoreHorizontal className="w-4.5 h-4.5" />
+                  <span className="text-[10px]">More</span>
+                </button>
+                {moreMenuOpen && (
+                  <>
+                    {/* Backdrop to close on tap outside */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setMoreMenuOpen(false)}
+                      aria-hidden="true"
+                    />
+                    <div className="absolute bottom-full right-0 mb-2 w-64 max-h-[50vh] overflow-y-auto bg-card border border-border rounded-lg shadow-lg z-50 p-1">
+                      {NAV_ITEMS.filter((n) => !MOBILE_NAV_IDS.includes(n.id)).map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            navigateTo(item.id);
+                            setMoreMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
+                            activeSection === item.id
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4 flex-shrink-0" />
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </nav>
         )}

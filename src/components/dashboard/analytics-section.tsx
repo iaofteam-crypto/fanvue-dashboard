@@ -499,7 +499,7 @@ export function AnalyticsSection({ connected }: { connected: boolean }) {
           </p>
         </div>
         <Select value={period} onValueChange={(v) => setPeriod(v as PeriodKey)}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

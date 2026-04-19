@@ -249,6 +249,7 @@ export function DiscoveriesSection() {
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
             ) : (
+              <div className="overflow-x-auto -mx-4 px-4">
               <Table>
                 <TableHeader>
                   <TableRow className="border-border/50 hover:bg-transparent">
@@ -315,6 +316,7 @@ export function DiscoveriesSection() {
                   )}
                 </TableBody>
               </Table>
+              </div>
             )}
           </ScrollArea>
           {totalPages > 1 && (

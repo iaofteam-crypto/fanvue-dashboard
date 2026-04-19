@@ -844,7 +844,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                     setStartDate(e.target.value);
                     setActivePreset("custom");
                   }}
-                  className="w-[160px] h-8 text-sm"
+                  className="w-full sm:w-[140px] h-8 text-sm"
                   max={endDate}
                 />
               </div>
@@ -858,7 +858,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                     setEndDate(e.target.value);
                     setActivePreset("custom");
                   }}
-                  className="w-[160px] h-8 text-sm"
+                  className="w-full sm:w-[140px] h-8 text-sm"
                   min={startDate}
                 />
               </div>
@@ -900,7 +900,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                   value={comparisonMode}
                   onValueChange={(v) => setComparisonMode(v as "mom" | "yoy" | "none")}
                 >
-                  <SelectTrigger className="w-[130px] h-8 text-xs">
+                  <SelectTrigger className="w-full sm:w-[130px] h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1315,6 +1315,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
         </CardHeader>
         <CardContent className="p-0">
           <div className="max-h-[480px] overflow-y-auto">
+            <div className="overflow-x-auto -mx-4 px-4">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -1344,7 +1345,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                     </div>
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer hover:text-foreground transition-colors text-right"
+                    className="hidden md:table-cell cursor-pointer hover:text-foreground transition-colors text-right"
                     onClick={() => handleSort("comments")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -1368,7 +1369,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                     </div>
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer hover:text-foreground transition-colors text-right"
+                    className="hidden sm:table-cell cursor-pointer hover:text-foreground transition-colors text-right"
                     onClick={() => handleSort("date")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -1401,14 +1402,14 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">{formatNumber(item.likes)}</TableCell>
-                      <TableCell className="text-right">{formatNumber(item.comments)}</TableCell>
+                      <TableCell className="hidden md:table-cell text-right">{formatNumber(item.comments)}</TableCell>
                       <TableCell className="text-right text-emerald-400">
                         {formatCurrency(item.tips)}
                       </TableCell>
                       <TableCell className="text-right text-violet-400">
                         {formatCurrency(item.ppvRevenue)}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground text-xs">
+                      <TableCell className="hidden sm:table-cell text-right text-muted-foreground text-xs">
                         {item.date}
                       </TableCell>
                     </TableRow>
@@ -1416,6 +1417,7 @@ export function AdvancedAnalyticsSection({ connected }: { connected: boolean }) 
                 })}
               </TableBody>
             </Table>
+            </div>
           </div>
 
           {/* Total row */}

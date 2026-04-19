@@ -736,7 +736,7 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
 
                       {/* Expanded Inline Preview */}
                       {isExpanded && (
-                        <div className="px-3 py-3 bg-muted/30 border-b border-border/20 grid grid-cols-4 gap-4 text-xs">
+                        <div className="px-3 py-3 bg-muted/30 border-b border-border/20 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-[10px] sm:text-xs">
                           <div>
                             <span className="text-muted-foreground">Frequency</span>
                             <p className="font-medium mt-0.5">{fan.messageFrequency ?? "N/A"}</p>

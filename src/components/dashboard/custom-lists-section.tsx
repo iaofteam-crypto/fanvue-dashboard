@@ -27,6 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
@@ -652,9 +654,15 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          variants={staggerContainer(0.05)}
+          initial="initial"
+          animate="animate"
+        >
           {filteredLists.map((list) => (
-            <Card key={list.uuid} className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors group">
+            <motion.div key={list.uuid} variants={staggerItem}>
+            <Card className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors group">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -778,8 +786,9 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
                 </div>
               )}
             </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Summary */}

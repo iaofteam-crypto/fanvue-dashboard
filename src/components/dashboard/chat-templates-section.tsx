@@ -33,6 +33,8 @@ import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -1073,12 +1075,17 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          variants={staggerContainer(0.05)}
+          initial="initial"
+          animate="animate"
+        >
           {filteredTemplates.map((template) => {
             const catConfig = CATEGORY_CONFIG[template.category];
             return (
+              <motion.div key={template.id} variants={staggerItem}>
               <Card
-                key={template.id}
                 className="bg-card/50 border-border/50 hover:border-border transition-colors group"
               >
                 <CardContent className="p-4 space-y-3">
@@ -1167,9 +1174,10 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );

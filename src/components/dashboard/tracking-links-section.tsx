@@ -27,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
@@ -687,8 +689,9 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
               <div className="col-span-2 text-right">Actions</div>
             </div>
             {/* Link rows */}
+            <motion.div variants={staggerContainer(0.03)} initial="initial" animate="animate">
             {filteredLinks.map((link) => (
-              <div key={link.id}>
+              <motion.div key={link.id} variants={staggerItem}>
                 <div className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border/30 items-center group">
                   {/* Link info */}
                   <div className="col-span-3 min-w-0">
@@ -789,8 +792,9 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
                     </div>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
+            </motion.div>
           </CardContent>
         </Card>
       )}

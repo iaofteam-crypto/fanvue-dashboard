@@ -42,6 +42,8 @@ import { SectionErrorBoundary } from "@/components/dashboard/section-error-bound
 import { NotificationPanel } from "@/components/dashboard/notification-panel";
 import { SectionSkeleton } from "@/components/dashboard/section-skeletons";
 import { CommandPalette } from "@/components/dashboard/command-palette";
+import { motion, AnimatePresence } from "framer-motion";
+import { pageTransition } from "@/lib/animations";
 
 // ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
@@ -577,7 +579,17 @@ export default function Home() {
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 md:p-6 lg:p-8">
-            {renderContent()}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                variants={pageTransition}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 

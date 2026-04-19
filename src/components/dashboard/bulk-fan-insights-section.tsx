@@ -23,6 +23,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { BulkInsightsTableSkeleton } from "@/components/dashboard/section-skeletons";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
@@ -674,6 +676,7 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
                 </div>
 
                 {/* Table Rows */}
+                <motion.div variants={staggerContainer(0.02)} initial="initial" animate="animate">
                 {filteredFans.map((fan, index) => {
                   const isExpanded = expandedFanId === fan.id;
                   const daysInactive = fan.daysSinceLastActivity ?? 99;
@@ -767,6 +770,7 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
                     </div>
                   );
                 })}
+                </motion.div>
               </div>
             )}
           </ScrollArea>

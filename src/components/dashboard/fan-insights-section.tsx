@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { FanInsightsSkeleton } from "@/components/dashboard/section-skeletons";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { EmptyState } from "@/components/dashboard/empty-state";
@@ -714,11 +716,13 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
                   <div className="col-span-2 text-right">Last Active</div>
                 </div>
                 {/* Table Rows */}
+                <motion.div variants={staggerContainer(0.03)} initial="initial" animate="animate">
                 {sortedSpenders.map((fan, index) => {
                   const rank = getRankBadge(index);
                   return (
-                    <button
+                    <motion.button
                       key={fan.id}
+                      variants={staggerItem}
                       onClick={() => fetchFanInsight(fan.id)}
                       className="w-full grid grid-cols-12 gap-2 px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border/30 text-left items-center"
                     >
@@ -754,9 +758,10 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
                       <div className="col-span-2 text-right text-xs text-muted-foreground">
                         {relativeTime(fan.lastActivity)}
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
+                </motion.div>
               </div>
             )}
           </ScrollArea>

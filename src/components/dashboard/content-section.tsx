@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 import { PostsGridSkeleton } from "@/components/dashboard/section-skeletons";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import {
@@ -979,7 +981,12 @@ export function ContentSection({ connected }: { connected: boolean }) {
       </div>
 
       {/* Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        variants={staggerContainer(0.05)}
+        initial="initial"
+        animate="animate"
+      >
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-lg border border-border/50 bg-card/50 overflow-hidden animate-pulse">
@@ -1015,7 +1022,8 @@ export function ContentSection({ connected }: { connected: boolean }) {
             return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
           })
           .map((post) => (
-          <Card key={post.id} className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors">
+          <motion.div key={post.id} variants={staggerItem}>
+          <Card className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
@@ -1229,8 +1237,9 @@ export function ContentSection({ connected }: { connected: boolean }) {
             </div>
           )}
           </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Likes Dialog */}
       <Dialog open={!!likesDialogPostId} onOpenChange={(open) => { if (!open) setLikesDialogPostId(null); }}>

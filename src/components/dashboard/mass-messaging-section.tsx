@@ -28,6 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // --- Types ---
@@ -926,9 +928,15 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <motion.div
+          className="space-y-3"
+          variants={staggerContainer(0.05)}
+          initial="initial"
+          animate="animate"
+        >
           {massMessages.map((msg) => (
-            <Card key={msg.id} className="bg-card/50 border-border/50">
+            <motion.div key={msg.id} variants={staggerItem}>
+            <Card className="bg-card/50 border-border/50">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -977,8 +985,9 @@ export function MassMessagingSection({ connected }: { connected: boolean }) {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

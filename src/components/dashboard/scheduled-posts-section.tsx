@@ -32,6 +32,8 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 
@@ -1015,12 +1017,18 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
           <>
             {/* Scheduled queue */}
             {scheduled.length > 0 && (
-              <div className="space-y-3">
+              <motion.div
+                className="space-y-3"
+                variants={staggerContainer(0.05)}
+                initial="initial"
+                animate="animate"
+              >
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <Clock className="w-4 h-4 text-blue-400" />
                   Upcoming ({scheduled.length})
                 </h3>
                 {scheduled.map((post) => (
+                  <motion.div key={post.id} variants={staggerItem}>
                   <Card
                     key={post.id}
                     className={`bg-card/50 hover:border-border transition-colors cursor-pointer ${isOverdue(post.scheduledFor) ? "border-red-500/30" : "border-border/50"}`}
@@ -1083,19 +1091,26 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
                       </div>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Failed */}
             {failed.length > 0 && (
-              <div className="space-y-3">
+              <motion.div
+                className="space-y-3"
+                variants={staggerContainer(0.05)}
+                initial="initial"
+                animate="animate"
+              >
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-red-400" />
                   Failed ({failed.length})
                 </h3>
                 {failed.map((post) => (
-                  <Card key={post.id} className="bg-card/50 border-red-500/20 hover:border-red-500/30 transition-colors cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
+                  <motion.div key={post.id} variants={staggerItem}>
+                  <Card className="bg-card/50 border-red-500/20 hover:border-red-500/30 transition-colors cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -1128,19 +1143,26 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
                       </div>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Published */}
             {published.length > 0 && (
-              <div className="space-y-3">
+              <motion.div
+                className="space-y-3"
+                variants={staggerContainer(0.05)}
+                initial="initial"
+                animate="animate"
+              >
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   Published ({published.length})
                 </h3>
                 {published.map((post) => (
-                  <Card key={post.id} className="bg-card/50 border-border/50 opacity-70 cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
+                  <motion.div key={post.id} variants={staggerItem}>
+                  <Card className="bg-card/50 border-border/50 opacity-70 cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
@@ -1153,19 +1175,26 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
                       </div>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
 
             {/* Cancelled */}
             {cancelled.length > 0 && (
-              <div className="space-y-3">
+              <motion.div
+                className="space-y-3"
+                variants={staggerContainer(0.05)}
+                initial="initial"
+                animate="animate"
+              >
                 <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
                   <Square className="w-4 h-4" />
                   Cancelled ({cancelled.length})
                 </h3>
                 {cancelled.map((post) => (
-                  <Card key={post.id} className="bg-card/50 border-border/50 opacity-50 cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
+                  <motion.div key={post.id} variants={staggerItem}>
+                  <Card className="bg-card/50 border-border/50 opacity-50 cursor-pointer" onClick={() => setSelectedPostId(post.id)}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 min-w-0">
@@ -1183,8 +1212,9 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
                       </div>
                     </CardContent>
                   </Card>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </>
         )}

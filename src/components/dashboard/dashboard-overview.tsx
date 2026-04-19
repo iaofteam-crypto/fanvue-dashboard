@@ -18,6 +18,8 @@ import { DashboardSkeleton } from "@/components/dashboard/section-skeletons";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 
 interface DashboardStats {
   subscribers: number;
@@ -335,9 +337,15 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
       </div>
 
       {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        variants={staggerContainer(0.06)}
+        initial="initial"
+        animate="animate"
+      >
         {statCards.map((card) => (
-          <Card key={card.title} className="bg-card/50 border-border/50">
+          <motion.div key={card.title} variants={staggerItem}>
+            <Card className="bg-card/50 border-border/50">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {card.title}
@@ -390,11 +398,13 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Subscriber Breakdown Widget */}
       {subInsights && subInsights.total > 0 && (
+        <motion.div variants={fadeInUp} initial="initial" animate="animate">
         <Card className="bg-card/50 border-border/50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -481,9 +491,11 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
             )}
           </CardContent>
         </Card>
+        </motion.div>
       )}
 
       {/* Recent Activity — derived from synced data */}
+      <motion.div variants={fadeInUp} initial="initial" animate="animate">
       <Card className="bg-card/50 border-border/50">
         <CardHeader>
           <CardTitle className="text-base">Recent Activity</CardTitle>
@@ -510,6 +522,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   );
 }

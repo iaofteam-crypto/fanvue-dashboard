@@ -27,6 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
@@ -679,14 +681,19 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          variants={staggerContainer(0.06)}
+          initial="initial"
+          animate="animate"
+        >
           {BUILT_IN_SMART_LISTS.map((builtIn) => {
             const apiList = smartLists.find((sl) => sl.id === builtIn.id);
             const memberCount = apiList?.memberCount ?? null;
 
             return (
+              <motion.div key={builtIn.id} variants={staggerItem}>
               <Card
-                key={builtIn.id}
                 className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors cursor-pointer group"
                 onClick={() => handleSelectList(builtIn.id)}
               >
@@ -720,12 +727,14 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
 
       {/* Quick insights */}
+      <motion.div variants={fadeInUp} initial="initial" animate="animate">
       <Card className="bg-card/50 border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
@@ -767,6 +776,7 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
           )}
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   );
 }

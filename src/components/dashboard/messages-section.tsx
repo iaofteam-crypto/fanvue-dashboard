@@ -13,6 +13,8 @@ import { ChatListSkeleton } from "@/components/dashboard/section-skeletons";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/animations";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -1260,11 +1262,13 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
               />
             ) : (
               <div ref={chatListRef}>
+                <motion.div variants={staggerContainer(0.03)} initial="initial" animate="animate">
                 {filteredChats.map((chat, index) => {
                   const mediaCount = DEMO_CHAT_MEDIA[chat.id]?.length || 0;
                   return (
-                    <button
+                    <motion.button
                       key={chat.id}
+                      variants={staggerItem}
                       onClick={() => handleSelectChat(chat.id)}
                       onMouseEnter={() => setFocusedChatIndex(index)}
                       className={`w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border/30 text-left ${
@@ -1304,9 +1308,10 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
+                </motion.div>
               </div>
             )}
           </ScrollArea>

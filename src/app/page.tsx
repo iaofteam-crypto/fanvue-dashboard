@@ -22,6 +22,7 @@ import {
   Vault,
   UsersRound,
   FlaskConical,
+  CalendarClock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +120,11 @@ const ABTestingSection = dynamic(
   { loading: () => <SectionSkeleton />, ssr: false }
 );
 
+const ScheduledPostsSection = dynamic(
+  () => import("@/components/dashboard/scheduled-posts-section").then((m) => ({ default: m.ScheduledPostsSection })),
+  { loading: () => <SectionSkeleton />, ssr: false }
+);
+
 // Skeleton loader for dynamically loaded sections
 function SectionSkeleton() {
   return (
@@ -151,7 +157,8 @@ type Section =
   | "vault"
   | "tracking"
   | "bulk-insights"
-  | "ab-testing";
+  | "ab-testing"
+  | "scheduled";
 
 const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -166,6 +173,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: typeof LayoutDashboard }[] 
   { id: "tracking", label: "Tracking", icon: Link2 },
   { id: "bulk-insights", label: "Bulk Insights", icon: UsersRound },
   { id: "ab-testing", label: "A/B Testing", icon: FlaskConical },
+  { id: "scheduled", label: "Scheduled", icon: CalendarClock },
   { id: "discoveries", label: "Discoveries", icon: Search },
   { id: "tasks", label: "Tasks", icon: ListTodo },
   { id: "aeliana", label: "AELIANA AI", icon: Bot },
@@ -370,6 +378,8 @@ export default function Home() {
         return <SectionErrorBoundary sectionName="Bulk Insights"><BulkFanInsightsSection connected={connected} /></SectionErrorBoundary>;
       case "ab-testing":
         return <SectionErrorBoundary sectionName="A/B Testing"><ABTestingSection connected={connected} /></SectionErrorBoundary>;
+      case "scheduled":
+        return <SectionErrorBoundary sectionName="Scheduled Posts"><ScheduledPostsSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
         return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
       case "tasks":

@@ -304,10 +304,22 @@
   - Nuevo nav item "A/B Testing" con icono FlaskConical en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P3-3: Scheduled Posts
-  - UI para programar publicacion futura
-  - Queue de posts programados
-  - Preview antes de publicar
+- [x] P3-3: Scheduled Posts ✅ RALPH-24
+  - Nuevo componente: `src/components/dashboard/scheduled-posts-section.tsx`
+  - 3 views: queue list, create form, post detail
+  - Create: titulo, contenido, tipo (text/photo/video/audio), access level (all/subscribers/PPV), precio PPV, media UUIDs, datetime-local picker con validacion futura
+  - Queue: lista organizada por secciones (Upcoming, Failed, Published, Cancelled) con sort por scheduled date
+  - Auto-publish: polling cada 30s, posts vencidos se publican automaticamente via POST /api/fanvue/posts (90% success rate simulado)
+  - Publish Now: boton para publicar inmediatamente, edit, cancel, retry (failed), delete
+  - Edit form inline en detail view con todos los campos editables
+  - Status badges: scheduled (blue spinner), publishing (amber), published (emerald), failed (red), cancelled (muted)
+  - Overdue detection con border rojo y badge "overdue" en queue items
+  - Preview panel en create form (toggle show/hide)
+  - Post detail: schedule info bar (day of week, time, time until), error panel para failed con retry count
+  - 4 stat cards: in queue, published, failed, next publish countdown
+  - Demo: 5 posts (3 scheduled, 1 overdue, 1 con retry)
+  - Nuevo nav item "Scheduled" con icono CalendarClock en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P3-4: Chat Templates
   - GET /chat-templates — listar templates
@@ -489,14 +501,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 2 | 33% |
+| FASE 9 (P3) | 6 | 3 | 50% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **24** | **41%** |
+| **TOTAL** | **59** | **25** | **42%** |
 
 ---
 

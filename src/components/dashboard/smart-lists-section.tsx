@@ -28,6 +28,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 // --- Types ---
 
@@ -450,13 +451,12 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
                   ))}
                 </div>
               ) : filteredMembers.length === 0 ? (
-                <div className="text-center py-16 text-muted-foreground">
-                  <Search className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                  <p className="font-medium text-sm">No members found</p>
-                  <p className="text-xs mt-1">
-                    {searchQuery ? "Try adjusting your search" : "This list may be empty"}
-                  </p>
-                </div>
+                <EmptyState
+                  size="compact"
+                  icon={Users}
+                  title="No members found"
+                  description={searchQuery ? "Try adjusting your search" : "This list may be empty"}
+                />
               ) : (
                 <div>
                   {filteredMembers.map((member, idx) => (

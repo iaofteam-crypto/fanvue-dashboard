@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 // --- Types ---
 
@@ -472,10 +473,8 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
           </div>
         ) : mediaItems.length === 0 ? (
           <Card className="bg-card/50 border-border/50">
-            <CardContent className="py-16 text-center text-muted-foreground">
-              <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-              <p className="font-medium text-sm">No media in this folder</p>
-              <p className="text-xs mt-1">Add uploaded media using the button above</p>
+            <CardContent className="py-8">
+              <EmptyState size="compact" icon={ImageIcon} title="No media in this folder" description="Add uploaded media using the button above" />
             </CardContent>
           </Card>
         ) : (
@@ -693,20 +692,14 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
         </div>
       ) : filteredFolders.length === 0 ? (
         <Card className="bg-card/50 border-border/50">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <Vault className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="font-medium text-sm">
-              {searchQuery ? "No matching folders" : "No vault folders yet"}
-            </p>
-            <p className="text-xs mt-1">
-              {searchQuery ? "Try adjusting your search" : "Create your first folder to organize your vault media"}
-            </p>
-            {!searchQuery && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowCreateForm(true)}>
-                <Plus className="w-4 h-4 mr-1.5" />
-                Create Folder
-              </Button>
-            )}
+          <CardContent className="py-8">
+            <EmptyState
+              icon={Vault}
+              title={searchQuery ? "No matching folders" : "No vault folders yet"}
+              description={searchQuery ? "Try adjusting your search" : "Create your first folder to organize your vault media"}
+              actionLabel={!searchQuery ? "Create Folder" : undefined}
+              onAction={!searchQuery ? () => setShowCreateForm(true) : undefined}
+            />
           </CardContent>
         </Card>
       ) : (

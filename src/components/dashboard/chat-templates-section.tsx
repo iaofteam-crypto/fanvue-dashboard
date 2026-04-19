@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1054,22 +1055,16 @@ export function ChatTemplatesSection({ connected }: { connected: boolean }) {
         </div>
       ) : filteredTemplates.length === 0 ? (
         <Card className="bg-card/50 border-border/50">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <BookTemplate className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="font-medium text-sm">
-              {searchQuery || categoryFilter !== "all" ? "No templates match your filters" : "No templates yet"}
-            </p>
-            <p className="text-xs mt-1">
-              {searchQuery || categoryFilter !== "all"
+          <CardContent className="py-8">
+            <EmptyState
+              icon={BookTemplate}
+              title={searchQuery || categoryFilter !== "all" ? "No templates match your filters" : "No templates yet"}
+              description={searchQuery || categoryFilter !== "all"
                 ? "Try adjusting your search or filters"
                 : "Create your first template to get started"}
-            </p>
-            {!searchQuery && categoryFilter === "all" && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={startCreate}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Template
-              </Button>
-            )}
+              actionLabel={!searchQuery && categoryFilter === "all" ? "Create Template" : undefined}
+              onAction={!searchQuery && categoryFilter === "all" ? startCreate : undefined}
+            />
           </CardContent>
         </Card>
       ) : (

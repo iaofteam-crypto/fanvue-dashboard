@@ -25,6 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/dashboard/section-skeletons";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 interface Discovery {
   id: string;
@@ -258,6 +259,12 @@ export function DiscoveriesSection() {
                   </div>
                 ))}
               </div>
+            ) : filteredDiscoveries.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No discoveries found"
+                description="Discoveries will appear as you interact with fans"
+              />
             ) : (
               <div className="overflow-x-auto -mx-4 px-4">
               <Table>
@@ -271,14 +278,7 @@ export function DiscoveriesSection() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredDiscoveries.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
-                        No discoveries found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    paginatedDiscoveries.map((discovery) => (
+                  {paginatedDiscoveries.map((discovery) => (
                       <TableRow
                         key={discovery.id}
                         className="border-border/30 hover:bg-muted/30 cursor-pointer"
@@ -322,8 +322,7 @@ export function DiscoveriesSection() {
                           </Badge>
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
+                    ))}
                 </TableBody>
               </Table>
               </div>

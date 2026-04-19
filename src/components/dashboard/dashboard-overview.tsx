@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DashboardSkeleton } from "@/components/dashboard/section-skeletons";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -490,11 +491,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
         <CardContent>
           <div className="space-y-4">
             {activities.length === 0 ? (
-              <div className="flex flex-col items-center py-4 text-center">
-                <RefreshCw className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                <p className="text-sm text-muted-foreground">No activity yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Sync your Fanvue account to see recent activity</p>
-              </div>
+              <EmptyState size="compact" icon={Activity} title="No activity yet" description="Sync your Fanvue account to see recent activity" />
             ) : (
               activities.map((activity, i) => (
                 <div key={i} className="flex items-center gap-3 py-2">

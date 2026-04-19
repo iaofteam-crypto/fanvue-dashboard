@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { FanInsightsSkeleton } from "@/components/dashboard/section-skeletons";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -693,13 +694,11 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
                 ))}
               </div>
             ) : sortedSpenders.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-medium text-sm">No fans found</p>
-                <p className="text-xs mt-1">
-                  {searchQuery ? "Try a different search term" : "Sync your account to load fan data"}
-                </p>
-              </div>
+              <EmptyState
+                icon={Users}
+                title="No fans found"
+                description={searchQuery ? "Try a different search term" : "Sync your account to load fan data"}
+              />
             ) : (
               <div>
                 {/* Table Header */}

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatListSkeleton } from "@/components/dashboard/section-skeletons";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { toast } from "sonner";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -942,17 +943,14 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                       ))}
                     </div>
                   ) : filteredMedia.length === 0 ? (
-                    <div className="text-center py-16 text-muted-foreground">
-                      <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                      <p className="font-medium text-sm">
-                        {mediaSearch || mediaTypeFilter !== "all" ? "No matching media" : "No shared media"}
-                      </p>
-                      <p className="text-xs mt-1">
-                        {mediaSearch || mediaTypeFilter !== "all"
-                          ? "Try adjusting your search or filter"
-                          : "Media shared in this conversation will appear here"}
-                      </p>
-                    </div>
+                    <EmptyState
+                      size="compact"
+                      icon={ImageIcon}
+                      title={mediaSearch || mediaTypeFilter !== "all" ? "No matching media" : "No shared media"}
+                      description={mediaSearch || mediaTypeFilter !== "all"
+                        ? "Try adjusting your search or filter"
+                        : "Media shared in this conversation will appear here"}
+                    />
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                       {filteredMedia.map((item) => {
@@ -1212,11 +1210,11 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
             {loading ? (
               <ChatListSkeleton count={6} />
             ) : filteredChats.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Search className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-medium text-sm">No matching conversations</p>
-                <p className="text-xs mt-1">Try adjusting your search or filter</p>
-              </div>
+              <EmptyState
+                icon={MessageSquare}
+                title={searchQuery ? "No matching conversations" : "No conversations yet"}
+                description={searchQuery ? "Try adjusting your search or filter" : "Start a conversation with your fans"}
+              />
             ) : (
               <div>
                 {filteredChats.map((chat) => {

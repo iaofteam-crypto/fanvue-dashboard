@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 // --- Types ---
 
@@ -448,11 +449,7 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
                   ))}
                 </div>
               ) : members.length === 0 ? (
-                <div className="text-center py-16 text-muted-foreground">
-                  <Users className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                  <p className="font-medium text-sm">No members yet</p>
-                  <p className="text-xs mt-1">Add fans to this list using the button above</p>
-                </div>
+                <EmptyState size="compact" icon={Users} title="No members yet" description="Add fans to this list using the button above" />
               ) : (
                 <div>
                   {members.map((member) => (
@@ -641,20 +638,14 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
         </div>
       ) : filteredLists.length === 0 ? (
         <Card className="bg-card/50 border-border/50">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <FolderOpen className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="font-medium text-sm">
-              {searchQuery ? "No matching lists" : "No custom lists yet"}
-            </p>
-            <p className="text-xs mt-1">
-              {searchQuery ? "Try adjusting your search" : "Create your first list to organize your fans"}
-            </p>
-            {!searchQuery && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowCreateForm(true)}>
-                <Plus className="w-4 h-4 mr-1.5" />
-                Create List
-              </Button>
-            )}
+          <CardContent className="py-8">
+            <EmptyState
+              icon={FolderOpen}
+              title={searchQuery ? "No matching lists" : "No custom lists yet"}
+              description={searchQuery ? "Try adjusting your search" : "Create your first list to organize your fans"}
+              actionLabel={!searchQuery ? "Create List" : undefined}
+              onAction={!searchQuery ? () => setShowCreateForm(true) : undefined}
+            />
           </CardContent>
         </Card>
       ) : (

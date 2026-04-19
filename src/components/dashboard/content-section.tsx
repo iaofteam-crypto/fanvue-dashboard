@@ -39,6 +39,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PostsGridSkeleton } from "@/components/dashboard/section-skeletons";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import {
   Select,
   SelectContent,
@@ -988,10 +989,14 @@ export function ContentSection({ connected }: { connected: boolean }) {
             </div>
           ))
         ) : posts.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted-foreground">
-            <FileText className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="font-medium text-sm">No posts yet</p>
-            <p className="text-xs mt-1">Create your first post to get started</p>
+          <div className="col-span-full">
+            <EmptyState
+              icon={FileText}
+              title="No posts yet"
+              description="Create your first post to get started"
+              actionLabel="Create Post"
+              onAction={() => setDialogOpen(true)}
+            />
           </div>
         ) : [...posts]
           // Sort: pinned posts first, then by createdAt desc
@@ -1151,7 +1156,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
                 <>
                   <div className="space-y-2.5 mt-3 max-h-48 overflow-y-auto">
                     {(commentsMap[post.id] || []).length === 0 ? (
-                      <p className="text-xs text-muted-foreground text-center py-3">No comments yet. Be the first to comment!</p>
+                      <EmptyState size="compact" title="No comments yet" description="Be the first to comment!" />
                     ) : (
                       (commentsMap[post.id] || []).map((comment) => (
                         <div key={comment.id} className="flex gap-2">
@@ -1235,7 +1240,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
                 ))}
               </div>
             ) : likersList.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-8">No likes yet</p>
+              <EmptyState size="compact" icon={Heart} title="No likes yet" />
             ) : (
               <div className="space-y-2">
                 {likersList.map((liker) => (
@@ -1273,7 +1278,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
                 ))}
               </div>
             ) : tipsList.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-8">No tips yet</p>
+              <EmptyState size="compact" icon={DollarSign} title="No tips yet" />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">

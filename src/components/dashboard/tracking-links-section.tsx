@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
 // --- Types ---
 
@@ -425,11 +426,7 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
                 ))}
               </div>
             ) : linkUsers.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <Users className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-                <p className="font-medium text-sm">No users yet</p>
-                <p className="text-xs mt-1">Users will appear here once they click this link</p>
-              </div>
+              <EmptyState size="compact" icon={Users} title="No users yet" description="Users will appear here once they click this link" />
             ) : (
               <div>
                 {/* Table header */}
@@ -664,20 +661,14 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
         </div>
       ) : filteredLinks.length === 0 ? (
         <Card className="bg-card/50 border-border/50">
-          <CardContent className="py-12 text-center text-muted-foreground">
-            <Link2 className="w-10 h-10 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="font-medium text-sm">
-              {searchQuery ? "No matching links" : "No tracking links yet"}
-            </p>
-            <p className="text-xs mt-1">
-              {searchQuery ? "Try adjusting your search" : "Create your first tracking link to measure conversions from social media"}
-            </p>
-            {!searchQuery && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowCreateForm(true)}>
-                <Plus className="w-4 h-4 mr-1.5" />
-                Create Link
-              </Button>
-            )}
+          <CardContent className="py-8">
+            <EmptyState
+              icon={Link2}
+              title={searchQuery ? "No matching links" : "No tracking links yet"}
+              description={searchQuery ? "Try adjusting your search" : "Create your first tracking link to measure conversions from social media"}
+              actionLabel={!searchQuery ? "Create Link" : undefined}
+              onAction={!searchQuery ? () => setShowCreateForm(true) : undefined}
+            />
           </CardContent>
         </Card>
       ) : (

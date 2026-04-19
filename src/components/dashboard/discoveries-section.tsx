@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, Tag, Hash, Loader2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +22,9 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Search, Filter, Tag, Hash, Loader2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useSyncData } from "@/hooks/use-fanvue-data";
 import { TableSkeleton } from "@/components/dashboard/section-skeletons";
 import { EmptyState } from "@/components/dashboard/empty-state";
 
@@ -47,7 +48,7 @@ const DEMO_DISCOVERIES: Discovery[] = [
   { id: "d5", refId: "D5", title: "Content Calendar Optimization", category: "Operations", tags: "Scheduling, Content", status: "implemented", createdAt: "2024-01-19" },
 ];
 
-export function DiscoveriesSection() {
+export function DiscoveriesSection({ connected = true }: { connected?: boolean }) {
   const [discoveries, setDiscoveries] = useState<Discovery[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -56,92 +57,88 @@ export function DiscoveriesSection() {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
 
-  const fetchDiscoveries = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/sync-data");
-      const result = await res.json();
+  // Shared React Query hook — deduplicated sync-data fetch
+  const { data: syncData, isLoading: syncLoading, refetch: refetchSync } = useSyncData(connected);
 
-      // Check if we have synced discovery data or data we can derive
-      const syncedKeys = result.keys || [];
-
-      // Check for discoveries in the sync data
-      if (syncedKeys.length > 0) {
-        // Try to derive discoveries from available data
-        const derived: Discovery[] = [];
-
-        // From posts
-        const posts = result.data?.posts?.data;
-        if (Array.isArray(posts)) {
-          posts.slice(0, 5).forEach((p: Record<string, unknown>, i: number) => {
-            derived.push({
-              id: `post_${i}`,
-              refId: `P${i + 1}`,
-              title: (p.title as string) || (p.type as string) || `Post #${i + 1}`,
-              category: "Content",
-              tags: "post",
-              status: "published",
-              createdAt: (p.createdAt as string) || new Date().toISOString().split("T")[0],
-            });
-          });
-        }
-
-        // From chats (show as engagement insights)
-        const chats = result.data?.chats?.data;
-        if (Array.isArray(chats)) {
-          derived.push({
-            id: "chat_insight",
-            refId: "C1",
-            title: `${chats.length} fan conversations tracked`,
-            category: "Engagement",
-            tags: "chats, engagement",
-            status: "new",
-            createdAt: new Date().toISOString().split("T")[0],
-          });
-        }
-
-        // From earnings
-        const earnings = result.data?.earnings?.data || result.data?.earnings_summary?.data;
-        if (earnings) {
-          const total = Array.isArray(earnings)
-            ? earnings.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.total || e.amount || 0), 0)
-            : Number((earnings as Record<string, unknown>)?.total || 0);
-          if (total > 0) {
-            derived.push({
-              id: "earnings_insight",
-              refId: "E1",
-              title: `Total earnings data available: $${total.toLocaleString()}`,
-              category: "Revenue",
-              tags: "earnings, analytics",
-              status: "new",
-              createdAt: new Date().toISOString().split("T")[0],
-            });
-          }
-        }
-
-        if (derived.length > 0) {
-          setDiscoveries(derived);
-          setHasRealData(true);
-        } else {
-          setDiscoveries(DEMO_DISCOVERIES);
-          setHasRealData(false);
-        }
-      } else {
+  // Derive discoveries from shared sync-data cache
+  useEffect(() => {
+    if (!syncData) {
+      if (!syncLoading) {
+        // No data available
         setDiscoveries(DEMO_DISCOVERIES);
         setHasRealData(false);
+        setLoading(false);
       }
-    } catch {
-      toast.error("Failed to load discoveries");
+      return;
+    }
+
+    const syncedKeys = syncData.keys || [];
+    const derived: Discovery[] = [];
+
+    // From posts
+    const posts = syncData.data?.posts?.data;
+    if (Array.isArray(posts)) {
+      posts.slice(0, 5).forEach((p: Record<string, unknown>, i: number) => {
+        derived.push({
+          id: `post_${i}`,
+          refId: `P${i + 1}`,
+          title: (p.title as string) || (p.type as string) || `Post #${i + 1}`,
+          category: "Content",
+          tags: "post",
+          status: "published",
+          createdAt: (p.createdAt as string) || new Date().toISOString().split("T")[0],
+        });
+      });
+    }
+
+    // From chats (show as engagement insights)
+    const chats = syncData.data?.chats?.data;
+    if (Array.isArray(chats)) {
+      derived.push({
+        id: "chat_insight",
+        refId: "C1",
+        title: `${chats.length} fan conversations tracked`,
+        category: "Engagement",
+        tags: "chats, engagement",
+        status: "new",
+        createdAt: new Date().toISOString().split("T")[0],
+      });
+    }
+
+    // From earnings
+    const earnings = syncData.data?.earnings?.data || syncData.data?.earnings_summary?.data;
+    if (earnings) {
+      const total = Array.isArray(earnings)
+        ? earnings.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.total || e.amount || 0), 0)
+        : Number((earnings as Record<string, unknown>)?.total || 0);
+      if (total > 0) {
+        derived.push({
+          id: "earnings_insight",
+          refId: "E1",
+          title: `Total earnings data available: $${total.toLocaleString()}`,
+          category: "Revenue",
+          tags: "earnings, analytics",
+          status: "new",
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+      }
+    }
+
+    if (syncedKeys.length > 0 && derived.length > 0) {
+      setDiscoveries(derived);
+      setHasRealData(true);
+    } else {
       setDiscoveries(DEMO_DISCOVERIES);
       setHasRealData(false);
-    } finally {
-      setLoading(false);
     }
-  };
+    setLoading(false);
+  }, [syncData, syncLoading]);
 
-  useEffect(() => {
-    fetchDiscoveries();
-  }, []);
+  const handleRefresh = useCallback(async () => {
+    setLoading(true);
+    await refetchSync();
+    setLoading(false);
+  }, [refetchSync]);
 
   const categories = useMemo(() => {
     const cats = new Set(discoveries.map((d) => d.category));
@@ -191,7 +188,7 @@ export function DiscoveriesSection() {
               : "Explore insights and opportunities from handoff analysis"}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchDiscoveries} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
           <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>

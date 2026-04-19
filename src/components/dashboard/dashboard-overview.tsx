@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   DollarSign,
@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { useSyncData, useSubscribers } from "@/hooks/use-fanvue-data";
 
 interface DashboardStats {
   subscribers: number;
@@ -131,30 +132,42 @@ function buildActivityFromSync(syncData: SyncDataResponse): RecentActivityItem[]
 
 export function DashboardOverview({ connected }: { connected: boolean }) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [subInsights, setSubInsights] = useState<SubscriberInsights | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string>("Never");
   const [activities, setActivities] = useState<RecentActivityItem[]>([]);
   const [hasSyncedData, setHasSyncedData] = useState(false);
 
+  // Shared React Query hooks — deduplicated across components
+  const { data: syncData } = useSyncData(connected);
+  const { data: subInsightsRaw } = useSubscribers(connected);
+
+  // Derive subscriber insights from shared query
+  const subInsights = subInsightsRaw ?? null;
+
   const fetchStats = useCallback(async () => {
     if (!connected) return;
     setLoading(true);
     try {
-      // Try to get synced data first
-      const syncRes = await fetch("/api/sync-data");
-      const syncData: SyncDataResponse = await syncRes.json();
+      // Use shared React Query cache for sync-data, but allow manual refresh
+      let syncResponse: SyncDataResponse;
+      if (syncData && syncData.keys && syncData.keys.length > 0) {
+        syncResponse = syncData;
+      } else {
+        // If React Query hasn't fetched yet (cold start), fetch directly
+        const syncRes = await fetch("/api/sync-data");
+        syncResponse = await syncRes.json();
+      }
 
-      const earnings = syncData.data?.earnings?.data || syncData.data?.earnings_summary?.data;
-      const subscribers = syncData.data?.subscribers?.data;
-      const chats = syncData.data?.chats?.data;
-      const posts = syncData.data?.posts?.data;
+      const earnings = syncResponse.data?.earnings?.data || syncResponse.data?.earnings_summary?.data;
+      const subscribers = syncResponse.data?.subscribers?.data;
+      const chats = syncResponse.data?.chats?.data;
+      const posts = syncResponse.data?.posts?.data;
 
       const hasData = !!(earnings || subscribers || chats || posts);
 
       if (hasData) {
         setHasSyncedData(true);
-        setLastSync(syncData.syncedAt ? new Date(syncData.syncedAt).toLocaleTimeString() : new Date().toLocaleTimeString());
+        setLastSync(syncResponse.syncedAt ? new Date(syncResponse.syncedAt).toLocaleTimeString() : new Date().toLocaleTimeString());
 
         setStats({
           subscribers: Array.isArray(subscribers)
@@ -169,7 +182,7 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
           earningsChange: 0,
         });
 
-        setActivities(buildActivityFromSync(syncData));
+        setActivities(buildActivityFromSync(syncResponse));
       } else {
         // No synced data — show zero state with guidance
         setStats({ subscribers: 0, earnings: 0, messages: 0, posts: 0, subscriberChange: 0, earningsChange: 0 });
@@ -213,35 +226,13 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
     }
   }, [connected]);
 
-  const fetchSubscriberInsights = useCallback(async () => {
-    try {
-      const res = await fetch("/api/fanvue/insights/subscribers");
-      if (res.ok) {
-        const data = await res.json();
-        const parsed = Array.isArray(data) ? data[0] : data;
-        if (parsed && typeof parsed === "object") {
-          setSubInsights({
-            total: Number(parsed.total || parsed.count || parsed.subscribers || 0),
-            active: Number(parsed.active || 0),
-            expired: Number(parsed.expired || 0),
-            growthRate: Number(parsed.growthRate || parsed.growth || 0),
-            newThisMonth: Number(parsed.newThisMonth || parsed.newThisPeriod || 0),
-            churnedThisMonth: Number(parsed.churnedThisMonth || parsed.churned || 0),
-            avgSubscriptionLength: Number(parsed.avgSubscriptionLength || 0),
-            tiers: parsed.tiers ? (parsed.tiers as Record<string, number>) : undefined,
-            topTier: parsed.topTier ? String(parsed.topTier) : undefined,
-          });
-        }
-      }
-    } catch {
-      // Subscriber insights unavailable — keep existing stats
-    }
-  }, []);
+  // Subscriber insights now provided by useSubscribers() hook (shared React Query cache)
+  // No separate fetchSubscriberInsights needed — eliminates duplicate /insights/subscribers call
 
   useEffect(() => {
     fetchStats();
-    fetchSubscriberInsights();
-  }, [fetchStats, fetchSubscriberInsights]);
+    // fetchSubscriberInsights removed — useSubscribers() hook handles it via shared cache
+  }, [fetchStats]);
 
   if (loading && !stats) {
     return <DashboardSkeleton />;

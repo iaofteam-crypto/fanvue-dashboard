@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   BarChart3,
@@ -44,6 +45,7 @@ import { SectionSkeleton } from "@/components/dashboard/section-skeletons";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
+import { queryKeys } from "@/hooks/use-fanvue-data";
 
 // ✅ FIX A1: Code splitting — lazy-load all sections except dashboard
 import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
@@ -379,6 +381,41 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // Prefetch data for likely next sections when connected
+  // Uses React Query prefetchQuery — data cached before navigation
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!connected) return;
+    // Prefetch after a short delay to avoid blocking initial render
+    const timer = setTimeout(() => {
+      // Prefetch sync-data (used by dashboard, analytics, discoveries, advanced-analytics)
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.syncData,
+        queryFn: () => fetch("/api/sync-data").then((r) => r.json()),
+        staleTime: 2 * 60 * 1000,
+      });
+      // Prefetch subscriber insights (used by dashboard overview)
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.subscribers,
+        queryFn: () => fetch("/api/fanvue/insights/subscribers").then((r) => r.json()),
+        staleTime: 60 * 1000,
+      });
+      // Prefetch chats list (used by messages section)
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.chats,
+        queryFn: () => fetch("/api/fanvue/chats").then((r) => r.json()),
+        staleTime: 30 * 1000,
+      });
+      // Prefetch posts (used by content section)
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.posts,
+        queryFn: () => fetch("/api/fanvue/posts").then((r) => r.json()),
+        staleTime: 30 * 1000,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [connected, queryClient]);
+
   // Cmd+N → navigate to content section + open new post dialog
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -467,7 +504,7 @@ export default function Home() {
       case "templates":
         return <SectionErrorBoundary sectionName="Chat Templates"><ChatTemplatesSection connected={connected} /></SectionErrorBoundary>;
       case "discoveries":
-        return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection /></SectionErrorBoundary>;
+        return <SectionErrorBoundary sectionName="Discoveries"><DiscoveriesSection connected={connected} /></SectionErrorBoundary>;
       case "tasks":
         return <SectionErrorBoundary sectionName="Tasks"><TasksSection /></SectionErrorBoundary>;
       case "aeliana":

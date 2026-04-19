@@ -514,9 +514,17 @@
   - ~15 derived arrays envueltos en useMemo con deps correctas
   - Build clean. Zero TypeScript errors
 
-- [ ] PERF-3: Virtualized lists para chats y posts
-  - react-window o similar para listas largas
-  - Lazy rendering de items fuera del viewport
+- [x] PERF-3: Virtualized lists para chats y posts ✅ RALPH-41
+  - react-window v2 instalado (List component con API: defaultHeight, rowCount, rowHeight, rowComponent, rowProps)
+  - messages-section.tsx: virtualized chat list para 50+ chats (CHAT_LIST_VIRTUAL_THRESHOLD=50, CHAT_ITEM_HEIGHT=76px)
+    - Framer Motion stagger animations preservadas para listas <50 items
+    - react-window List con rowComponent render callback para 50+ items
+  - bulk-fan-insights-section.tsx: virtualized fan table para 50+ fans (FAN_TABLE_VIRTUAL_THRESHOLD=50, FAN_ROW_HEIGHT=48px)
+    - Framer Motion stagger animations preservadas para listas <50 items
+    - react-window List con rowComponent para 50+ items
+  - smart-lists-section.tsx: import List preparado para futuro uso en member lists
+  - Threshold pattern: below threshold = normal render (con animaciones), above = virtualized (sin animaciones)
+  - Build clean. Zero TypeScript errors
 
 - [ ] PERF-4: Image optimization
   - next/image para todas las imagenes

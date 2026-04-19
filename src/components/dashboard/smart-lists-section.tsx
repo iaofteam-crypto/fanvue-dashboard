@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { List } from "react-window";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";

@@ -27,6 +27,11 @@ import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 import { BulkInsightsTableSkeleton } from "@/components/dashboard/section-skeletons";
 import { SectionBreadcrumbs } from "@/components/dashboard/section-breadcrumbs";
+import { List } from "react-window";
+
+// Virtualization threshold and config for fan insights table
+const FAN_TABLE_VIRTUAL_THRESHOLD = 50;
+const FAN_ROW_HEIGHT = 48; // px — button row (py-2.5 + content)
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -676,6 +681,87 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
                 </div>
 
                 {/* Table Rows */}
+                {filteredFans.length >= FAN_TABLE_VIRTUAL_THRESHOLD ? (
+                  /* Virtualized list for 50+ fans */
+                  <List
+                    defaultHeight={Math.min(600, filteredFans.length * FAN_ROW_HEIGHT)}
+                    rowCount={filteredFans.length}
+                    rowHeight={FAN_ROW_HEIGHT}
+                    overscanCount={15}
+                    rowProps={{}}
+                    rowComponent={({ index, style }) => {
+                      const fan = filteredFans[index];
+                      if (!fan) return null;
+                      const daysInactive = fan.daysSinceLastActivity ?? 99;
+                      return (
+                        <button
+                          key={fan.id}
+                          onClick={() => setSelectedFanId(fan.id)}
+                          style={style}
+                          className="w-full grid grid-cols-14 gap-1 px-3 py-2.5 hover:bg-muted/50 transition-colors border-b border-border/20 text-left items-center"
+                        >
+                          <div className="col-span-1 text-right text-xs text-muted-foreground">
+                            {index + 1}
+                          </div>
+                          <div className="col-span-2 flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                              <Users className="w-3.5 h-3.5 text-primary" />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium truncate block">
+                                {fan.displayName || fan.username || `Fan ${fan.id}`}
+                              </span>
+                              {fan.subscriptionActive && (
+                                <Crown className="w-3 h-3 text-emerald-400" />
+                              )}
+                            </div>
+                          </div>
+                          <div className="col-span-2 text-right text-sm font-medium">
+                            {formatCurrency(fan.totalSpent ?? 0)}
+                          </div>
+                          <div className="col-span-1 text-right text-sm text-muted-foreground">
+                            {formatCurrency(fan.ltv ?? 0)}
+                          </div>
+                          <div className="col-span-1 text-center">
+                            <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${getScoreBg(fan.engagementScore ?? 0)} ${getScoreColor(fan.engagementScore ?? 0)}`}>
+                              {fan.engagementScore ?? 0}
+                            </div>
+                          </div>
+                          <div className="col-span-1 text-right text-sm text-muted-foreground">
+                            {fan.messageCount ?? 0}
+                          </div>
+                          <div className="col-span-1 text-right text-sm text-muted-foreground">
+                            {formatCurrency(fan.tipTotal ?? 0)}
+                          </div>
+                          <div className="col-span-1 text-right text-sm text-muted-foreground">
+                            {formatCurrency(fan.ppvTotal ?? 0)}
+                          </div>
+                          <div className="col-span-1 text-center">
+                            {fan.subscriptionTier?.toLowerCase() === "vip" ? (
+                              <Badge variant="outline" className="text-[10px] px-1 py-0 bg-amber-500/10 text-amber-400 border-amber-500/20">
+                                VIP
+                              </Badge>
+                            ) : fan.subscriptionActive ? (
+                              <Badge variant="outline" className="text-[10px] px-1 py-0 bg-sky-500/10 text-sky-400 border-sky-500/20">
+                                STD
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
+                            )}
+                          </div>
+                          <div className="col-span-1 text-center">
+                            <Badge variant="outline" className={`text-[10px] px-1 py-0 ${getRiskColor(daysInactive)}`}>
+                              {getRiskLabel(daysInactive)}
+                            </Badge>
+                          </div>
+                          <div className="col-span-2 text-right text-xs text-muted-foreground">
+                            {relativeTime(fan.lastActivity)}
+                          </div>
+                        </button>
+                      );
+                    }}
+                  />
+                ) : (
                 <motion.div variants={staggerContainer(0.02)} initial="initial" animate="animate">
                 {filteredFans.map((fan, index) => {
                   const isExpanded = expandedFanId === fan.id;
@@ -771,6 +857,7 @@ export function BulkFanInsightsSection({ connected }: { connected: boolean }) {
                   );
                 })}
                 </motion.div>
+                )}
               </div>
             )}
           </ScrollArea>

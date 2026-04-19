@@ -15,6 +15,11 @@ import { EmptyState } from "@/components/dashboard/empty-state";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/animations";
+import { List } from "react-window";
+
+// Virtualization threshold: use react-window for 50+ chats
+const CHAT_LIST_VIRTUAL_THRESHOLD = 50;
+const CHAT_ITEM_HEIGHT = 76; // px — p-4 (32px) + avatar (40px) + text lines + badges
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 
@@ -1262,7 +1267,67 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                 title={searchQuery ? "No matching conversations" : "No conversations yet"}
                 description={searchQuery ? "Try adjusting your search or filter" : "Start a conversation with your fans"}
               />
+            ) : filteredChats.length >= CHAT_LIST_VIRTUAL_THRESHOLD ? (
+              /* Virtualized list for 50+ chats — avoids rendering hidden DOM nodes */
+              <List
+                defaultHeight={Math.min(600, filteredChats.length * CHAT_ITEM_HEIGHT)}
+                rowCount={filteredChats.length}
+                rowHeight={CHAT_ITEM_HEIGHT}
+                overscanCount={10}
+                rowProps={{}}
+                rowComponent={({ index, style }) => {
+                  const chat = filteredChats[index];
+                  if (!chat) return null;
+                  const mediaCount = DEMO_CHAT_MEDIA[chat.id]?.length || 0;
+                  return (
+                    <button
+                      key={chat.id}
+                      onClick={() => handleSelectChat(chat.id)}
+                      onMouseEnter={() => setFocusedChatIndex(index)}
+                      style={style}
+                      className={`w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border/30 text-left ${
+                        focusedChatIndex === index ? "bg-primary/10 ring-1 ring-primary/30" : ""
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-sm truncate">
+                            {chat.fan?.displayName || chat.participant?.username || `Chat ${chat.id}`}
+                          </p>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                            {chat.updatedAt
+                              ? new Date(chat.updatedAt).toLocaleDateString()
+                              : "Recently"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mt-0.5">
+                          <p className="text-xs text-muted-foreground truncate">
+                            {chat.lastMessage || "No messages yet"}
+                          </p>
+                          <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
+                            {mediaCount > 0 && (
+                              <Badge variant="outline" className="text-[10px] px-1 py-0 bg-sky-500/10 text-sky-400 border-sky-500/20">
+                                <ImageIcon className="w-2.5 h-2.5 mr-0.5" />
+                                {mediaCount}
+                              </Badge>
+                            )}
+                            {chat.unreadCount && chat.unreadCount > 0 && (
+                              <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
+                                {chat.unreadCount}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                }}
+              />
             ) : (
+              /* Small list: use Framer Motion stagger animations */
               <div ref={chatListRef}>
                 <motion.div variants={staggerContainer(0.03)} initial="initial" animate="animate">
                 {filteredChats.map((chat, index) => {

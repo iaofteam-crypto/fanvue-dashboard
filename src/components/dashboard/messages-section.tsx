@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter, Bot, Sparkles, Brain, Heart, TrendingUp, AlertTriangle, MessageCircle, RefreshCw } from "lucide-react";
+import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter, Bot, Sparkles, Brain, Heart, TrendingUp, AlertTriangle, MessageCircle, RefreshCw, BookTemplate } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -212,6 +212,10 @@ export function MessagesSection({ connected }: { connected: boolean }) {
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiChatHistory, setAiChatHistory] = useState<AIChatMessage[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
+  // Template quick-insert state
+  const [chatTemplates, setChatTemplates] = useState<Array<{ id: string; name: string; content: string; category: string }>>([]);
+  const [templatePopoverOpen, setTemplatePopoverOpen] = useState(false);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
 
   const fetchChats = useCallback(async () => {
     if (!connected) return;
@@ -447,6 +451,53 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
   const handleToggleMedia = () => {
     if (!selectedChat) return;
     handleViewChange(activeView === "media" ? "messages" : "media");
+  };
+
+  // ─── Fetch Chat Templates for Quick Insert ────────────────────────────────────
+
+  const fetchChatTemplates = useCallback(async () => {
+    setLoadingTemplates(true);
+    try {
+      const res = await fetch("/api/fanvue/chat-templates");
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data?.data || data?.templates || [];
+        if (list.length > 0) {
+          setChatTemplates(list.map((t: Record<string, unknown>) => ({
+            id: (t.id as string) || "",
+            name: (t.name as string) || "",
+            content: (t.content as string) || "",
+            category: (t.category as string) || "custom",
+          })));
+          setLoadingTemplates(false);
+          return;
+        }
+      }
+    } catch {
+      // fall through to demo
+    }
+    // Demo fallback templates
+    setChatTemplates([
+      { id: "tpl-q1", name: "Welcome Message", content: "Hey {{fan_name}}! Thanks for subscribing to my page! 💖", category: "greeting" },
+      { id: "tpl-q2", name: "PPV Offer", content: "Hey {{fan_name}}! I have a special exclusive set just for you — want to check it out? 📸", category: "ppv_offer" },
+      { id: "tpl-q3", name: "Re-Engagement", content: "Hey {{fan_name}}! It's been a while, I've missed you! Hope you're doing well 💕", category: "re_engagement" },
+      { id: "tpl-q4", name: "Thank You", content: "{{fan_name}}, thank you so much for your support! You're amazing 🙏✨", category: "thank_you" },
+    ]);
+    setLoadingTemplates(false);
+  }, []);
+
+  const handleInsertTemplate = (template: { name: string; content: string }) => {
+    const chatName = chats.find((c) => c.id === selectedChat)?.fan?.displayName
+      || chats.find((c) => c.id === selectedChat)?.participant?.username
+      || "Fan";
+    let filledContent = template.content
+      .replace(/\{\{fan_name\}\}/g, chatName)
+      .replace(/\{\{creator_name\}\}/g, "You")
+      .replace(/\{\{tier\}\}/g, "subscriber")
+      .replace(/\{\{days_since_sub\}\}/g, "30");
+    setNewMessage(filledContent);
+    setTemplatePopoverOpen(false);
+    toast.success(`Template inserted: ${template.name}`);
   };
 
   const handleSendMessage = async () => {
@@ -1013,6 +1064,73 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                     }
                   }}
                 />
+                {/* Template quick-insert button */}
+                <div className="relative flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={() => {
+                      if (chatTemplates.length === 0) fetchChatTemplates();
+                      setTemplatePopoverOpen(!templatePopoverOpen);
+                    }}
+                    title="Insert template"
+                  >
+                    <BookTemplate className="w-4 h-4" />
+                  </Button>
+                  {templatePopoverOpen && (
+                    <>
+                      {/* Click-away backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setTemplatePopoverOpen(false)}
+                      />
+                      {/* Popover dropdown */}
+                      <div className="absolute bottom-full right-0 mb-2 w-72 z-50 rounded-lg border border-border/50 bg-card shadow-lg overflow-hidden">
+                        <div className="p-2 border-b border-border/50 flex items-center justify-between">
+                          <span className="text-xs font-medium text-muted-foreground">Templates</span>
+                          <button
+                            onClick={fetchChatTemplates}
+                            disabled={loadingTemplates}
+                            className="p-1 rounded hover:bg-muted transition-colors"
+                            title="Refresh templates"
+                          >
+                            <RefreshCw className={`w-3 h-3 text-muted-foreground ${loadingTemplates ? "animate-spin" : ""}`} />
+                          </button>
+                        </div>
+                        <ScrollArea className="max-h-64">
+                          {loadingTemplates ? (
+                            <div className="flex justify-center py-6">
+                              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                            </div>
+                          ) : chatTemplates.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-muted-foreground">
+                              No templates available
+                            </div>
+                          ) : (
+                            <div className="p-1">
+                              {chatTemplates.map((tpl) => (
+                                <button
+                                  key={tpl.id}
+                                  onClick={() => handleInsertTemplate(tpl)}
+                                  className="w-full text-left px-2 py-2 rounded-md hover:bg-muted/50 transition-colors"
+                                >
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="text-xs font-medium truncate">{tpl.name}</span>
+                                    <Badge variant="outline" className="text-[9px] px-1 py-0 bg-muted text-muted-foreground border-border/50 flex-shrink-0">
+                                      {tpl.category}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-[11px] text-muted-foreground line-clamp-1">{tpl.content.slice(0, 50)}{tpl.content.length > 50 ? "..." : ""}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </ScrollArea>
+                      </div>
+                    </>
+                  )}
+                </div>
                 <Button
                   onClick={handleSendMessage}
                   disabled={sending || !newMessage.trim()}

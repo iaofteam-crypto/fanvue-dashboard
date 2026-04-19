@@ -321,10 +321,21 @@
   - Nuevo nav item "Scheduled" con icono CalendarClock en sidebar
   - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
-- [ ] P3-4: Chat Templates
-  - GET /chat-templates — listar templates
+- [x] P3-4: Chat Templates ✅ RALPH-25
+  - Nuevo componente: `src/components/dashboard/chat-templates-section.tsx`
+  - GET /chat-templates — listar templates (via catch-all proxy)
   - GET /chat-templates/{id} — ver template
-  - UI: selector de templates en chat, quick-insert
+  - POST /chat-templates — crear template (name, category, content, mediaUuids, ppvPrice)
+  - PATCH /chat-templates/{id} — editar template
+  - DELETE /chat-templates/{id} — eliminar template
+  - 5 categorias: greeting (sky), ppv_offer (amber), re_engagement (violet), thank_you (emerald), custom (muted)
+  - Template variables: {{fan_name}}, {{creator_name}}, {{tier}}, {{days_since_sub}} con highlight sky-400 en preview
+  - 3 views: overview grid, create/edit form, template preview
+  - Quick-insert en chat: popover con templates desde messages-section.tsx, variables reemplazadas con datos del fan
+  - Acciones: edit, delete, copy, duplicate, search, category filter
+  - 4 stat cards, 8 demo templates
+  - Nuevo nav item "Chat Templates" con BookTemplate icon en sidebar
+  - Code-split via dynamic import. Zero any, error:unknown, Sonner toasts
 
 - [ ] P3-5: Real-time Notifications (webhook-driven)
   - WebSocket o SSE para notificaciones push
@@ -501,14 +512,14 @@
 | FASE 6 (P0) | 7 | 7 | 100% |
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
-| FASE 9 (P3) | 6 | 3 | 50% |
+| FASE 9 (P3) | 6 | 4 | 67% |
 | FASE 10 (UX) | 8 | 0 | 0% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **25** | **42%** |
+| **TOTAL** | **59** | **26** | **44%** |
 
 ---
 

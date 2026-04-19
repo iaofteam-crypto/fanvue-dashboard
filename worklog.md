@@ -76,3 +76,24 @@ Stage Summary:
 - PERF-2 COMPLETE: 14 files modified, 61 insertions, 52 deletions
 - 38/59 tasks (64%), FASE 11 (PERF) 33%
 - Next: PERF-3 (Virtualized lists para chats y posts)
+
+---
+Task ID: ralph-41
+Agent: main (RALPH LOOP)
+Task: PERF-3: Virtualized lists with react-window v2
+
+Work Log:
+- Installed react-window@2.2.7 (v2 API — different from v1: List, rowComponent, rowCount, rowHeight)
+- Added virtualized chat list in messages-section.tsx (threshold: 50 items)
+- Added virtualized fan table in bulk-fan-insights-section.tsx (threshold: 50 items)
+- Prepared smart-lists-section.tsx with List import for future use
+- Pattern: <50 items = normal render with Framer Motion, >=50 = react-window virtualized
+- Fixed build error: react-window v2 uses named export `List` not `FixedSizeList`
+- Fixed build error: v2 requires `rowProps` prop
+- Removed unused virtualized-list.tsx utility (used direct List component instead)
+- Build clean, committed a870263, pushed to origin/main
+
+Stage Summary:
+- PERF-3 COMPLETE: 3 files modified, react-window@2.2.7 added
+- 39/59 tasks (66%), FASE 11 (PERF) 50%
+- Next: PERF-4 (Image optimization)

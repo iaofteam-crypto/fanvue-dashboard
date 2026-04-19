@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SectionSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
+    <div className="space-y-4 animate-pulse" role="status" aria-label="Loading section" aria-busy="true">
       <div className="flex items-center justify-between">
         <div>
           <Skeleton className="h-7 w-40 mb-2" />

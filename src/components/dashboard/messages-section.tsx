@@ -971,6 +971,7 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
                         size="sm"
                         onClick={() => setMediaTypeFilter(f.key)}
                         className="text-xs h-7 px-2 gap-1"
+                        aria-pressed={mediaTypeFilter === f.key}
                       >
                         <f.icon className="w-3 h-3" />
                         {mediaCounts[f.key]}
@@ -1224,6 +1225,7 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
+            aria-label="Search conversations"
           />
         </div>
         <Button

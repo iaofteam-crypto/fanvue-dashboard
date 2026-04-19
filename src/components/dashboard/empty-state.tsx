@@ -39,12 +39,13 @@ export function EmptyState({
   const isCompact = size === "compact";
 
   return (
-    <div className={`flex flex-col items-center justify-center text-center px-4 ${isCompact ? "py-6" : "py-16"}`}>
+    <div role="status" aria-label={title} className={`flex flex-col items-center justify-center text-center px-4 ${isCompact ? "py-6" : "py-16"}`}>
       {/* Icon */}
       <div
         className={`rounded-full flex items-center justify-center mb-4 ${
           isCompact ? "w-10 h-10" : "w-16 h-16"
         } ${iconColors[variant]}`}
+        aria-hidden="true"
       >
         {variant === "warning" ? (
           <AlertCircle className={isCompact ? "w-5 h-5" : "w-7 h-7 text-amber-400"} />

@@ -210,6 +210,7 @@ export function CommandPalette({ activeSection, onNavigate }: CommandPaletteProp
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 bg-transparent border-none outline-none text-sm py-3 px-2 placeholder:text-muted-foreground"
+            aria-label="Search sections"
           />
           <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
             ESC

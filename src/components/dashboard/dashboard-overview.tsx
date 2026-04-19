@@ -329,8 +329,9 @@ export function DashboardOverview({ connected }: { connected: boolean }) {
             size="sm"
             onClick={fetchStats}
             disabled={loading}
+            aria-label="Refresh dashboard data"
           >
-            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
             Refresh
           </Button>
         </div>

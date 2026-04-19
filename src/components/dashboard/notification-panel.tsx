@@ -516,6 +516,7 @@ export function NotificationPanel({ connected }: NotificationPanelProps) {
                 size="sm"
                 onClick={markAllRead}
                 className="text-xs h-7 px-2 text-muted-foreground hover:text-foreground"
+                aria-label="Mark all notifications as read"
               >
                 Mark all read
               </Button>

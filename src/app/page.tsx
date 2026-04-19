@@ -235,7 +235,7 @@ function SidebarNav({
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4 border-b border-border/50" aria-hidden="true">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <Zap className="w-4 h-4 text-primary-foreground" />
@@ -249,18 +249,19 @@ function SidebarNav({
 
       {/* Navigation */}
       <ScrollArea className="flex-1 py-3">
-        <nav className="space-y-0.5 px-3">
+        <nav className="space-y-0.5 px-3" aria-label="Dashboard sections">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
+              aria-current={activeSection === item.id ? "page" : undefined}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                 activeSection === item.id
                   ? "bg-primary/10 text-primary font-medium"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
-              <item.icon className="w-4 h-4 flex-shrink-0" />
+              <item.icon className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
               <span className="flex-1 text-left">{item.label}</span>
             </button>
           ))}
@@ -269,11 +270,12 @@ function SidebarNav({
 
       {/* Footer */}
       <div className="p-3 border-t border-border/50 space-y-1">
-        <div className="flex items-center gap-2 px-3 py-1.5">
+        <div className="flex items-center gap-2 px-3 py-1.5" role="status" aria-live="polite" aria-label={connected ? "Connected to Fanvue" : "Not connected to Fanvue"}>
           <div
             className={`w-2 h-2 rounded-full ${
               connected ? "bg-emerald-400" : "bg-muted-foreground"
             }`}
+            role="presentation"
           />
           <span className="text-xs text-muted-foreground">
             {connected ? "Fanvue Connected" : "Not Connected"}
@@ -284,9 +286,9 @@ function SidebarNav({
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
         >
           {theme === "dark" ? (
-            <Sun className="w-4 h-4" />
+            <Sun className="w-4 h-4" aria-hidden="true" />
           ) : (
-            <Moon className="w-4 h-4" />
+            <Moon className="w-4 h-4" aria-hidden="true" />
           )}
           <span>
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
@@ -489,9 +491,13 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      {/* Skip to content — a11y */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       {/* Desktop Sidebar */}
       {!isMobile && (
-        <aside className="w-64 border-r border-border/50 bg-card/30 flex-shrink-0 hidden md:flex">
+        <aside className="w-64 border-r border-border/50 bg-card/30 flex-shrink-0 hidden md:flex" aria-label="Main navigation">
           <SidebarNav
             activeSection={activeSection}
             connected={connected}
@@ -529,11 +535,12 @@ export default function Home() {
                 size="icon"
                 onClick={() => setSidebarOpen(true)}
                 className="h-9 w-9"
+                aria-label="Open navigation menu"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             )}
-            <h2 className="font-semibold text-sm">
+            <h2 id="page-title" className="font-semibold text-sm">
               {NAV_ITEMS.find((n) => n.id === activeSection)?.label || "Dashboard"}
             </h2>
           </div>
@@ -546,8 +553,9 @@ export default function Home() {
               }}
               className="hidden sm:flex items-center gap-2 h-8 px-2.5 rounded-md border border-border/50 bg-muted/30 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors text-xs"
               title="Search sections (Ctrl+K)"
+              aria-label="Search sections (Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5" />
+              <Search className="w-3.5 h-3.5" aria-hidden="true" />
               <span className="text-muted-foreground/70">Search...</span>
               <kbd className="ml-3 rounded border border-border bg-background px-1 font-mono text-[10px] text-muted-foreground/60">
                 Ctrl K
@@ -558,6 +566,7 @@ export default function Home() {
               <Badge
                 variant="outline"
                 className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                role="status"
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5" />
                 Connected
@@ -577,8 +586,8 @@ export default function Home() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 md:p-6 lg:p-8">
+        <div className="flex-1 overflow-y-auto" id="main-content">
+          <div className="p-4 md:p-6 lg:p-8" role="region" aria-labelledby="page-title">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection}
@@ -595,7 +604,7 @@ export default function Home() {
 
         {/* Mobile Bottom Nav */}
         {isMobile && (
-          <nav className="border-t border-border/50 bg-card/95 backdrop-blur-sm md:hidden flex-shrink-0">
+          <nav className="border-t border-border/50 bg-card/95 backdrop-blur-sm md:hidden flex-shrink-0" aria-label="Mobile navigation">
             <div className="flex items-center justify-around px-2 py-1">
               {MOBILE_NAV_IDS.map((sectionId) => {
                 const item = NAV_ITEMS.find((n) => n.id === sectionId);
@@ -604,13 +613,14 @@ export default function Home() {
                 <button
                   key={item.id}
                   onClick={() => navigateTo(item.id)}
+                  aria-current={activeSection === item.id ? "page" : undefined}
                   className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors relative ${
                     activeSection === item.id
                       ? "text-primary"
                       : "text-muted-foreground"
                   }`}
                 >
-                  <item.icon className="w-4.5 h-4.5" />
+                  <item.icon className="w-4.5 h-4.5" aria-hidden="true" />
                   <span className="text-[10px]">{item.label}</span>
                 </button>
                 );
@@ -619,11 +629,13 @@ export default function Home() {
               <div className="relative">
                 <button
                   onClick={() => setMoreMenuOpen((prev) => !prev)}
+                  aria-label="More sections"
+                  aria-expanded={moreMenuOpen}
                   className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors ${
                     moreMenuOpen ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
-                  <MoreHorizontal className="w-4.5 h-4.5" />
+                  <MoreHorizontal className="w-4.5 h-4.5" aria-hidden="true" />
                   <span className="text-[10px]">More</span>
                 </button>
                 {moreMenuOpen && (

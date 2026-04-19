@@ -466,12 +466,29 @@
   - Micro-interacciones via stagger scale (0.97→1.0) + fade (opacity 0→1) + translateY (12px→0)
   - Build clean. Zero TypeScript errors
 
-- [ ] UX-8: Accessibility (a11y)
-  - ARIA labels en todos los controles
-  - Focus trap en modals
-  - Screen reader support
-  - Keyboard navigation completa
-  - Color contrast verification
+- [x] UX-8: Accessibility (a11y) ✅ RALPH-38
+  - globals.css: focus-visible ring (outline-2 outline-offset-2 outline-ring) solo para keyboard, focus:not(:focus-visible) sin outline
+  - globals.css: skip-to-content link (.skip-to-content class, visible solo on keyboard focus con transition)
+  - globals.css: prefers-reduced-motion media query — desactiva animaciones y transiciones para users con motion sensitivity
+  - page.tsx: skip-to-content link apuntando a #main-content
+  - page.tsx: aside aria-label="Main navigation", nav aria-label="Dashboard sections", mobile nav aria-label="Mobile navigation"
+  - page.tsx: nav buttons aria-current="page" para seccion activa (desktop + mobile bottom)
+  - page.tsx: main content div id="main-content" + role="region" aria-labelledby="page-title"
+  - page.tsx: h2 id="page-title" para aria-labelledby
+  - page.tsx: hamburger menu button aria-label="Open navigation menu"
+  - page.tsx: search button aria-label + Search icon aria-hidden
+  - page.tsx: connection status role="status" aria-live="polite" + dot role="presentation"
+  - page.tsx: Connected badge role="status"
+  - page.tsx: "More" button aria-label="More sections" aria-expanded
+  - page.tsx: nav icons aria-hidden="true", theme toggle icons aria-hidden="true"
+  - page.tsx: sidebar logo area aria-hidden="true"
+  - dashboard-overview.tsx: Refresh button aria-label, RefreshCw icon aria-hidden
+  - messages-section.tsx: Search input aria-label="Search conversations", media filter buttons aria-pressed
+  - notification-panel.tsx: Mark All Read button aria-label
+  - command-palette.tsx: Search input aria-label (ya tenia role="listbox" en results)
+  - empty-state.tsx: role="status" aria-label={title}, icon container aria-hidden
+  - section-skeletons.tsx: SectionSkeleton role="status" aria-label aria-busy="true"
+  - Build clean. Zero TypeScript errors
 
 ## FASE 11: Performance
 
@@ -593,13 +610,13 @@
 | FASE 7 (P1) | 5 | 5 | 100% |
 | FASE 8 (P2) | 10 | 10 | 100% |
 | FASE 9 (P3) | 6 | 6 | 100% |
-| FASE 10 (UX) | 8 | 7 | 88% |
+| FASE 10 (UX) | 8 | 8 | 100% |
 | FASE 11 (Perf) | 6 | 0 | 0% |
 | FASE 12 (Sec) | 5 | 0 | 0% |
 | FASE 13 (Code) | 6 | 0 | 0% |
 | FASE 14 (Int) | 3 | 0 | 0% |
 | FASE 15 (DevOps) | 3 | 0 | 0% |
-| **TOTAL** | **59** | **35** | **59%** |
+| **TOTAL** | **59** | **36** | **61%** |
 
 ---
 

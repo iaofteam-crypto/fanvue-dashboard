@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   ArrowLeft,
@@ -532,7 +532,7 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
 
   // ─── Top Spenders List View ─────────────────────────────────────────────
 
-  const sortedSpenders = [...spenders]
+  const sortedSpenders = useMemo(() => [...spenders]
     .filter((s) => {
       const name = s.displayName || s.username || `Fan ${s.id}`;
       return !searchQuery || name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -546,7 +546,7 @@ export function FanInsightsSection({ connected }: { connected: boolean }) {
         default:
           return (b.totalSpent ?? 0) - (a.totalSpent ?? 0);
       }
-    });
+    }), [spenders, searchQuery, sortBy]);
 
   const totalRevenue = spenders.reduce((sum, s) => sum + (s.totalSpent ?? 0), 0);
   const activeSubscribers = spenders.filter((s) => s.subscriptionActive).length;

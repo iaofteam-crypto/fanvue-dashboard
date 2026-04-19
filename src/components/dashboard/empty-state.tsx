@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { AlertCircle, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
@@ -18,7 +19,7 @@ interface EmptyStateProps {
   size?: "compact" | "full";
 }
 
-export function EmptyState({
+export const EmptyState = React.memo(function EmptyState({
   icon: Icon = Inbox,
   title,
   description,
@@ -92,4 +93,4 @@ export function EmptyState({
       )}
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search,
   LayoutDashboard,
@@ -99,7 +99,7 @@ interface CommandPaletteProps {
   onNavigate: (section: Section) => void;
 }
 
-export function CommandPalette({ activeSection, onNavigate }: CommandPaletteProps) {
+export const CommandPalette = React.memo(function CommandPalette({ activeSection, onNavigate }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -284,4 +284,4 @@ export function CommandPalette({ activeSection, onNavigate }: CommandPaletteProp
       </DialogContent>
     </Dialog>
   );
-}
+});

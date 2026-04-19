@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   Plus,
@@ -340,11 +340,11 @@ export function CustomListsSection({ connected }: { connected: boolean }) {
 
   // --- Filtered lists ---
 
-  const filteredLists = customLists.filter((l) => {
+  const filteredLists = useMemo(() => customLists.filter((l) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return l.name.toLowerCase().includes(q) || (l.description || "").toLowerCase().includes(q);
-  });
+  }), [customLists, searchQuery]);
 
   const selectedList = selectedListUuid
     ? customLists.find((l) => l.uuid === selectedListUuid)

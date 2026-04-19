@@ -508,9 +508,11 @@
   - Reducción estimada de requests: ~8-12 fetches duplicados eliminados por sesión de navegación
   - NOTA: Los componentes restantes (analytics, advanced-analytics, messages, content, etc.) todavía usan fetch directo. Migración progresiva en PERF-2 (React.memo + useMemo) se puede incluir la migración de más hooks.
 
-- [ ] PERF-2: React.memo y useMemo donde sea necesario
-  - Memoizar componentes de lista pesados
-  - Memoizar datos derivados (filtered/sorted lists)
+- [x] PERF-2: React.memo y useMemo donde sea necesario ✅ RALPH-40
+  - useMemo en 9 archivos: messages-section (filteredChats, filteredMedia, mediaCounts), content-section (sortedPosts), fan-insights-section (sortedSpenders), smart-lists-section (sortedMembers, filteredMembers), custom-lists-section (filteredLists), tracking-links-section (filteredLinks), vault-folders-section (filteredFolders, totalMedia), scheduled-posts-section (queueGroups: scheduled/published/failed/cancelled), notification-panel (unreadCount)
+  - React.memo en 4 componentes compartidos: EmptyState, SectionBreadcrumbs, CommandPalette, NotificationPanel
+  - ~15 derived arrays envueltos en useMemo con deps correctas
+  - Build clean. Zero TypeScript errors
 
 - [ ] PERF-3: Virtualized lists para chats y posts
   - react-window o similar para listas largas

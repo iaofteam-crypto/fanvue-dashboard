@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   Plus,
   ImageIcon,
@@ -126,6 +126,12 @@ export function ContentSection({ connected }: { connected: boolean }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const sortedPosts = useMemo(() => [...posts].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  }), [posts]);
 
   const fetchPosts = useCallback(async () => {
     if (!connected) return;
@@ -1014,13 +1020,7 @@ export function ContentSection({ connected }: { connected: boolean }) {
               onAction={() => setDialogOpen(true)}
             />
           </div>
-        ) : [...posts]
-          // Sort: pinned posts first, then by createdAt desc
-          .sort((a, b) => {
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
-            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-          })
+        ) : sortedPosts
           .map((post) => (
           <motion.div key={post.id} variants={staggerItem}>
           <Card className="bg-card/50 border-border/50 hover:border-primary/30 transition-colors">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Link2,
   Plus,
@@ -293,11 +293,11 @@ export function TrackingLinksSection({ connected }: { connected: boolean }) {
 
   // --- Filtered links ---
 
-  const filteredLinks = links.filter((l) => {
+  const filteredLinks = useMemo(() => links.filter((l) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (l.name || "").toLowerCase().includes(q) || (l.source || "").toLowerCase().includes(q) || (l.destination || "").toLowerCase().includes(q);
-  });
+  }), [links, searchQuery]);
 
   const selectedLink = selectedLinkId
     ? links.find((l) => l.id === selectedLinkId)

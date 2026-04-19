@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   Loader2,
@@ -276,7 +276,7 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
 
   // --- Sort members ---
 
-  const sortedMembers = [...members].sort((a, b) => {
+  const sortedMembers = useMemo(() => [...members].sort((a, b) => {
     switch (sortBy) {
       case "spent":
         return ((b.spentTotal ?? 0) - (a.spentTotal ?? 0));
@@ -287,9 +287,9 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
       default:
         return (a.displayName || a.username || "").localeCompare(b.displayName || b.username || "");
     }
-  });
+  }), [members, sortBy]);
 
-  const filteredMembers = sortedMembers.filter((m) => {
+  const filteredMembers = useMemo(() => sortedMembers.filter((m) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -297,7 +297,7 @@ export function SmartListsSection({ connected }: { connected: boolean }) {
       (m.username || "").toLowerCase().includes(q) ||
       m.id.toLowerCase().includes(q)
     );
-  });
+  }), [sortedMembers, searchQuery]);
 
   // --- Disconnected state ---
 

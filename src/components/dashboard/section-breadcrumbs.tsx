@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ChevronRight } from "lucide-react";
 
 export interface BreadcrumbItem {
@@ -11,7 +12,7 @@ interface SectionBreadcrumbsProps {
   items: BreadcrumbItem[];
 }
 
-export function SectionBreadcrumbs({ items }: SectionBreadcrumbsProps) {
+export const SectionBreadcrumbs = React.memo(function SectionBreadcrumbs({ items }: SectionBreadcrumbsProps) {
   if (items.length <= 1) return null;
 
   return (
@@ -42,4 +43,4 @@ export function SectionBreadcrumbs({ items }: SectionBreadcrumbsProps) {
       </ol>
     </nav>
   );
-}
+});

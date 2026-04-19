@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   CalendarClock,
   Plus,
@@ -923,11 +923,15 @@ export function ScheduledPostsSection({ connected }: { connected: boolean }) {
 
   // --- Queue list view ---
 
+  const queueGroups = useMemo(() => ({
+    scheduled: posts.filter((p) => p.status === "scheduled").sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime()),
+    published: posts.filter((p) => p.status === "published").sort((a, b) => new Date((b.publishedAt || b.createdAt)).getTime() - new Date((a.publishedAt || a.createdAt)).getTime()),
+    failed: posts.filter((p) => p.status === "failed"),
+    cancelled: posts.filter((p) => p.status === "cancelled"),
+  }), [posts]);
+
   const renderQueue = () => {
-    const scheduled = posts.filter((p) => p.status === "scheduled").sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime());
-    const published = posts.filter((p) => p.status === "published").sort((a, b) => new Date((b.publishedAt || b.createdAt)).getTime() - new Date((a.publishedAt || a.createdAt)).getTime());
-    const failed = posts.filter((p) => p.status === "failed");
-    const cancelled = posts.filter((p) => p.status === "cancelled");
+    const { scheduled, published, failed, cancelled } = queueGroups;
 
     return (
       <div className="space-y-6">

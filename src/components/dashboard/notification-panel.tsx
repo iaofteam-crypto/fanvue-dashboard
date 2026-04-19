@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   Bell,
   BellOff,
@@ -335,7 +335,7 @@ function saveReadIds(ids: Set<string>): void {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function NotificationPanel({ connected }: NotificationPanelProps) {
+export const NotificationPanel = React.memo(function NotificationPanel({ connected }: NotificationPanelProps) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
@@ -345,7 +345,7 @@ export function NotificationPanel({ connected }: NotificationPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Derived unread count
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   // Load read IDs from localStorage on mount
   useEffect(() => {
@@ -591,4 +591,4 @@ export function NotificationPanel({ connected }: NotificationPanelProps) {
       )}
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Send, ArrowLeft, User, Loader2, MessageSquare, Search, ImageIcon, Film, Music, FileText, Clock, Filter, Bot, Sparkles, Brain, Heart, TrendingUp, AlertTriangle, MessageCircle, RefreshCw, BookTemplate } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -549,21 +549,21 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
 
   // ─── Filtered media ───────────────────────────────────────────────────────
 
-  const filteredMedia = chatMedia.filter((item) => {
+  const filteredMedia = useMemo(() => chatMedia.filter((item) => {
     const matchesType = mediaTypeFilter === "all" || item.type === mediaTypeFilter;
     const matchesSearch = !mediaSearch
       || (item.fileName || "").toLowerCase().includes(mediaSearch.toLowerCase())
       || (item.senderName || "").toLowerCase().includes(mediaSearch.toLowerCase());
     return matchesType && matchesSearch;
-  });
+  }), [chatMedia, mediaTypeFilter, mediaSearch]);
 
-  const mediaCounts = {
+  const mediaCounts = useMemo(() => ({
     all: chatMedia.length,
     image: chatMedia.filter((m) => m.type === "image").length,
     video: chatMedia.filter((m) => m.type === "video").length,
     audio: chatMedia.filter((m) => m.type === "audio").length,
     document: chatMedia.filter((m) => m.type === "document").length,
-  };
+  }), [chatMedia]);
 
   if (!connected) {
     return (
@@ -575,12 +575,12 @@ Be specific and data-driven. Use real Fanvue insights if available.`,
     );
   }
 
-  const filteredChats = chats.filter((chat) => {
+  const filteredChats = useMemo(() => chats.filter((chat) => {
     const name = chat.fan?.displayName || chat.participant?.username || `Chat ${chat.id}`;
     const matchesSearch = !searchQuery || name.toLowerCase().includes(searchQuery.toLowerCase()) || (chat.lastMessage || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesUnread = !filterUnreadOnly || (chat.unreadCount && chat.unreadCount > 0);
     return matchesSearch && matchesUnread;
-  });
+  }), [chats, searchQuery, filterUnreadOnly]);
 
   // Arrow key navigation for chat list (only when no chat selected and not typing in search)
   useEffect(() => {

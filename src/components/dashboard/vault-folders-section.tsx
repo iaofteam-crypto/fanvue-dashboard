@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Vault,
   Plus,
@@ -357,17 +357,17 @@ export function VaultFoldersSection({ connected }: { connected: boolean }) {
 
   // --- Filtered folders ---
 
-  const filteredFolders = folders.filter((f) => {
+  const filteredFolders = useMemo(() => folders.filter((f) => {
     if (!searchQuery) return true;
     return f.name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  }), [folders, searchQuery]);
 
   const selectedFolder = selectedFolderId
     ? folders.find((f) => f.id === selectedFolderId)
     : null;
 
   // Stats
-  const totalMedia = folders.reduce((sum, f) => sum + (f.mediaCount ?? 0), 0);
+  const totalMedia = useMemo(() => folders.reduce((sum, f) => sum + (f.mediaCount ?? 0), 0), [folders]);
 
   // --- Disconnected state ---
 

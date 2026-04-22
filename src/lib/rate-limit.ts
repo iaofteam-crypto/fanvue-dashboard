@@ -27,6 +27,8 @@ export const RATE_LIMITS = {
   public: { maxRequests: 30, windowMs: 60_000 },
   /** Authenticated user endpoints */
   authenticated: { maxRequests: 60, windowMs: 60_000 },
+  /** User-level endpoints (general CRUD, moderate throughput) */
+  user: { maxRequests: 30, windowMs: 60_000 },
   /** Expensive operations: chat, sync, upload */
   expensive: { maxRequests: 5, windowMs: 60_000 },
   /** Webhook ingestion endpoints */
@@ -36,6 +38,8 @@ export const RATE_LIMITS = {
 export type RateLimitTier = keyof typeof RATE_LIMITS;
 
 export interface RateLimitConfig {
+  /** Tiered preset name (when provided, windowMs/maxRequests fall back to preset values) */
+  tier?: RateLimitTier;
   /** Time window in milliseconds (default: 60000 = 1 min) */
   windowMs?: number;
   /** Max requests per window (default: 30) */
@@ -118,8 +122,10 @@ export function checkRateLimit(
   request: Request,
   config: RateLimitConfig = {}
 ): RateLimitResult {
-  const windowMs = config.windowMs ?? DEFAULT_WINDOW_MS;
-  const maxRequests = config.maxRequests ?? DEFAULT_MAX_REQUESTS;
+  // Resolve settings from tier preset or explicit overrides
+  const preset = config.tier ? RATE_LIMITS[config.tier] : null;
+  const windowMs = config.windowMs ?? preset?.windowMs ?? DEFAULT_WINDOW_MS;
+  const maxRequests = config.maxRequests ?? preset?.maxRequests ?? DEFAULT_MAX_REQUESTS;
 
   // Extract identifier: custom > forwarded IP > fallback
   const identifier = config.identifier ?? extractIP(request);

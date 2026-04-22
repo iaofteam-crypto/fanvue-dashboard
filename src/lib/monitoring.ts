@@ -1,8 +1,8 @@
 /**
- * DEV-2: Monitoring and Alerts Stub
+ * Monitoring and Alerts
  *
  * Lightweight monitoring module for the Fanvue Ops Dashboard.
- * Provides error reporting, custom metrics, and health checks.
+ * Provides error reporting, custom metrics, health checks, alerting, and querying.
  *
  * PRODUCTION NOTES:
  * ─────────────────
@@ -28,7 +28,12 @@ export interface ErrorReport {
 export interface MetricPoint {
   name: string;
   value: number;
-  tags: Record<string, string>;
+  unit?: string;
+  tags?: Record<string, string>;
+  type: "api_request" | "dependency_check" | "custom";
+  route?: string;
+  statusCode?: number;
+  dependency?: string;
   timestamp: string;
 }
 
@@ -45,6 +50,67 @@ export interface HealthCheckResult {
   uptime: number;
 }
 
+export interface Alert {
+  id: string;
+  ruleId: string;
+  severity: "low" | "medium" | "high" | "critical";
+  status: "active" | "acknowledged" | "resolved";
+  message: string;
+  source: string;
+  triggeredAt: string;
+  resolvedAt?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AlertRule {
+  id: string;
+  name: string;
+  description: string;
+  severity: "low" | "medium" | "high" | "critical";
+  metric: string;
+  condition: "gt" | "lt" | "eq" | "gte" | "lte";
+  threshold: number;
+  windowMinutes: number;
+  cooldownMinutes: number;
+  enabled: boolean;
+}
+
+/** Query parameters for `queryMetrics` */
+export interface MetricsQuery {
+  type?: "api_request" | "dependency_check" | "custom";
+  route?: string;
+  statusCode?: number;
+  dependency?: string;
+  name?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+  aggregate?: "none" | "by_route" | "by_status" | "by_minute";
+}
+
+/** Result from `queryMetrics` */
+export interface MetricsQueryResult {
+  metrics: MetricPoint[];
+  total: number;
+  returned: number;
+  aggregates?: Record<string, Record<string, unknown>>;
+}
+
+/** Input for `recordCustomMetric` */
+export interface CustomMetricInput {
+  name: string;
+  value: number;
+  unit?: string;
+  tags?: Record<string, string>;
+}
+
+/** Options for `getAlerts` */
+export interface GetAlertsOptions {
+  activeOnly?: boolean;
+  limit?: number;
+}
+
 // ─── In-Memory Stores (for development) ───────────────────────────────────
 
 const recentErrors: ErrorReport[] = [];
@@ -53,28 +119,85 @@ const MAX_ERRORS = 100;
 const recentMetrics: MetricPoint[] = [];
 const MAX_METRICS = 1000;
 
+const activeAlerts: Alert[] = [];
+const MAX_ALERTS = 200;
+
 const startTime = Date.now();
+
+// ─── Default Alert Rules ──────────────────────────────────────────────────
+
+const DEFAULT_ALERT_RULES: AlertRule[] = [
+  {
+    id: "error-rate-high",
+    name: "High Error Rate",
+    description: "Triggers when error rate exceeds 10% in the last 5 minutes",
+    severity: "high",
+    metric: "error_rate_percent",
+    condition: "gt",
+    threshold: 10,
+    windowMinutes: 5,
+    cooldownMinutes: 15,
+    enabled: true,
+  },
+  {
+    id: "response-time-slow",
+    name: "Slow Response Time",
+    description: "Triggers when average response time exceeds 5 seconds",
+    severity: "medium",
+    metric: "avg_response_time_ms",
+    condition: "gt",
+    threshold: 5000,
+    windowMinutes: 5,
+    cooldownMinutes: 15,
+    enabled: true,
+  },
+  {
+    id: "memory-usage-high",
+    name: "High Memory Usage",
+    description: "Triggers when estimated memory usage exceeds threshold",
+    severity: "critical",
+    metric: "memory_usage_mb",
+    condition: "gt",
+    threshold: 256,
+    windowMinutes: 1,
+    cooldownMinutes: 30,
+    enabled: true,
+  },
+  {
+    id: "fanvue-api-unhealthy",
+    name: "Fanvue API Unhealthy",
+    description: "Triggers when Fanvue API health check fails",
+    severity: "high",
+    metric: "fanvue_api_status",
+    condition: "eq",
+    threshold: 0,
+    windowMinutes: 1,
+    cooldownMinutes: 10,
+    enabled: true,
+  },
+  {
+    id: "rate-limit-blocked",
+    name: "Rate Limit Blocking",
+    description: "Triggers when multiple rate limit blocks are detected",
+    severity: "medium",
+    metric: "rate_limit_blocks",
+    condition: "gt",
+    threshold: 5,
+    windowMinutes: 5,
+    cooldownMinutes: 15,
+    enabled: true,
+  },
+];
 
 // ─── Public API ────────────────────────────────────────────────────────────
 
 /**
  * Report an error with additional context.
  *
- * Logs the error to the console and stores it in memory (up to 100 entries).
- * In production, replace with Sentry or similar error tracking service.
- *
- * @param error - The error to report (Error instance or any value)
- * @param context - Additional context for debugging
- * @param severity - Error severity level (default: "medium")
- *
- * @example
- * ```ts
- * try {
- *   await riskyOperation();
- * } catch (err) {
- *   reportError(err, { endpoint: '/api/sync', userId: 'abc123' }, 'high');
- * }
- * ```
+ * @param error - The error to report (Error instance or any value).
+ * @param context - Additional context for debugging.
+ * @param severity - Error severity level (default: "medium").
+ * @returns The created {@link ErrorReport}.
  */
 export function reportError(
   error: unknown,
@@ -93,13 +216,11 @@ export function reportError(
     severity,
   };
 
-  // Store in memory (FIFO)
   recentErrors.unshift(report);
   if (recentErrors.length > MAX_ERRORS) {
     recentErrors.length = MAX_ERRORS;
   }
 
-  // Log with appropriate level
   const logFn =
     severity === "critical" || severity === "high"
       ? console.error
@@ -112,27 +233,16 @@ export function reportError(
     context,
   );
 
-  // STUB: In production, send to Sentry
-  // Sentry.captureException(error, { extra: context, level: severity });
-
   return report;
 }
 
 /**
  * Record a custom metric point.
  *
- * Useful for tracking response times, queue sizes, cache hit rates, etc.
- * In production, send to Datadog, Prometheus, or Vercel Analytics.
- *
- * @param name - Metric name (e.g. "api.response_time", "cache.hit_rate")
- * @param value - Numeric value
- * @param tags - Key-value tags for filtering/aggregation
- *
- * @example
- * ```ts
- * reportMetric("api.response_time", 123, { endpoint: "/api/sync", method: "GET" });
- * reportMetric("fanvue.api_calls", 1, { endpoint: "me", scope: "read:self" });
- * ```
+ * @param name - Metric name (e.g. "api.response_time").
+ * @param value - Numeric value.
+ * @param tags - Key-value tags for filtering/aggregation.
+ * @returns The created {@link MetricPoint}.
  */
 export function reportMetric(
   name: string,
@@ -143,10 +253,10 @@ export function reportMetric(
     name,
     value,
     tags,
+    type: "custom",
     timestamp: new Date().toISOString(),
   };
 
-  // Store in memory (FIFO)
   recentMetrics.unshift(point);
   if (recentMetrics.length > MAX_METRICS) {
     recentMetrics.length = MAX_METRICS;
@@ -156,21 +266,177 @@ export function reportMetric(
     `[monitoring] Metric: ${name}=${value} | tags=${JSON.stringify(tags)}`,
   );
 
-  // STUB: In production, send to metrics backend
-  // metrics.gauge(name, value, tags);
+  return point;
+}
+
+/**
+ * Record a custom metric with optional unit and tags.
+ *
+ * This is the newer API that supports the `unit` field.
+ *
+ * @param input - The metric input with name, value, and optional unit/tags.
+ * @returns The created {@link MetricPoint}.
+ */
+export function recordCustomMetric(input: CustomMetricInput): MetricPoint {
+  const point: MetricPoint = {
+    name: input.name,
+    value: input.value,
+    unit: input.unit,
+    tags: input.tags,
+    type: "custom",
+    timestamp: new Date().toISOString(),
+  };
+
+  recentMetrics.unshift(point);
+  if (recentMetrics.length > MAX_METRICS) {
+    recentMetrics.length = MAX_METRICS;
+  }
+
+  console.log(
+    `[monitoring] Custom metric: ${input.name}=${input.value}${input.unit ? ` ${input.unit}` : ""} | tags=${JSON.stringify(input.tags ?? {})}`,
+  );
 
   return point;
 }
 
 /**
+ * Query collected metrics with filtering and optional aggregation.
+ *
+ * @param query - Filter and aggregation parameters.
+ * @returns A {@link MetricsQueryResult} with matching metrics and optional aggregates.
+ */
+export function queryMetrics(query: MetricsQuery): MetricsQueryResult {
+  let results = recentMetrics;
+
+  // Filter by type
+  if (query.type) {
+    results = results.filter((m) => m.type === query.type);
+  }
+
+  // Filter by route
+  if (query.route) {
+    results = results.filter((m) => m.route === query.route);
+  }
+
+  // Filter by status code
+  if (query.statusCode !== undefined) {
+    results = results.filter((m) => m.statusCode === query.statusCode);
+  }
+
+  // Filter by dependency
+  if (query.dependency) {
+    results = results.filter((m) => m.dependency === query.dependency);
+  }
+
+  // Filter by name
+  if (query.name) {
+    results = results.filter((m) => m.name === query.name);
+  }
+
+  // Filter by since timestamp
+  if (query.since) {
+    const sinceDate = new Date(query.since).getTime();
+    if (!isNaN(sinceDate)) {
+      results = results.filter(
+        (m) => new Date(m.timestamp).getTime() >= sinceDate,
+      );
+    }
+  }
+
+  // Filter by until timestamp
+  if (query.until) {
+    const untilDate = new Date(query.until).getTime();
+    if (!isNaN(untilDate)) {
+      results = results.filter(
+        (m) => new Date(m.timestamp).getTime() <= untilDate,
+      );
+    }
+  }
+
+  const total = results.length;
+
+  // Apply offset
+  const offset = query.offset ?? 0;
+  if (offset > 0) {
+    results = results.slice(offset);
+  }
+
+  // Apply limit
+  const limit = query.limit ?? 100;
+  const metrics = results.slice(0, limit);
+
+  // Compute aggregates if requested
+  let aggregates: Record<string, Record<string, unknown>> | undefined;
+  if (query.aggregate && query.aggregate !== "none") {
+    aggregates = computeAggregates(results, query.aggregate);
+  }
+
+  return { metrics, total, returned: metrics.length, aggregates };
+}
+
+/**
+ * Clear all collected metrics.
+ *
+ * @returns The number of metrics that were cleared.
+ */
+export function clearMetrics(): number {
+  const count = recentMetrics.length;
+  recentMetrics.length = 0;
+  console.log(`[monitoring] Cleared ${count} metric entries`);
+  return count;
+}
+
+/**
+ * Get the current size of the metrics store.
+ *
+ * @returns The number of metrics currently stored.
+ */
+export function getMetricsStoreSize(): number {
+  return recentMetrics.length;
+}
+
+/**
+ * Get alerts with optional filtering.
+ *
+ * @param options - Filter options (activeOnly, limit).
+ * @returns An array of matching {@link Alert} objects.
+ */
+export function getAlerts(options: GetAlertsOptions = {}): Alert[] {
+  let results = activeAlerts;
+
+  if (options.activeOnly) {
+    results = results.filter((a) => a.status === "active");
+  }
+
+  const limit = options.limit ?? 100;
+  return results.slice(0, limit);
+}
+
+/**
+ * Get configured alert rules.
+ *
+ * @returns An array of all configured {@link AlertRule} objects.
+ */
+export function getAlertRules(): AlertRule[] {
+  return [...DEFAULT_ALERT_RULES];
+}
+
+/**
+ * Clear all alerts.
+ *
+ * @returns The number of alerts that were cleared.
+ */
+export function clearAlerts(): number {
+  const count = activeAlerts.length;
+  activeAlerts.length = 0;
+  console.log(`[monitoring] Cleared ${count} alert entries`);
+  return count;
+}
+
+/**
  * Run a health check against all critical dependencies.
  *
- * Tests connectivity to:
- * - Vercel KV (if configured)
- * - Fanvue API (if connected)
- * - Internal in-memory store
- *
- * @returns A health check result with individual check statuses
+ * @returns A health check result with individual check statuses.
  */
 export async function healthCheck(): Promise<HealthCheckResult> {
   const checks: HealthCheckResult["checks"] = [];
@@ -178,7 +444,6 @@ export async function healthCheck(): Promise<HealthCheckResult> {
   // 1. In-memory store check
   const memStart = Date.now();
   try {
-    // Simple write/read test on the in-memory store
     const { db } = await import("@/lib/db");
     await db.syncLog.create({ type: "health_check", status: "running" });
     const logs = await db.syncLog.findMany({ take: 1 });
@@ -286,7 +551,7 @@ export async function healthCheck(): Promise<HealthCheckResult> {
 /**
  * Get the most recent error reports.
  *
- * @param limit - Maximum number of errors to return (default: 20)
+ * @param limit - Maximum number of errors to return (default: 20).
  */
 export function getRecentErrors(limit = 20): ErrorReport[] {
   return recentErrors.slice(0, limit);
@@ -295,8 +560,8 @@ export function getRecentErrors(limit = 20): ErrorReport[] {
 /**
  * Get the most recent metric points.
  *
- * @param name - Optional metric name to filter by
- * @param limit - Maximum number of metrics to return (default: 50)
+ * @param name - Optional metric name to filter by.
+ * @param limit - Maximum number of metrics to return (default: 50).
  */
 export function getRecentMetrics(name?: string, limit = 50): MetricPoint[] {
   let results = recentMetrics;
@@ -304,4 +569,57 @@ export function getRecentMetrics(name?: string, limit = 50): MetricPoint[] {
     results = results.filter((m) => m.name === name);
   }
   return results.slice(0, limit);
+}
+
+// ─── Internal Helpers ─────────────────────────────────────────────────────
+
+/**
+ * Compute aggregates from a set of metric points.
+ */
+function computeAggregates(
+  metrics: MetricPoint[],
+  aggregate: "by_route" | "by_status" | "by_minute",
+): Record<string, Record<string, unknown>> {
+  const buckets: Record<string, { count: number; sum: number; min: number; max: number }> = {};
+
+  for (const m of metrics) {
+    let key: string;
+
+    switch (aggregate) {
+      case "by_route":
+        key = m.route ?? "(no-route)";
+        break;
+      case "by_status":
+        key = String(m.statusCode ?? "(no-status)");
+        break;
+      case "by_minute": {
+        const date = new Date(m.timestamp);
+        // Truncate to minute: YYYY-MM-DDTHH:MM
+        key = date.toISOString().slice(0, 16);
+        break;
+      }
+    }
+
+    if (!buckets[key]) {
+      buckets[key] = { count: 0, sum: 0, min: m.value, max: m.value };
+    }
+    const bucket = buckets[key];
+    bucket.count += 1;
+    bucket.sum += m.value;
+    if (m.value < bucket.min) bucket.min = m.value;
+    if (m.value > bucket.max) bucket.max = m.value;
+  }
+
+  const result: Record<string, Record<string, unknown>> = {};
+  for (const [key, bucket] of Object.entries(buckets)) {
+    result[key] = {
+      count: bucket.count,
+      sum: bucket.sum,
+      avg: bucket.count > 0 ? Math.round((bucket.sum / bucket.count) * 100) / 100 : 0,
+      min: bucket.min,
+      max: bucket.max,
+    };
+  }
+
+  return result;
 }

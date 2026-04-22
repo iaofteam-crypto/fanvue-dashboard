@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { RateLimitResult } from "@/lib/rate-limit";
 
 /**
  * Verify the request origin matches the expected host.
@@ -81,12 +82,13 @@ export function sanitizeErrorMessage(error: unknown): string {
 }
 
 /**
- * Create a 429 rate-limit response with Retry-After and X-RateLimit-Reset headers.
+ * Create a 429 rate-limit response with Retry-After and X-RateLimit headers.
  *
  * @param resetAt - Unix timestamp (ms) when the rate-limit window resets.
+ * @param limit - The max number of requests allowed in the window (for X-RateLimit-Limit header).
  * @returns A `NextResponse` with status 429 and rate-limit headers.
  */
-export function rateLimitResponse(resetAt: number): NextResponse {
+export function rateLimitResponse(resetAt: number, limit: number): NextResponse {
   const retryAfter = Math.ceil((resetAt - Date.now()) / 1000);
   return NextResponse.json(
     { error: "Too many requests. Please try again later." },
@@ -95,7 +97,34 @@ export function rateLimitResponse(resetAt: number): NextResponse {
       headers: {
         "Retry-After": String(retryAfter),
         "X-RateLimit-Reset": String(resetAt),
+        "X-RateLimit-Limit": String(limit),
       },
     }
   );
+}
+
+/**
+ * Attach standard rate-limit headers to an existing NextResponse.
+ *
+ * Adds `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`
+ * headers so the client can inspect its current quota without making a second request.
+ *
+ * @param response - The NextResponse to augment.
+ * @param rateLimit - The result from `checkRateLimit` / `checkAuthRateLimit`.
+ * @returns The same `response` instance (headers are mutated in place).
+ *
+ * @example
+ * ```ts
+ * const rateLimit = checkRateLimit(request);
+ * return withRateLimitHeaders(NextResponse.json(data), rateLimit);
+ * ```
+ */
+export function withRateLimitHeaders(
+  response: NextResponse,
+  rateLimit: RateLimitResult,
+): NextResponse {
+  response.headers.set("X-RateLimit-Limit", String(rateLimit.limit));
+  response.headers.set("X-RateLimit-Remaining", String(rateLimit.remaining));
+  response.headers.set("X-RateLimit-Reset", String(rateLimit.resetAfterSeconds));
+  return response;
 }

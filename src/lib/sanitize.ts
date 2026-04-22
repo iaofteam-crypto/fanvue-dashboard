@@ -162,3 +162,15 @@ export function sanitizeUrl(url: unknown): string {
   str = str.replace(/[\x00-\x1F\x7F]/g, "");
   return str;
 }
+
+/**
+ * Alias for {@link sanitizeInput}.
+ *
+ * Some route modules import `sanitizeString` — this re-export keeps both names
+ * pointing at the same implementation so every call site compiles without changes.
+ *
+ * @param input - Raw user input (any type, will be coerced to string).
+ * @param maxLength - Maximum allowed length after sanitization (default: 10000).
+ * @returns Sanitized string safe for storage, logging, and display.
+ */
+export const sanitizeString = sanitizeInput;
